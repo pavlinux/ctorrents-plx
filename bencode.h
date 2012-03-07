@@ -1,10 +1,6 @@
 #ifndef BENCODE_H
 #define BENCODE_H
 
-#include <inttypes.h>
-#include <sys/types.h>
-#include <stdio.h>
-
 #define KEY_SP '|'	//the keyname list's delimiters
 #define KEYNAME_SIZ 32
 #define KEYNAME_LISTSIZ 256
@@ -15,6 +11,15 @@
 #define QUERY_INT 1
 #define QUERY_POS 2
 #define QUERY_LONG 3
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+    
+#include <inttypes.h>
+#include <sys/types.h>
+#include <stdio.h>
+
 
 size_t buf_long(const char *b,size_t len,char beginchar,char endchar,int64_t *pi);
 size_t buf_int(const char *b,size_t len,char beginchar,char endchar,size_t *pi);
@@ -34,4 +39,8 @@ size_t bencode_begin_list(FILE *fp);
 size_t bencode_end_dict_list(FILE *fp);
 size_t bencode_path2list(const char *pathname, FILE *fp);
 
+#ifdef __cplusplus
+ }
 #endif
+#endif /* BENCODE_H */
+

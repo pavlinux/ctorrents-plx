@@ -24,8 +24,8 @@ class BufIo
   int f_socket_remote_closed;
 
   ssize_t _realloc_buffer();
-  ssize_t _SEND(SOCKET socket,char *buf,size_t len);
-  ssize_t _RECV(SOCKET socket,char *buf,size_t len);
+  ssize_t _SEND(socket_t socket,char *buf,size_t len);
+  ssize_t _RECV(socket_t socket,char *buf,size_t len);
   
  public:
   BufIo();
@@ -40,16 +40,16 @@ class BufIo
     p = n = 0;
   }
 
-  size_t Count() const { return p; } //»º´æÖÐÏÖÓÐ×Ö½ÚÊý
+  size_t Count() const { return p; } //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö½ï¿½ï¿½ï¿½
   size_t LeftSize() const { return (n - p); }
 
-  ssize_t PickUp(size_t len); //ÒÆ³ý»º´æÖÐÇ°len¸ö×Ö½Ú
+  ssize_t PickUp(size_t len); //ï¿½Æ³ï¿½ï¿½ï¿½ï¿½Ç°lenï¿½ï¿½ï¿½Ö½ï¿½
 
-  ssize_t FeedIn(SOCKET sk); //´Ósk¶ÁÊý¾Ýµ½»º´æÖ±µ½ÔÝÊ±ÎÞÊý¾Ý¿É¶Á»ò»º³åÇøÂú
-  ssize_t FeedIn(SOCKET sk, size_t limit);
-  ssize_t FlushOut(SOCKET sk); //½«»º´æÖÐÊý¾ÝÐ´µ½socket
-  ssize_t Put(SOCKET sk,char *buf,size_t len); //½«bufÄÚÈÝÌí¼Óµ½»º´æ
-  ssize_t PutFlush(SOCKET sk,char *buf,size_t len);
+  ssize_t FeedIn(socket_t sk); //ï¿½ï¿½skï¿½ï¿½ï¿½ï¿½Ýµï¿½ï¿½ï¿½ï¿½ï¿½Ö±ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½ï¿½ï¿½Ý¿É¶ï¿½ï¿½ò»º³ï¿½ï¿½ï¿½ï¿½ï¿½
+  ssize_t FeedIn(socket_t sk, size_t limit);
+  ssize_t FlushOut(socket_t sk); //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð´ï¿½ï¿½socket
+  ssize_t Put(socket_t sk,char *buf,size_t len); //ï¿½ï¿½bufï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Óµï¿½ï¿½ï¿½ï¿½ï¿½
+  ssize_t PutFlush(socket_t sk,char *buf,size_t len);
 
   char *BasePointer() { return b; }
   char *CurrentPointer() { return ( b + p); }

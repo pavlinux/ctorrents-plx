@@ -202,19 +202,19 @@
 #define PACKAGE "ctorrent"
 
 /* Define to the address where bug reports for this package should be sent. */
-#define PACKAGE_BUGREPORT "http://sourceforge.net/projects/dtorrent/ or dholmes@ct.boxmail.com"
+#define PACKAGE_BUGREPORT "https://github.com/pavlinux/ctorrents-plx"
 
 /* Define to the full name of this package. */
-#define PACKAGE_NAME "Enhanced CTorrent"
+#define PACKAGE_NAME "cTorrent"
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "Enhanced CTorrent dnh3.3.2"
+#define PACKAGE_STRING "cTorrent 0.0.3"
 
 /* Define to the one symbol short name of this package. */
 #define PACKAGE_TARNAME "ctorrent"
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "dnh3.3.2"
+#define PACKAGE_VERSION "plx-0.0.3"
 
 /* Define as the return type of signal handlers (`int' or `void'). */
 #define RETSIGTYPE void
@@ -238,7 +238,7 @@
 #define USE_TERMIOS 1
 
 /* Version number of package */
-#define VERSION "dnh3.3.2"
+#define VERSION "plx-0.0.3"
 
 /* Define to 1 if your processor stores words with the most significant byte
    first (like Motorola and SPARC, unlike Intel and VAX). */

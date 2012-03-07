@@ -3,18 +3,37 @@
 #
 # If not linked try:   ln -sf `g++ -print-file-name=libstdc++.a`
 #
+VERSION = 0.0.3
 
-CXX ?= g++
-CC  ?= gcc
+CXX = g++
+CC  = gcc
 
-CXXFLAGS=-mtune=nocona -Ofast -g0 -fomit-frame-pointer -std=gnu++0x -static-libstdc++ 
-CFLAGS=-std=gnu99 -Ofast -g0 -static -fomit-frame-pointer 
+CXXFLAGS=-march=native -g0 -Os -s
+CFLAGS	=-march=native -g0 -Os -s
+
+# GCC 4.5+
+# for l2-cache-size view you're /proc/cpuinfo
+ZZFLAGS =-frecord-gcc-switches -flto \
+        -g0 -Ofast -march=native \
+        -funroll-all-loops -ftree-vectorize \
+        -fno-inline-functions-called-once \
+        -fmerge-all-constants -ffreestanding \
+        --param l2-cache-size=2048 \
+        -floop-interchange -floop-block -floop-strip-mine \
+        -ftree-loop-distribution -fexcess-precision=fast \
+	-fno-strict-aliasing -fwhole-program \
+	-fipa-sra -fsplit-stack -s -pipe
+
+CXXFLAGS = $(ZZFLAGS)
+CFLAGS = $(ZZFLAGS)
 
 #CXXFLAGS=-DDEBUG -W -Wall -Wextra -Wshadow -std=gnu99 -O0 -g3 -ggdb3 -gdwarf-2 -fno-omit-frame-pointer
 
-LINK ?= g++
-LDFLAGS=-pthread
-LIBS=-lrt -static-libstdc++
+LINK = g++
+LDFLAGS=-static-libstdc++ $(ZZFLAGS)
+LIBS=-lrt
+
+# -static-libstdc++
 
 EXEC = ctorrent
 
@@ -30,21 +49,10 @@ OBJECTS = bencode.o bitfield.o btconfig.o btcontent.o btfiles.o \
 	  iplist.o peer.o peerlist.o rate.o setnonblock.o sigint.o \
 	  tracker.o sha1.o
 	  
-ifneq (,$(findstring DDEBUG,$(CXXFLAGS)))
-    CXXFLAGS += -lgcov -fprofile-arcs -ftest-coverage 
-    LINK   += -lgcov -fprofile-arcs -ftest-coverage 
-endif
-
-VERSION = 0.0.3
-
 CPUS = $(shell grep processor /proc/cpuinfo | wc -l)
 MAKEFLAGS += j${CPUS}
 
 .SUFFIXES: .o .cpp .c
-
-.o:
-
-	$(CXX) -c $(CXXFLAGS) -o $@ $<
 
 all: $(EXEC)
 
@@ -59,7 +67,7 @@ small:
 	upx -9 $(EXEC)
 
 install:
-	install -s -D -m 755 -o 65535 -g 65534 -D ${EXEC} /usr/bin/;
+	install -s -m 550 -o 0 -g 0 -D ${EXEC} /usr/bin/;
 
 uninstall:
 	rm -f /usr/bin/${EXEC};

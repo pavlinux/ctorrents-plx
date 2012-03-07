@@ -2,11 +2,11 @@
 
 #include <errno.h>
 
-// ·µ»ØÖµ 
-// >0 Á¬½ÓÒÑ³É¹¦
-// -1 Á¬½ÓÒÑÊ§°Ü
-// -2 Á¬½ÓÕýÔÚ½øÐÐ
-int connect_nonb(SOCKET sk,struct sockaddr* psa)
+// ï¿½ï¿½ï¿½ï¿½Öµ 
+// >0 ï¿½ï¿½ï¿½ï¿½ï¿½Ñ³É¹ï¿½
+// -1 ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê§ï¿½ï¿½
+// -2 ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ú½ï¿½ï¿½ï¿½
+int connect_nonb(socket_t sk,struct sockaddr* psa)
 {
   int r;
   r = connect(sk,psa,sizeof(struct sockaddr));

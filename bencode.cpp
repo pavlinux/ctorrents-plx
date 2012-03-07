@@ -2,16 +2,16 @@
 
 #include "bencode.h"
 
-#ifndef WINDOWS
-#include <unistd.h>
-#include <fcntl.h>
-#include <stdio.h>
-#include <limits.h>
+#ifdef __cplusplus
+extern "C" {
 #endif
-
+    
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <limits.h>
 #include <ctype.h>
 
 #ifndef HAVE_SNPRINTF
@@ -41,28 +41,29 @@ static size_t compare_key(const char *key,size_t keylen,const char *keylist)
   return keylen;
 }
 
-size_t buf_long(const char *b,size_t len,char beginchar,char endchar,int64_t *pi)
-{
-  const char *p = b;
-  const char *psave;
+size_t buf_long(const char *b, size_t len, char beginchar, char endchar, int64_t *pi) {
+    
+    const char *p = b;
+    const char *psave;
 
-  if( 2 > len) 
-	return 0; /* buffer too small */
+    if (2 > len)
+        return 0; /* buffer too small */
 
-  if( beginchar ) { 
-    if(*p != beginchar) return 0; 
-    p++; len--;
-  }
+    if (beginchar) {
+        if (*p != beginchar) return 0;
+        p++;
+        len--;
+    }
 
-  for(psave = p; len && isdigit(*p); p++,len--) ;
+    for (psave = p; len && isdigit(*p); p++, len--);
 
-  if(!len || MAX_INT_SIZ < (p - psave) || *p != endchar) return 0;
+    if (!len || MAX_INT_SIZ < (p - psave) || *p != endchar) return 0;
 
-  if( pi ){
-    if( beginchar ) *pi = strtoll(b + 1,(char**) 0,10);
-    else  *pi=strtoll(b,(char**) 0,10);
-  }
-  return (size_t)( p - b + 1 );
+    if (pi) {
+        if (beginchar) *pi = strtoll(b + 1, (char**) 0, 10);
+        else *pi = strtoll(b, (char**) 0, 10);
+    }
+    return (size_t) (p - b + 1);
 }
 
 size_t buf_int(const char *b,size_t len,char beginchar,char endchar,size_t *pi)
@@ -263,3 +264,8 @@ size_t decode_list2path(const char *b, size_t n, char *pathname)
   *pathname = '\0';
   return (pb - b + 1);
 }
+
+
+#ifdef __cplusplus
+ }
+#endif

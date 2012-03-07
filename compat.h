@@ -40,7 +40,7 @@ int snprintf(char *str, size_t size, const char *format, ...);
 
 
 #ifndef HAVE_STRNSTR
-char *strnstr(const char *haystack, const char *needle, size_t haystacklen);
+//char *strnstr(const char *haystack, const char *needle, size_t haystacklen);
 #endif
 
 #ifndef HAVE_STRNCASECMP

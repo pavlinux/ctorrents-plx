@@ -2,7 +2,7 @@
 
 #ifdef WINDOWS
 
-int setfd_nonblock(SOCKET socket)
+int setfd_nonblock(socket_t socket)
 {
   unsigned long val = 1;
   return ioctl(socket,FIONBIO,&val);
@@ -13,7 +13,7 @@ int setfd_nonblock(SOCKET socket)
 #include <unistd.h>
 #include <fcntl.h>
 
-int setfd_nonblock(SOCKET socket)
+int setfd_nonblock(socket_t socket)
 {
   int f_old;
   f_old = fcntl(socket,F_GETFL,0);  

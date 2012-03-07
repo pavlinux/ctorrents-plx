@@ -12,6 +12,6 @@
 #include <sys/socket.h>
 #endif
 
-int setfd_nonblock(SOCKET socket);
+int setfd_nonblock(socket_t socket);
 
 #endif

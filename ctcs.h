@@ -50,7 +50,7 @@ class Ctcs
   time_t m_sent_ctstatus_time;
   time_t m_statustime;
 
-  SOCKET m_sock;
+  socket_t m_sock;
   BufIo in_buffer;
   BufIo out_buffer;
   struct ctstatus m_ctstatus;
@@ -85,7 +85,7 @@ class Ctcs
   int SocketReady(fd_set *rfdp, fd_set *wfdp, int *nfds,
     fd_set *rfdnextp, fd_set *wfdnextp);
 
-  SOCKET GetSocket() { return m_sock; }
+  socket_t GetSocket() { return m_sock; }
   unsigned char GetStatus() { return m_status;}
 };
 

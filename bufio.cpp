@@ -56,7 +56,7 @@ ssize_t BufIo::SetSize(size_t len)
 
 // retval
 // successful return bytes sended. otherwise -1;
-ssize_t BufIo::_SEND(SOCKET sk,  char *buf, size_t len)
+ssize_t BufIo::_SEND(socket_t sk,  char *buf, size_t len)
 {
   ssize_t r;
   size_t t = 0;
@@ -78,7 +78,7 @@ ssize_t BufIo::_SEND(SOCKET sk,  char *buf, size_t len)
   return (ssize_t)t;
 }
 
-ssize_t BufIo::_RECV(SOCKET sk, char *buf,size_t len)
+ssize_t BufIo::_RECV(socket_t sk, char *buf,size_t len)
 {
   ssize_t r;
   size_t t = 0;
@@ -101,7 +101,7 @@ ssize_t BufIo::_RECV(SOCKET sk, char *buf,size_t len)
   return (ssize_t)t;
 }
 
-ssize_t BufIo::Put(SOCKET sk, char *buf,size_t len)
+ssize_t BufIo::Put(socket_t sk, char *buf,size_t len)
 {
   ssize_t r;
   if( _left_buffer_size < len ){ //no enough space
@@ -115,12 +115,12 @@ ssize_t BufIo::Put(SOCKET sk, char *buf,size_t len)
   return 0;
 }
 
-ssize_t BufIo::FeedIn(SOCKET sk)
+ssize_t BufIo::FeedIn(socket_t sk)
 {
   return FeedIn(sk, _left_buffer_size);
 }
 
-ssize_t BufIo::FeedIn(SOCKET sk, size_t limit)
+ssize_t BufIo::FeedIn(socket_t sk, size_t limit)
 {
   ssize_t r;
 
@@ -137,7 +137,7 @@ ssize_t BufIo::FeedIn(SOCKET sk, size_t limit)
   return (ssize_t) p;
 }
 
-ssize_t BufIo::PutFlush(SOCKET sk, char *buf,size_t len)
+ssize_t BufIo::PutFlush(socket_t sk, char *buf,size_t len)
 {
   if( _left_buffer_size < len && p){
     if( FlushOut(sk) < 0) return -1;
@@ -154,7 +154,7 @@ ssize_t BufIo::PutFlush(SOCKET sk, char *buf,size_t len)
 // retval
 // >= 0 left bytes in buffer
 // < 0 failed
-ssize_t BufIo::FlushOut(SOCKET sk)
+ssize_t BufIo::FlushOut(socket_t sk)
 {
   ssize_t r;
   if( !p ) return 0;		// no data to be send

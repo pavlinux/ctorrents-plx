@@ -9,148 +9,178 @@
 
 #include "./config.h"
 
-#if !defined(HAVE_STRNSTR) || !defined(HAVE_STRNCASECMP)
-#include "compat.h"
-#endif
+/**
+ * 
+ * strnstr - Find the first substring in a length-limited string
+ * @s1: The string to be searched
+ * @s2: The string to search for
+ * @len: the maximum number of characters to search
+ * 
+ * From Linux kernel git 
+ * Commit:     d5f1fb53353edc38da326445267c1df0c9676df2
+ * Parent:     a3291c14ecf0a995e30d993b7f2cae031de98727
+ * Author:     Li Zefan <lizf@cn.fujitsu.com>
+ * 
+ */
 
-static void url_encode_char(char *b,char c)
+static char *strnstr(const char *s1, const char *s2, size_t len)
 {
-  char HEX_TABLE[] = "0123456789ABCDEF";
-  b[0] = '%';
-  b[1] = HEX_TABLE[(c >> 4) & 0x0F];
-  b[2] = HEX_TABLE[c & 0x0F];
+	size_t l1 = len, l2;
+
+	l2 = strlen(s2);
+        
+	if (!l2)
+		return (char *)s1;
+	while (l1 >= l2) {
+		l1--;
+		if (!memcmp(s1, s2, l2))
+			return (char *)s1;
+		s1++;
+	}
+  return NULL;
 }
 
-char* Http_url_encode(char *s,const char *b,size_t n)
-{
-  size_t r,i;
-  for(r = 0,i = 0 ; i < n; i++){
-    if( !(b[i] & ~0x7f) &&                   // quick ASCII test
-        ((b[i] >= 0x41 && b[i] <= 0x5a) ||   // A-Z [ASCII]
-         (b[i] >= 0x61 && b[i] <= 0x7a) ||   // a-z
-         (b[i] >= 0x30 && b[i] <= 0x39)) ){  // 0-9
-      s[r] = b[i];
-      r++;
-    }else{
-      url_encode_char(s + r, b[i]);
-      r += 3;
+static void url_encode_char(char *b, char c) {
+    
+    char HEX_TABLE[] = "0123456789ABCDEF";
+
+    b[0] = '%';
+    b[1] = HEX_TABLE[(c >> 4) & 0x0F];
+    b[2] = HEX_TABLE[c & 0x0F];
+}
+
+char* Http_url_encode(char *s, const char *b, size_t n) {
+    
+    size_t r, i;
+    for (r = 0, i = 0; i < n; i++) {
+        if (!(b[i] & ~0x7f) && // quick ASCII test
+                ((b[i] >= 0x41 && b[i] <= 0x5a) || // A-Z [ASCII]
+                (b[i] >= 0x61 && b[i] <= 0x7a) || // a-z
+                (b[i] >= 0x30 && b[i] <= 0x39))) { // 0-9
+            s[r] = b[i];
+            r++;
+        } else {
+            url_encode_char(s + r, b[i]);
+            r += 3;
+        }
     }
-  }
-  s[r] = '\0';
-  return s;
+    s[r] = '\0';
+    return s;
 }
 
-int Http_url_analyse(const char *url,char *host,int *port,char *path)
-{
-  const char *p;
-  int r;
-  *port = 80;	/* default port 80 */
-  p = strstr(url,"://");
-  if( !p ) 
-    p = url;
-  else
-    p += 3;
+int Http_url_analyse(const char *url, char *host, int *port, char *path) {
+    const char *p;
+    int r;
+    *port = 80; /* default port 80 */
+    p = strstr(url, "://");
+    if (!p)
+        p = url;
+    else
+        p += 3;
 
-  /* host */
-  for(; *p && (isalnum(*p) || *p == '.' || *p == '-'); p++, host++) 
-    *host = *p;
-  *host = '\0';
+    /* host */
+    for (; *p && (isalnum(*p) || *p == '.' || *p == '-'); p++, host++)
+        *host = *p;
+    *host = '\0';
 
-  if( *p == ':' ){
-    /* port */
-    p++;
-    for( r = 0; p[r] >= '0' && p[r] <= '9' && r < 6; r++) ;
+    if (*p == ':') {
+        /* port */
+        p++;
+        for (r = 0; p[r] >= '0' && p[r] <= '9' && r < 6; r++);
 
-    if( !r ) return -1;
-    *port = atoi(p);
-    if(*port > 65536) return -1;
-    p += r;
-  }
-
-  /* path */
-  if( *p != '/' ) return -1;
-  for( ; *p; p++,path++) *path = *p;
-  *path = '\0';
-  return 0;
-}
-
-size_t Http_split(char *b,size_t n,char **pd,size_t *dlen)
-{
-  char *p;
-  size_t addtion, hlen;
-
-  hlen = 0;
-
-  if( n < 16 ) return 0;	// 长度太小，不可能是一个HTML报文
-
-  if(strncasecmp(b,"HTTP/",5) != 0){
-    return 0;			// 没有HTML首部????
-    /* message without http header */
-    //*pd = b;
-    //*dlen = n;
-  }else{
-    if( p = strnstr(b,"\r\n\r\n",n) ) addtion = 4;
-    else if( p = strnstr(b,"\n\n",n) ) addtion = 2;
-
-    if( p ){
-      hlen = p - b;
-      *pd = ( p + addtion );
-      *dlen = n - hlen - addtion;
-    }else{		// 只有首部信息????
-      hlen = n;
-      *pd = (char*) 0;
-      *dlen = 0;
+        if (!r) return -1;
+        *port = atoi(p);
+        if (*port > 65536) return -1;
+        p += r;
     }
-  }
-  return hlen;
+
+    /* path */
+    if (*p != '/') return -1;
+    for (; *p; p++, path++) *path = *p;
+    *path = '\0';
+    return 0;
 }
 
-int Http_reponse_code(const char *b,size_t n)
-{
-  int r = -1;
+size_t Http_split(char *b, size_t n, char **pd, size_t *dlen) {
+    
+    char *p;
+    size_t addtion, hlen;
 
-  for(; n && *b != ' ' && *b !='\r' && *b != '\n'; b++,n--) ;
-  if( !n || *b != ' ') r = -1;
-  else{
-          r = atoi(b);
-          if( r < 100 || r > 600 ) r = -1;
-  }
-  return r;
-}
+    hlen = 0;
 
-int Http_get_header(const char *b,int n,const char *header,char *v)
-{
-  const char *e;
-  char h[64];
-  int r,header_len;
+    if (n < 16) 
+        return 0; 
 
-  strcpy(h,header);
-  strcat(h,": ");
-  header_len = strlen(h);
-
-  /* remove status line. */
-  e = strchr(b,'\n');
-  if( !e ) return -1;
-  e++;
-  n -= (e - b);
-  b = e;
-
-  for(; n >= 0; ){
-    e = strchr(b,'\n');  
-    if( !e ) r = n;		/* last line */
-    else{r = e - b ; r++;}
-  
-    if( r > header_len ){
-      if( strncasecmp(b, h, header_len) == 0){
-        /* header found */
-        b += header_len;
-        for(; *b != '\r' && *b != '\n'; v++,b++) *v = *b;
-        *v = '\0';
+    if (strncasecmp(b, "HTTP/", 5) != 0) {
         return 0;
-      }
+        /* message without http header */
+        //*pd = b;
+        //*dlen = n;
+    } else {
+        if (p = strnstr(b, "\r\n\r\n", n)) addtion = 4;
+        else if (p = strnstr(b, "\n\n", n)) addtion = 2;
+
+        if (p) {
+            hlen = p - b;
+            *pd = (p + addtion);
+            *dlen = n - hlen - addtion;
+        } else { // 只锟斤拷锟阶诧拷锟斤拷息????
+            hlen = n;
+            *pd = (char*) 0;
+            *dlen = 0;
+        }
     }
-    b += r;
-    n -= r;
-  } /* end for */
-  return -1;
+    return hlen;
+}
+
+int Http_reponse_code(const char *b, size_t n) {
+    int r = -1;
+
+    for (; n && *b != ' ' && *b != '\r' && *b != '\n'; b++, n--);
+    if (!n || *b != ' ') r = -1;
+    else {
+        r = atoi(b);
+        if (r < 100 || r > 600) r = -1;
+    }
+    return r;
+}
+
+int Http_get_header(const char *b, int n, const char *header, char *v) {
+    
+    char h[64];
+    const char *e;
+    int r, header_len;
+    
+    strcpy(h, header);
+    strcat(h, ": ");
+    header_len = strlen(h);
+
+    /* remove status line. */
+    e = strchr(b, '\n');
+    if (!e) return -1;
+    e++;
+    n -= (e - b);
+    b = e;
+
+    for (; n >= 0;) {
+        e = strchr(b, '\n');
+        if (!e) r = n; /* last line */
+        else {
+            r = e - b;
+            r++;
+        }
+
+        if (r > header_len) {
+            if (strncasecmp(b, h, header_len) == 0) {
+                /* header found */
+                b += header_len;
+                for (; *b != '\r' && *b != '\n'; v++, b++) *v = *b;
+                *v = '\0';
+                return 0;
+            }
+        }
+        b += r;
+        n -= r;
+    } /* end for */
+    return -1;
 }

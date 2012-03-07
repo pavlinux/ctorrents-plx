@@ -1,13 +1,8 @@
 #include "./def.h"
 #include <sys/types.h>
 
-#ifdef WINDOWS
-#include <windows.h>
-#else
 #include <unistd.h>
 #include <signal.h>
-#endif
-
 #include <sys/time.h>
 #include <time.h>
 #include <string.h>
@@ -21,42 +16,25 @@
 #include "tracker.h"
 #include "ctcs.h"
 #include "console.h"
-
-#include "./config.h"
+#include "sigint.h"
 
 #ifndef HAVE_RANDOM
 #include "compat.h"
 #endif
 
-#ifndef WINDOWS
-#include "sigint.h"
-#endif
 
 void usage();
 int param_check(int argc, char **argv);
 
-#ifdef WINDOWS
-
-int APIENTRY WinMain(HINSTANCE hInstance,
-                     HINSTANCE hPrzevInstance,
-                     LPSTR     lpCmdLine,
-                     int       nCmdShow)
-{
-}
-
-#else
-
-void Random_init()
-{
-  unsigned long seed;
-#ifdef HAVE_GETTIMEOFDAY
+static void Random_init()
+{  
   struct timeval tv; 
+  unsigned int seed;
+  
   gettimeofday(&tv,(struct timezone*) 0);
   seed = tv.tv_usec + tv.tv_sec + getpid();
-#else
-  seed = (unsigned long)time((time_t *)0);
-#endif
   srandom(seed);
+  
 }
 
 int main(int argc, char **argv)
@@ -130,8 +108,6 @@ int main(int argc, char **argv)
   if(arg_verbose) CONSOLE.cpu();
   exit(0);
 }
-
-#endif
 
 int param_check(int argc, char **argv)
 {

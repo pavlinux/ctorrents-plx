@@ -12,6 +12,6 @@
 #include <sys/socket.h>
 #endif
 
-int connect_nonb(SOCKET sk,struct sockaddr *psa);
+int connect_nonb(socket_t sk,struct sockaddr *psa);
 
 #endif

@@ -16,7 +16,7 @@ typedef struct _peernode{
 class PeerList
 {
  private:
-  SOCKET m_listen_sock;
+  socket_t m_listen_sock;
   PEERNODE *m_head, *m_dead;
   size_t m_peers_count, m_seeds_count, m_conn_count, m_downloads;
   size_t m_max_unchoke;
@@ -55,7 +55,7 @@ class PeerList
 
   void PrintOut() const;
 
-  int NewPeer(struct sockaddr_in addr, SOCKET sk);
+  int NewPeer(struct sockaddr_in addr, socket_t sk);
 
   void CloseAllConnectionToSeed();
   void CloseAll();

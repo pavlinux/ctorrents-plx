@@ -18,7 +18,7 @@ void set_nl(char *to, size_t from);
 class btStream
 {
 private:
-  SOCKET sock, sock_was;
+  socket_t sock, sock_was;
   size_t m_oldbytes;
 
 public:
@@ -28,8 +28,8 @@ public:
   btStream() { sock = sock_was = INVALID_SOCKET; m_oldbytes = 0; }
   ~btStream() { if( INVALID_SOCKET != sock) CLOSE_SOCKET(sock); }
 
-  SOCKET GetSocket() { return (INVALID_SOCKET==sock) ? sock_was : sock; }
-  void SetSocket(SOCKET sk){ sock = sk; }
+  socket_t GetSocket() { return (INVALID_SOCKET==sock) ? sock_was : sock; }
+  void SetSocket(socket_t sk){ sock = sk; }
 
   void Close(){
     if( INVALID_SOCKET != sock ){
@@ -41,12 +41,12 @@ public:
     out_buffer.Close();
   }
 
-  ssize_t PickMessage(); //ÒÆ³ý½ÓÊÕ»º´æÖÐµÄÒ»ÌõÏûÏ¢
+  ssize_t PickMessage(); //ï¿½Æ³ï¿½ï¿½ï¿½Õ»ï¿½ï¿½ï¿½ï¿½Ðµï¿½Ò»ï¿½ï¿½ï¿½ï¿½Ï¢
   ssize_t Feed();
   ssize_t Feed(Rate *rate);
   ssize_t Feed(size_t limit, Rate *rate);
 
-  int HaveMessage();  // ·µ»ØÖµ 1: »º´æÖÐÓÐÏûÏ¢ 0: ÔÝÎÞÏûÏ¢ -1: Ê§°Ü
+  int HaveMessage();  // ï¿½ï¿½ï¿½ï¿½Öµ 1: ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï¢ 0: ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï¢ -1: Ê§ï¿½ï¿½
   char PeekMessage();
   int PeekMessage(char m);
   int PeekNextMessage(char m);

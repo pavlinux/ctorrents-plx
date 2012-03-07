@@ -849,7 +849,7 @@ int Ctcs::SocketReady(fd_set *rfdp, fd_set *wfdp, int *nfds,
     if( FD_ISSET(m_sock, rfdp) ){
       (*nfds)--;
       FD_CLR(m_sock,rfdnextp);
-      SOCKET tmp_sock = m_sock;
+      socket_t tmp_sock = m_sock;
       int r = CheckMessage();
       if( INVALID_SOCKET == m_sock ){
         if( FD_ISSET(tmp_sock, wfdp) ){

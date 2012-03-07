@@ -90,7 +90,7 @@ void PeerList::CloseAll()
   }
 }
 
-int PeerList::NewPeer(struct sockaddr_in addr, SOCKET sk)
+int PeerList::NewPeer(struct sockaddr_in addr, socket_t sk)
 {
   PEERNODE *p, *pp, *pnext;
   btPeer *peer = (btPeer*) 0;
@@ -309,7 +309,7 @@ int PeerList::FillFDSet(fd_set *rfdp, fd_set *wfdp, int f_keepalive_check,
 {
   PEERNODE *p, *pp;
   int maxfd = -1;
-  SOCKET sk = INVALID_SOCKET;
+  socket_t sk = INVALID_SOCKET;
 
   m_f_limitu = BandWidthLimitUp(Self.LateUL());
   m_f_limitd = BandWidthLimitDown(Self.LateDL());
@@ -851,7 +851,7 @@ void PeerList::Tell_World_I_Have(size_t idx)
 
 int PeerList::Accepter()
 {
-  SOCKET newsk;
+  socket_t newsk;
   socklen_t addrlen;
   struct sockaddr_in addr;
   addrlen = sizeof(struct sockaddr_in);
@@ -1017,7 +1017,7 @@ void PeerList::AnyPeerReady(fd_set *rfdp, fd_set *wfdp, int *nready,
 {
   PEERNODE *p;
   btPeer *peer;
-  SOCKET sk;
+  socket_t sk;
   int need_check_send = 0;
 
   if( FD_ISSET(m_listen_sock, rfdp) ){
@@ -1159,7 +1159,7 @@ int PeerList::UnChokeCheck(btPeer* peer, btPeer *peer_array[])
   // Find a slot for the candidate--the slowest peer, or an available slot.
   for( cancel_idx = i = 0; i < m_max_unchoke + no_opt; i++ ){
     if((btPeer*) 0 == peer_array[i] ||
-        PEER_IS_FAILED(peer_array[i]) ){	// �п�λ
+        PEER_IS_FAILED(peer_array[i]) ){	// �п�λ
       cancel_idx = i; 
       break;
     }else{
