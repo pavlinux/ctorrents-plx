@@ -12,7 +12,7 @@
 
 #define INVALID_SOCKET (-1)
 
-#define PATH_SP '/' PATH_SEP
+#define PATH_SP '/'
 #define RECV(fd,buf,len) read((fd),(buf),(len))
 #define SEND(fd,buf,len) write((fd),(buf),(len))
 
