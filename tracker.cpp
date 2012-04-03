@@ -110,6 +110,8 @@ int btTracker::_s2sin(char *h, int p, struct sockaddr_in *psin)
 #define FAILREASON_DEC 1000
 #define FAILREASON_HEX 1024
 #define NULL_CHAR '\0'
+#define NUL (int64_t *)0
+#define PTRPTR (const char **)0
 
 int btTracker::_UpdatePeerList(char *buf, size_t bufsiz)
 {        
@@ -123,7 +125,7 @@ int btTracker::_UpdatePeerList(char *buf, size_t bufsiz)
 
 	struct sockaddr_in addr;
 
-	if (decode_query(buf, bufsiz, "failure reason", &ps, &i, NULL, QUERY_STR)) {
+	if (decode_query(buf, bufsiz, "failure reason", &ps, &i, NUL, QUERY_STR)) {
             
                 memset((void *)&failreason, NULL_CHAR, FAILREASON_HEX);
                 
@@ -139,7 +141,7 @@ int btTracker::_UpdatePeerList(char *buf, size_t bufsiz)
 		return -1;
 	}
 	if (decode_query
-	     (buf, bufsiz, "warning message", &ps, &i, NULL, QUERY_STR)) {
+	     (buf, bufsiz, "warning message", &ps, &i, NUL, QUERY_STR)) {
 		
                 memset((void *)&warnmsg, NULL_CHAR, FAILREASON_HEX);
                 
@@ -157,7 +159,7 @@ int btTracker::_UpdatePeerList(char *buf, size_t bufsiz)
 	m_peers_count = m_seeds_count = 0;
 
 	if (decode_query
-	    (buf, bufsiz, "tracker id", &ps, &i, NULL, QUERY_STR)) {
+	    (buf, bufsiz, "tracker id", &ps, &i, NUL, QUERY_STR)) {
 		if (i <= PEER_ID_LEN) {
 			memcpy(m_trackerid, ps, i);
 			m_trackerid[i] = NULL_CHAR;
@@ -167,7 +169,7 @@ int btTracker::_UpdatePeerList(char *buf, size_t bufsiz)
 		}
 	}
 
-	if (!decode_query(buf, bufsiz, "interval", NULL, &i, NULL, QUERY_INT))
+	if (!decode_query(buf, bufsiz, "interval", PTRPTR, &i, NUL, QUERY_INT))
 		return -1;
 
 	if (m_interval != (time_t) i)
@@ -175,10 +177,10 @@ int btTracker::_UpdatePeerList(char *buf, size_t bufsiz)
 	if (m_default_interval != (time_t) i)
 		m_default_interval = (time_t) i;
 
-	if (decode_query(buf, bufsiz, "complete", NULL, &i, NULL, QUERY_INT))
+	if (decode_query(buf, bufsiz, "complete", PTRPTR, &i, NUL, QUERY_INT))
 		m_seeds_count = i;
         
-	if (decode_query(buf, bufsiz, "incomplete", NULL, &i, NULL, QUERY_INT))
+	if (decode_query(buf, bufsiz, "incomplete", PTRPTR, &i, NUL, QUERY_INT))
 		m_peers_count = m_seeds_count + i;
 	else {
 		if (arg_verbose && 0 == m_seeds_count)
@@ -186,7 +188,7 @@ int btTracker::_UpdatePeerList(char *buf, size_t bufsiz)
 		m_peers_count = m_seeds_count;
 	}
 
-	pos = decode_query(buf, bufsiz, "peers", NULL, NULL, NULL, QUERY_POS);
+	pos = decode_query(buf, bufsiz, "peers", PTRPTR, (size_t *)0, NUL, QUERY_POS);
 
 	if (!pos)
 		return -1;
@@ -366,74 +368,82 @@ int btTracker::CheckReponse()
 	return _UpdatePeerList(pdata, dlen);
 }
 
-int btTracker::Initial()
-{
-	if (Http_url_analyse(BTCONTENT.GetAnnounce(), m_host, &m_port, m_path) <
-	    0) {
-		CONSOLE.Warning(1, "error, invalid tracker url format!");
-		return -1;
-	}
-
-	char chars[37] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-	for (int i = 0; i < 8; i++)
-		m_key[i] = chars[random() % 36];
-	m_key[8] = 0;
-
-	/* get local ip address */
-	struct sockaddr_in addr;
-
-	if (cfg_public_ip) {	// Get specified public address.
-		if ((addr.sin_addr.s_addr =
-		     inet_addr(cfg_public_ip)) == INADDR_NONE) {
-			struct hostent *h;
-			h = gethostbyname(cfg_public_ip);
-			memcpy(&addr.sin_addr, h->h_addr,
-			       sizeof(struct in_addr));
-		}
-		Self.SetIp(addr);
-		goto next_step;
-	}
-	if (cfg_listen_ip) {	// Get specified listen address.
-		addr.sin_addr.s_addr = cfg_listen_ip;
-		Self.SetIp(addr);
-		if (!IsPrivateAddress(cfg_listen_ip))
-			goto next_step;
-	}
-	{			// Try to get address corresponding to the hostname.
-		struct hostent *h;
-		char hostname[MAXHOSTNAMELEN];
-
-		if (gethostname(hostname, MAXHOSTNAMELEN) >= 0) {
-			//    CONSOLE.Debug("hostname: %s", hostname);
-			if (h = gethostbyname(hostname)) {
-				//      CONSOLE.Debug("Host name: %s", h->h_name);
-				//      CONSOLE.Debug("Address: %s", inet_ntoa(*((struct in_addr *)h->h_addr)));
-				if (!IsPrivateAddress
-				    (((struct in_addr *)(h->h_addr))->s_addr)
-				    || !cfg_listen_ip) {
-					memcpy(&addr.sin_addr, h->h_addr,
-					       sizeof(struct in_addr));
-					Self.SetIp(addr);
-				}
-			}
-		}
-	}
-
- next_step:
-	if (BuildBaseRequest() < 0)
-		return -1;
-
-	return 0;
-}
-
 int btTracker::IsPrivateAddress(uint32_t addr)
 {
 	return 
             (addr & htonl(IN_CLASSA_NET)) == htonl(0x0a000000) || // 10.x.x.x/8
-	    (addr & htonl(0xfff00000))    == htonl(0xac100000) || // 172.16.x.x/12
+	//  (addr & htonl(0xfff00000))    == htonl(0xac100000) || // 172.16.x.x/12
 	    (addr & htonl(IN_CLASSB_NET)) == htonl(0xc0a80000) || // 192.168.x.x/16
 	    (addr & htonl(IN_CLASSA_NET)) == htonl(0x7f000000);	  // 127.x.x.x/8
 }
+
+int btTracker::Initial() {
+
+    char hostname[MAXHOSTNAMELEN];
+    const char chars[37] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    struct sockaddr_in addr;
+    struct hostent *host;
+    //int i;
+
+    if (Http_url_analyse(BTCONTENT.GetAnnounce(), m_host, &m_port, m_path) <
+            0) {
+        CONSOLE.Warning(1, "error, invalid tracker url format!");
+        return -1;
+    }
+    
+    srandom((unsigned int)time(NULL));    
+    m_key[0] = chars[random() % 36];
+    m_key[1] = chars[random() % 36];
+    m_key[2] = chars[random() % 36];
+    m_key[3] = chars[random() % 36];
+    m_key[4] = chars[random() % 36];
+    m_key[5] = chars[random() % 36];
+    m_key[6] = chars[random() % 36];
+    m_key[7] = chars[random() % 36];
+    m_key[8] = '\0';
+
+    /* get local ip address */
+    if (cfg_public_ip) { // Get specified public address.
+
+        addr.sin_addr.s_addr = inet_addr(cfg_public_ip);
+
+        if (addr.sin_addr.s_addr == INADDR_NONE) {
+            host = gethostbyname(cfg_public_ip);
+            memcpy(&addr.sin_addr, host->h_addr, sizeof (struct in_addr));
+        }
+        Self.SetIp(addr);
+        goto next_step;
+    }
+
+    // Get specified listen address.
+    if (cfg_listen_ip) {
+        addr.sin_addr.s_addr = cfg_listen_ip;
+        Self.SetIp(addr);
+        if (!IsPrivateAddress(cfg_listen_ip))
+            goto next_step;
+    }
+    // Try to get address corresponding to the hostname.		
+    if (gethostname(hostname, MAXHOSTNAMELEN) >= 0) {
+        //    CONSOLE.Debug("hostname: %s", hostname);
+        if (host = gethostbyname(hostname)) {
+            //      CONSOLE.Debug("Host name: %s", h->h_name);
+            //      CONSOLE.Debug("Address: %s", inet_ntoa(*((struct in_addr *)h->h_addr)));
+            if (!IsPrivateAddress(((struct in_addr *) (host->h_addr))->s_addr) 
+                    || !cfg_listen_ip) 
+            {
+                memcpy(&addr.sin_addr, host->h_addr, sizeof (struct in_addr));
+                Self.SetIp(addr);
+            }
+        }
+    }
+
+next_step:
+    if (BuildBaseRequest() < 0)
+        return -1;
+
+    return 0;
+}
+
 
 int btTracker::BuildBaseRequest()
 {
