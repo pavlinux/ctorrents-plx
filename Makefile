@@ -11,6 +11,8 @@ CC  = gcc
 CXXFLAGS=-march=native -g0 -Os -s
 CFLAGS	=-march=native -g0 -Os -s
 
+CACHE=$(shell cat /proc/cpuinfo | grep "cache size" | head -1 | cut -d" " -f3)
+
 # GCC 4.5+
 # for l2-cache-size view you're /proc/cpuinfo
 ZZFLAGS =-frecord-gcc-switches -flto \
@@ -18,7 +20,7 @@ ZZFLAGS =-frecord-gcc-switches -flto \
         -funroll-all-loops -ftree-vectorize \
         -fno-inline-functions-called-once \
         -fmerge-all-constants -ffreestanding \
-        --param l2-cache-size=2048 \
+        --param l2-cache-size=$(CACHE) \
         -floop-interchange -floop-block -floop-strip-mine \
         -ftree-loop-distribution -fexcess-precision=fast \
 	-fno-strict-aliasing -fwhole-program \
@@ -30,8 +32,8 @@ CFLAGS = $(ZZFLAGS)
 #CXXFLAGS=-DDEBUG -W -Wall -Wextra -Wshadow -std=gnu99 -O0 -g3 -ggdb3 -gdwarf-2 -fno-omit-frame-pointer
 
 LINK = g++
-LDFLAGS=-static-libstdc++ $(ZZFLAGS)
 LIBS=-lrt
+LDFLAGS=-static-libstdc++ $(LIBS) -Wl,-Ofast -Wl,--as-needed
 
 # -static-libstdc++
 
