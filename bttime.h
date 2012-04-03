@@ -6,4 +6,3 @@
 extern time_t now;
 
 #endif
-
