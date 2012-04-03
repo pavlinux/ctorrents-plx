@@ -372,7 +372,7 @@ int btTracker::IsPrivateAddress(uint32_t addr)
 {
 	return 
             (addr & htonl(IN_CLASSA_NET)) == htonl(0x0a000000) || // 10.x.x.x/8
-	//  (addr & htonl(0xfff00000))    == htonl(0xac100000) || // 172.16.x.x/12
+	    (addr & htonl(0xfff00000))    == htonl(0xac100000) || // 172.16.x.x/12
 	    (addr & htonl(IN_CLASSB_NET)) == htonl(0xc0a80000) || // 192.168.x.x/16
 	    (addr & htonl(IN_CLASSA_NET)) == htonl(0x7f000000);	  // 127.x.x.x/8
 }
