@@ -1,14 +1,4 @@
-#include "./setnonblock.h"
-
-#ifdef WINDOWS
-
-int setfd_nonblock(socket_t socket)
-{
-	unsigned long val = 1;
-	return ioctl(socket, FIONBIO, &val);
-}
-
-#else
+#include "setnonblock.h"
 
 #include <unistd.h>
 #include <fcntl.h>
@@ -22,5 +12,3 @@ int setfd_nonblock(socket_t socket)
 	f_old |= O_NONBLOCK;
 	return (fcntl(socket, F_SETFL, f_old));
 }
-
-#endif

@@ -106,40 +106,49 @@ int btTracker::_s2sin(char *h, int p, struct sockaddr_in *psin)
 	return 0;
 }
 
+
+#define FAILREASON_DEC 1000
+#define FAILREASON_HEX 1024
+#define NULL_CHAR '\0'
+
 int btTracker::_UpdatePeerList(char *buf, size_t bufsiz)
-{
+{        
 	char tmphost[MAXHOSTNAMELEN];
+        char failreason[FAILREASON_HEX];
+        char warnmsg[FAILREASON_HEX];
+        
 	const char *ps;
 	size_t i, pos, tmpport;
-	size_t cnt = 0;
+	size_t cnt = 0u;
 
 	struct sockaddr_in addr;
 
-	if (decode_query
-	    (buf, bufsiz, "failure reason", &ps, &i, (int64_t *) 0,
-	     QUERY_STR)) {
-		char failreason[1024];
-		if (i < 1024) {
+	if (decode_query(buf, bufsiz, "failure reason", &ps, &i, NULL, QUERY_STR)) {
+            
+                memset((void *)&failreason, NULL_CHAR, FAILREASON_HEX);
+                
+		if (i < FAILREASON_HEX) {
 			memcpy(failreason, ps, i);
-			failreason[i] = '\0';
+			failreason[i] = NULL_CHAR;
 		} else {
-			memcpy(failreason, ps, 1000);
-			failreason[1000] = '\0';
+			memcpy(failreason, ps, FAILREASON_DEC);
+			failreason[FAILREASON_DEC] = NULL_CHAR;
 			strcat(failreason, "...");
 		}
 		CONSOLE.Warning(1, "TRACKER FAILURE REASON: %s", failreason);
 		return -1;
 	}
 	if (decode_query
-	    (buf, bufsiz, "warning message", &ps, &i, (int64_t *) 0,
-	     QUERY_STR)) {
-		char warnmsg[1024];
-		if (i < 1024) {
+	     (buf, bufsiz, "warning message", &ps, &i, NULL, QUERY_STR)) {
+		
+                memset((void *)&warnmsg, NULL_CHAR, FAILREASON_HEX);
+                
+		if (i < FAILREASON_HEX) {
 			memcpy(warnmsg, ps, i);
-			warnmsg[i] = '\0';
+			warnmsg[i] = NULL_CHAR;
 		} else {
-			memcpy(warnmsg, ps, 1000);
-			warnmsg[1000] = '\0';
+			memcpy(warnmsg, ps, FAILREASON_DEC);
+			warnmsg[FAILREASON_DEC] = NULL_CHAR;
 			strcat(warnmsg, "...");
 		}
 		CONSOLE.Warning(2, "TRACKER WARNING: %s", warnmsg);
@@ -148,18 +157,17 @@ int btTracker::_UpdatePeerList(char *buf, size_t bufsiz)
 	m_peers_count = m_seeds_count = 0;
 
 	if (decode_query
-	    (buf, bufsiz, "tracker id", &ps, &i, (int64_t *) 0, QUERY_STR)) {
+	    (buf, bufsiz, "tracker id", &ps, &i, NULL, QUERY_STR)) {
 		if (i <= PEER_ID_LEN) {
 			memcpy(m_trackerid, ps, i);
-			m_trackerid[i] = '\0';
+			m_trackerid[i] = NULL_CHAR;
 		} else {
 			memcpy(m_trackerid, ps, PEER_ID_LEN);
-			m_trackerid[PEER_ID_LEN] = '\0';
+			m_trackerid[PEER_ID_LEN] = NULL_CHAR;
 		}
 	}
 
-	if (!decode_query(buf, bufsiz, "interval", (const char **)0, &i,
-			  (int64_t *) 0, QUERY_INT))
+	if (!decode_query(buf, bufsiz, "interval", NULL, &i, NULL, QUERY_INT))
 		return -1;
 
 	if (m_interval != (time_t) i)
@@ -167,11 +175,10 @@ int btTracker::_UpdatePeerList(char *buf, size_t bufsiz)
 	if (m_default_interval != (time_t) i)
 		m_default_interval = (time_t) i;
 
-	if (decode_query(buf, bufsiz, "complete", (const char **)0, &i,
-			 (int64_t *) 0, QUERY_INT))
+	if (decode_query(buf, bufsiz, "complete", NULL, &i, NULL, QUERY_INT))
 		m_seeds_count = i;
-	if (decode_query(buf, bufsiz, "incomplete", (const char **)0, &i,
-			 (int64_t *) 0, QUERY_INT))
+        
+	if (decode_query(buf, bufsiz, "incomplete", NULL, &i, NULL, QUERY_INT))
 		m_peers_count = m_seeds_count + i;
 	else {
 		if (arg_verbose && 0 == m_seeds_count)
@@ -179,17 +186,14 @@ int btTracker::_UpdatePeerList(char *buf, size_t bufsiz)
 		m_peers_count = m_seeds_count;
 	}
 
-	pos = decode_query(buf, bufsiz, "peers", (const char **)0, (size_t *) 0,
-			   (int64_t *) 0, QUERY_POS);
+	pos = decode_query(buf, bufsiz, "peers", NULL, NULL, NULL, QUERY_POS);
 
-	if (!pos) {
+	if (!pos)
 		return -1;
-	}
-
-	if (4 > bufsiz - pos) {
+	
+	if (4 > (bufsiz - pos))
 		return -1;
-	}			// peers list ̫С
-
+				// peers list ̫С
 	buf += (pos + 1);
 	bufsiz -= (pos + 1);
 
@@ -221,7 +225,7 @@ int btTracker::_UpdatePeerList(char *buf, size_t bufsiz)
 			    || MAXHOSTNAMELEN < i)
 				continue;
 			memcpy(tmphost, ps, i);
-			tmphost[i] = '\0';
+			tmphost[i] = NULL_CHAR;
 
 			if (!decode_query
 			    (buf, pos, "port", (const char **)0, &tmpport,
@@ -424,30 +428,35 @@ int btTracker::Initial()
 
 int btTracker::IsPrivateAddress(uint32_t addr)
 {
-	return (addr & htonl(0xff000000)) == htonl(0x0a000000) ||	// 10.x.x.x/8
-	    (addr & htonl(0xfff00000)) == htonl(0xac100000) ||	// 172.16.x.x/12
-	    (addr & htonl(0xffff0000)) == htonl(0xc0a80000) ||	// 192.168.x.x/16
-	    (addr & htonl(0xff000000)) == htonl(0x7f000000);	// 127.x.x.x/8
+	return 
+            (addr & htonl(IN_CLASSA_NET)) == htonl(0x0a000000) || // 10.x.x.x/8
+	    (addr & htonl(0xfff00000))    == htonl(0xac100000) || // 172.16.x.x/12
+	    (addr & htonl(IN_CLASSB_NET)) == htonl(0xc0a80000) || // 192.168.x.x/16
+	    (addr & htonl(IN_CLASSA_NET)) == htonl(0x7f000000);	  // 127.x.x.x/8
 }
 
 int btTracker::BuildBaseRequest()
 {
-	char ih_buf[20 * 3 + 1], pi_buf[20 * 3 + 1], tmppath[MAXPATHLEN];
-	const char *format;
+        struct sockaddr_in addr;
+        char tmppath[MAXPATHLEN]; // 4096
+	char ih_buf[20 * 3 + 1];  
+        char pi_buf[20 * 3 + 1];  
+	const char *format;               
+        char *opt = (char *)0;
 
+        memset((void *)&tmppath, '\0', MAXPATHLEN);
 	strcpy(tmppath, m_path);
+        
 	if (strchr(m_path, '?'))
 		format = REQ_URL_P1A_FMT;
-	else
+        else
 		format = REQ_URL_P1_FMT;
 
-	char *opt = (char *)0;
 	if (cfg_public_ip) {
 		opt = new char[5 + strlen(cfg_public_ip)];
 		strcpy(opt, "&ip=");
 		strcat(opt, cfg_public_ip);
-	} else {
-		struct sockaddr_in addr;
+	} else {		
 		Self.GetAddress(&addr);
 		if (!IsPrivateAddress(addr.sin_addr.s_addr)) {
 			opt = new char[20];
@@ -560,6 +569,9 @@ int btTracker::SendRequest()
 
 	if (BTCONTENT.IsFull())
 		m_totaldl = Self.TotalDL();
+        
+        memset((void *)&REQ_BUFFER, '\0', (2*MAXPATHLEN));
+        
 	if (MAXPATHLEN < snprintf(REQ_BUFFER, MAXPATHLEN, REQ_URL_P2_FMT,
 				  m_path,
 				  event ? strncat(opt1, event, 12) : "",
@@ -584,8 +596,8 @@ int btTracker::SendRequest()
 
 	strcat(REQ_BUFFER, "\r\nUser-Agent: ");
 	strcat(REQ_BUFFER, cfg_user_agent);
-
 	strcat(REQ_BUFFER, "\r\n\r\n");
+        
 	// hc
 	//CONSOLE.Warning(0, "SendRequest: %s", REQ_BUFFER);
 

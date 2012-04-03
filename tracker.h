@@ -47,9 +47,9 @@ class btTracker {
 	unsigned char m_f_boguspeercnt:1;
 	unsigned char m_reserved:1;
 
-	time_t m_interval;	// ��Trackerͨ�ŵ�ʱ����
+	time_t m_interval;	
 	time_t m_default_interval;	// interval that the tracker tells us to wait
-	time_t m_last_timestamp;	// ���һ�γɹ���Trackerͨ�ŵ�ʱ��
+	time_t m_last_timestamp;	
 	size_t m_connect_refuse_click;
 
 	size_t m_ok_click;	// tracker ok response counter

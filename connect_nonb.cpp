@@ -2,10 +2,6 @@
 
 #include <errno.h>
 
-// ����ֵ 
-// >0 �����ѳɹ�
-// -1 ������ʧ��
-// -2 �������ڽ���
 int connect_nonb(socket_t sk, struct sockaddr *psa)
 {
 	int r;
