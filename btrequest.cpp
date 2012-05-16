@@ -115,9 +115,9 @@ int RequestQueue::Copy(const RequestQueue * prq, size_t idx)
 
 int RequestQueue::CopyShuffle(const RequestQueue * prq, size_t idx)
 {
-	PSLICE n, u, ps, prev, end, psnext, temp;
+	PSLICE n, u, ps, prev, end = 0, psnext, temp;
 	SLICE dummy;
-	unsigned long rndbits;
+	unsigned long rndbits = 0xdeadbeef;
 	int len, shuffle, i = 0, setsend = 0;
 	size_t firstoff;
 
@@ -227,7 +227,7 @@ size_t RequestQueue::Qlen(size_t piece) const
 	size_t cnt = 0;
 	PSLICE n = rq_head;
 	PSLICE u = (PSLICE) 0;
-	size_t idx;
+	size_t idx = 0;
 
 	for (; n && n->index != piece; n = n->next) ;
 

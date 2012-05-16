@@ -235,7 +235,7 @@ int btTracker::_UpdatePeerList(char *buf, size_t bufsiz)
 				continue;
 
 			if (!decode_query
-			    (buf, pos, "peer id", &ps, &i, (int64_t *) 0,
+			    (buf, pos, "PEER ID:", &ps, &i, (int64_t *) 0,
 			     QUERY_STR) && i != 20)
 				continue;
 
@@ -258,14 +258,13 @@ int btTracker::_UpdatePeerList(char *buf, size_t bufsiz)
 	} else
 		m_f_boguspeercnt = 0;
 	if (arg_verbose)
-		CONSOLE.Debug("new peers=%d; next check in %d sec",
-			      (int)cnt, (int)m_interval);
+		CONSOLE.Debug("NEW peers=%d; next check in %d sec", (int)cnt, (int)m_interval);
 	return 0;
 }
 
 int btTracker::CheckReponse()
 {
-	char *pdata, *format;
+	char *pdata;         
 	ssize_t r;
 	size_t q, hlen, dlen;
 
@@ -306,8 +305,10 @@ int btTracker::CheckReponse()
 	r = Http_reponse_code(m_reponse_buffer.BasePointer(), hlen);
 	if (r != 200) {
 		if (r == 301 || r == 302) {
-			char redirect[MAXPATHLEN], ih_buf[20 * 3 + 1],
-			    pi_buf[20 * 3 + 1], tmppath[MAXPATHLEN];
+			char redirect[MAXPATHLEN];
+                        // char ih_buf[20 * 3 + 1];
+			// char pi_buf[20 * 3 + 1];
+                        // char tmppath[MAXPATHLEN];
 
 			if (Http_get_header
 			    (m_reponse_buffer.BasePointer(), hlen, "Location",
@@ -391,7 +392,8 @@ int btTracker::Initial() {
         return -1;
     }
     
-    srandom((unsigned int)time(NULL));    
+    srandom((unsigned int)time(NULL));   
+    
     m_key[0] = chars[random() % 36];
     m_key[1] = chars[random() % 36];
     m_key[2] = chars[random() % 36];
@@ -486,7 +488,6 @@ int btTracker::BuildBaseRequest()
 				  cfg_listen_port, m_key)) {
 		return -1;
 	}
-
 	return 0;
 }
 

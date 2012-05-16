@@ -44,9 +44,11 @@ PeerList WORLD;
 
 PeerList::PeerList()
 {
-	m_unchoke_check_timestamp =
-	    m_keepalive_check_timestamp =
-	    m_opt_timestamp = m_interval_timestamp = time((time_t *) 0);
+	m_unchoke_check_timestamp = 
+                m_keepalive_check_timestamp =
+                                m_opt_timestamp = 
+                                m_interval_timestamp = time((time_t *) 0);
+        
 	m_unchoke_interval = MIN_UNCHOKE_INTERVAL;
 	m_opt_interval = MIN_OPT_CYCLE * MIN_UNCHOKE_INTERVAL;
 
@@ -103,8 +105,8 @@ int PeerList::NewPeer(struct sockaddr_in addr, socket_t sk)
 
 	if (INVALID_SOCKET != sk && Self.IpEquiv(addr)) {
 		if (arg_verbose)
-			CONSOLE.Debug("Connection from myself %s",
-				      inet_ntoa(addr.sin_addr));
+			CONSOLE.Debug("Connection from myself %s", inet_ntoa(addr.sin_addr));
+                
 		Tracker.AdjustPeersCount();
 		if (INVALID_SOCKET != sk)
 			CLOSE_SOCKET(sk);
@@ -162,31 +164,29 @@ int PeerList::NewPeer(struct sockaddr_in addr, socket_t sk)
 		}
 
 		peer = new btPeer;
-#ifndef WINDOWS
+
 		if (!peer)
 			goto err;
-#endif
 
-		peer->SetConnect();
+                peer->SetConnect();
 		peer->SetAddress(addr);
 		peer->stream.SetSocket(sk);
 		peer->SetStatus((-2 == r) ? P_CONNECTING : P_HANDSHAKE);
 		if (arg_verbose)
-			CONSOLE.Debug("Connecting to %s:%hu (peer %p)",
-				      inet_ntoa(addr.sin_addr),
-				      ntohs(addr.sin_port), peer);
+			CONSOLE.Debug("Connecting to %s:%hu (peer %p)", 
+                                        inet_ntoa(addr.sin_addr),
+                                        ntohs(addr.sin_port), peer);
 
 	} else {
 		if (setfd_nonblock(sk) < 0)
 			goto err;
 
 		peer = new btPeer;
-#ifndef WINDOWS
+
 		if (!peer)
 			goto err;
-#endif
 
-		peer->SetAddress(addr);
+                peer->SetAddress(addr);
 		peer->stream.SetSocket(sk);
 		peer->SetStatus(P_HANDSHAKE);
 		if (arg_verbose)
@@ -213,10 +213,8 @@ int PeerList::NewPeer(struct sockaddr_in addr, socket_t sk)
 		delete p->peer;
 	} else {
 		p = new PEERNODE;
-#ifndef WINDOWS
 		if (!p)
 			goto err;
-#endif
 	}
 
 	m_peers_count++;
@@ -237,8 +235,8 @@ int PeerList::IntervalCheck(fd_set * rfdp, fd_set * wfdp)
 {
 	int f_keepalive_check = 0;
 	int f_unchoke_check = 0;
-	int i = 0;
-	btPeer **UNCHOKER;
+	//int i = 0;
+	btPeer **UNCHOKER = NULL;
 
 	// No pause check here--stay ready by continuing to acquire peers.
 	if (!Tracker.IsQuitting()) {
@@ -1001,8 +999,9 @@ int PeerList::Accepter()
 	struct sockaddr_in addr;
 	addrlen = sizeof(struct sockaddr_in);
 	newsk = accept(m_listen_sock, (struct sockaddr *)&addr, &addrlen);
-//  CONSOLE.Debug("incoming! %s:%hu",
-//    inet_ntoa(addr.sin_addr), ntohs(addr.sin_port));
+        
+        //  CONSOLE.Debug("incoming! %s:%hu",
+        //    inet_ntoa(addr.sin_addr), ntohs(addr.sin_port));
 
 	if (INVALID_SOCKET == newsk)
 		return -1;
@@ -1162,7 +1161,7 @@ void PeerList::CheckBitField(BitField & bf)
 void PeerList::PrintOut() const
 {
 	PEERNODE *p = m_head;
-	struct sockaddr_in sin;
+	//struct sockaddr_in sin;
 	CONSOLE.Print("PEER LIST");
 	for (; p; p = p->next) {
 		if (PEER_IS_FAILED(p->peer))

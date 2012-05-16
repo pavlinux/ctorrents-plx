@@ -283,7 +283,7 @@ size_t Rate::NominalRate()
 size_t Rate::RateMeasure()
 {
 	// calculate rate based on bandwidth history data
-	time_t timestamp = now;
+	//time_t timestamp = now;
 	unsigned long countbytes = 0;
 	double timeused = 0;
 	BWSAMPLE *p;

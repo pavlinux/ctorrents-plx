@@ -43,11 +43,11 @@ int main(int argc, char **argv)
 
 	cfg_user_agent =
 	    new char[strlen(PACKAGE_NAME) + strlen(PACKAGE_VERSION) + 2];
-#ifndef WINDOWS
+
 	if (!cfg_user_agent)
 		return -1;
-#endif
-	sprintf(cfg_user_agent, "%s/%s", PACKAGE_NAME, PACKAGE_VERSION);
+
+        sprintf(cfg_user_agent, "%s/%s", PACKAGE_NAME, PACKAGE_VERSION);
 	while (s = strchr(cfg_user_agent, ' '))
 		*s = '-';
 
@@ -108,7 +108,9 @@ int main(int argc, char **argv)
 		CONSOLE.
 		    Interact
 		    ("Press 'h' or '?' for help (display/control client options).");
-		Downloader();
+		
+                Downloader();
+                
 		if (cfg_cache_size)
 			BTCONTENT.FlushCache();
 	}
@@ -125,7 +127,7 @@ int param_check(int argc, char **argv)
 {
 	const char *opts;
 	int c, l;
-	char *s;
+//	char *s;
 
 	if (0 == strncmp(argv[1], "-t", 2))
 		opts = "tc:l:ps:u:";

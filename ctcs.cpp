@@ -683,13 +683,14 @@ int Ctcs::Send_Detail()
 	char message[CTCS_BUFSIZE];
 	int r = 0, priority, current = 0;
 	size_t n = 0;
-	BTFILE *file = 0;
+//	BTFILE *file = 0;
 	BitField tmpBitField, fileFilter, availbf, tmpavail, allFilter,
 	    tmpFilter, *pfilter;
 
 	snprintf(message, CTCS_BUFSIZE, "CTDETAIL %lld %d %ld %ld",
-		 BTCONTENT.GetTotalFilesLength(),
-		 (int)(BTCONTENT.GetPieceLength()), (long)now,
+		 (long long)BTCONTENT.GetTotalFilesLength(),
+		 (int)(BTCONTENT.GetPieceLength()), 
+                 (long)now,
 		 (long)(BTCONTENT.GetSeedTime()));
 	r = SendMessage(message);
 

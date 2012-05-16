@@ -99,8 +99,6 @@ inline void BitField::_set(size_t idx)
 
 inline void BitField::_setall(unsigned char *buf)
 {
-	size_t i;
-
 	memset(buf, 0xFF, nbytes - 1);
 
 	if (nbits % 8) {

@@ -287,7 +287,7 @@ int btFiles::_btf_ftruncate(int fd, int64_t length)
 			return -1;
 		}
 		memset(c, 0, 256 * 1024);
-		int r, wlen;
+		int r = -1, wlen;
 		int64_t len = 0;
 		for (int i = 0; len < length; i++) {
 			if (len + 256 * 1024 > length)

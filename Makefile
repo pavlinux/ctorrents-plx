@@ -8,8 +8,8 @@ VERSION = 0.0.3
 CXX = g++
 CC  = gcc
 
-CXXFLAGS=-march=native -g0 -Os -s
-CFLAGS	=-march=native -g0 -Os -s
+CXXFLAGS=-Wall -W -Wextra -march=native -g0 -Os -s  -Wno-format-y2k
+CFLAGS	=-Wall -W -Wextra -march=native -g0 -Os -s -Wno-format-y2k
 
 CACHE=$(shell cat /proc/cpuinfo | grep "cache size" | head -1 | cut -d" " -f3)
 
@@ -24,10 +24,10 @@ ZZFLAGS =-frecord-gcc-switches -flto \
         -floop-interchange -floop-block -floop-strip-mine \
         -ftree-loop-distribution -fexcess-precision=fast \
 	-fno-strict-aliasing -fwhole-program \
-	-fipa-sra -fsplit-stack -s -pipe
+	-fipa-sra -fsplit-stack -s -pipe  -Wno-format-y2k
 
-CXXFLAGS = $(ZZFLAGS)
-CFLAGS = $(ZZFLAGS)
+# CXXFLAGS = $(ZZFLAGS)
+# CFLAGS = $(ZZFLAGS)
 
 #CXXFLAGS=-DDEBUG -W -Wall -Wextra -Wshadow -std=gnu99 -O0 -g3 -ggdb3 -gdwarf-2 -fno-omit-frame-pointer
 

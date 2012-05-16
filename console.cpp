@@ -81,6 +81,7 @@ void ConStream::Associate(FILE * stream, const char *name, int mode)
 {
 	m_stream = stream;
 	m_filemode = mode;
+        
 	if (m_name = new char[strlen(name) + 1])
 		strcpy(m_name, name);
 	else
@@ -351,7 +352,7 @@ Console::~Console()
 		g_console_ready = 0;
 }
 
-int Console::IntervalCheck(fd_set * rfdp, fd_set * wfdp)
+int Console::IntervalCheck(fd_set * rfdp, fd_set * wfdp __attribute__((unused)))
 {
 	Status(0);
 
@@ -1031,7 +1032,7 @@ int Console::ChangeChannel(int channel, const char *param, int notify)
 
 void Console::ShowFiles()
 {
-	BTFILE *file = 0;
+	// BTFILE *file = 0;
 	BitField tmpFilter;
 	int n = 0;
 
@@ -1140,7 +1141,7 @@ void Console::StatusLine0(char buffer[], size_t length)
 
 	char checked[14] = "";
 	if (BTCONTENT.CheckedPieces() < BTCONTENT.GetNPieces()) {
-		sprintf(checked, "Checking: %d%%",
+		sprintf(checked, "Checking: %zu%%",
 			100 * BTCONTENT.CheckedPieces() /
 			BTCONTENT.GetNPieces());
 	}
@@ -1189,9 +1190,8 @@ void Console::StatusLine1(char buffer[], size_t length)
 		all = BTCONTENT.GetNPieces() - BTCONTENT.GetFilter()->Count();
 
 		if (rate = Self.RateDL()) {
-			premain =
-			    (all -
-			     have) * BTCONTENT.GetPieceLength() / rate / 60;
+		    premain =((all - have) * (BTCONTENT.GetPieceLength() / rate / 60));
+                        
 			if (premain < 60000)	// 1000 hours
 				snprintf(ptime, sizeof(ptime), " %d:%2.2d",
 					 (int)(premain / 60),
@@ -1203,7 +1203,7 @@ void Console::StatusLine1(char buffer[], size_t length)
 
 	char checked[14] = "";
 	if (BTCONTENT.CheckedPieces() < BTCONTENT.GetNPieces()) {
-		sprintf(checked, "Checking: %d%%",
+		sprintf(checked, "Checking: %zu%%",
 			100 * BTCONTENT.CheckedPieces() /
 			BTCONTENT.GetNPieces());
 	}
@@ -1212,7 +1212,7 @@ void Console::StatusLine1(char buffer[], size_t length)
 	if (BTCONTENT.IsFull())
 		sprintf(complete, "seeding");
 	else if (BTCONTENT.Seeding())
-		sprintf(complete, "seed%d%%",
+		sprintf(complete, "seed%zu%%",
 			100 * BTCONTENT.pBF->Count() / BTCONTENT.GetNPieces());
 	else {
 		int have, avail, all;

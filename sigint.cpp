@@ -18,7 +18,7 @@ extern "C" {
 			Tracker.SetStoped();
 			signal(sig_no, sig_catch2);
 		}
-	} static RETSIGTYPE sig_catch2(int sig_no) {
+	} RETSIGTYPE sig_catch2(int sig_no) {
 		if (SIGINT == sig_no || SIGTERM == sig_no) {
 			if (cfg_cache_size)
 				BTCONTENT.FlushCache();

@@ -214,7 +214,7 @@ int btPeer::RequestPiece()
 
 	size_t idx;
 	BitField tmpBitfield, *pfilter;
-	int endgame = 0;
+//	int endgame = 0;
 
 	size_t qsize = request_q.Qsize();
 	size_t psize = BTCONTENT.GetPieceLength() / cfg_req_slice_size;
@@ -549,11 +549,11 @@ int btPeer::MsgDeliver()
 			len =
 			    get_nl(msgbuf + H_LEN + H_BASE_LEN + H_INT_LEN * 2);
 
-			if (arg_verbose)
+/*			if (arg_verbose)
 				CONSOLE.Debug("%p is requesting %d/%d/%d",
 					      this, (int)idx, (int)off,
 					      (int)len);
-
+*/
 			if (!reponse_q.IsValidRequest(idx, off, len))
 				return -1;
 
@@ -754,6 +754,7 @@ int btPeer::SendRequest()
 		m_req_out = 0;
 	}
 	if (ps && m_req_out < m_req_send) {
+            /*
 		if (arg_verbose) {
 			CONSOLE.Debug_n("");
 			CONSOLE.Debug_n
@@ -761,6 +762,7 @@ int btPeer::SendRequest()
 			     (int)(ps->index), this, (int)(request_q.Qsize()),
 			     (int)m_req_send);
 		}
+                */
 		for (int i = 0; ps && m_req_out < m_req_send && i < 5;
 		     ps = ps->next, i++) {
 			if (first && (!RateDL()
@@ -842,7 +844,7 @@ int btPeer::CancelPiece(size_t idx)
 int btPeer::CancelRequest()
 {
 	PSLICE ps;
-	int retval;
+//	int retval;
 
 	ps = request_q.GetHead();
 	for (; ps; ps = ps->next) {
@@ -1024,9 +1026,10 @@ int btPeer::PieceDeliver(size_t mlen)
 	Self.StartDLTimer();
 
 	if (f_requested || f_accept) {
-		if (arg_verbose)
+		/*if (arg_verbose)
 			CONSOLE.Debug("Receiving piece %d/%d/%d from %p",
 				      (int)idx, (int)off, (int)len, this);
+                 */ 
 		if (!BTCONTENT.pBF->IsSet(idx) &&
 		    BTCONTENT.WriteSlice(msgbuf + H_LEN + H_PIECE_LEN, idx, off,
 					 len) < 0) {
@@ -1070,10 +1073,11 @@ int btPeer::PieceDeliver(size_t mlen)
 			ResetDLTimer();	// set peer rate=0 so we don't favor for upload
 			f_count = f_want = 0;
 		} else {
-			if (arg_verbose)
+			/*if (arg_verbose)
 				CONSOLE.Debug("Unneeded piece %d/%d/%d from %p",
 					      (int)idx, (int)off, (int)len,
 					      this);
+                        */ 
 			BTCONTENT.CountDupBlock(len);
 		}
 		f_success = 0;
@@ -1617,7 +1621,7 @@ int btPeer::NeedPrefetch() const {
 // Call NeedPrefetch() first, which checks additional conditions!
     void btPeer::Prefetch(time_t deadline)
 {
-	size_t rd, ru;
+	size_t rd, ru = 0;
 	size_t idx, off, len;
 	time_t predict, next_chance;
 
