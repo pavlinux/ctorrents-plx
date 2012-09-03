@@ -16,7 +16,7 @@ const unsigned char BIT_HEX[] =
 #define _isfull() 		(nset >= nbits)
 #define _isfull_sp(sp) 		((sp).nset >= nbits)
 
-size_t BitField::nbytes = 0;
+size_t BitField::nbytes = 0u;
 size_t BitField::nbits = 0;
 
 BitField::BitField()
@@ -336,7 +336,7 @@ int BitField::SetReferFile(const char *fname)
 
 	if (stat(fname, &sb) < 0)
 		return -1;
-	if (sb.st_size != nbytes)
+	if (sb.st_size != (off_t)nbytes)
 		return -1;
 
 	fp = fopen(fname, "r");
