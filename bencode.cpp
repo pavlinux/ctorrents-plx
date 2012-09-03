@@ -2,6 +2,10 @@
 
 #include "bencode.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -118,6 +122,7 @@ size_t decode_dict(const char *b, size_t len, const char *keylist)
 {
 	size_t rl, dl, nl;
 	const char *pkey;
+        
 	dl = 0;
 	if (2 > len || *b != 'd')
 		return 0;
@@ -199,41 +204,43 @@ size_t decode_rev(const char *b, size_t len, const char *keylist)
 }
 
 size_t decode_query(const char *b, size_t len, const char *keylist,
-		    const char **ps, size_t * pi, int64_t * pl, int method)
-{
+        const char **ps, size_t * pi, int64_t * pl, int method) 
+{   
+    char kl[KEYNAME_LISTSIZ] = {0};
+    size_t pos;
 
-	size_t pos;
-	char kl[KEYNAME_LISTSIZ];
+    if (keylist == NULL)
+        return 0;
 
-	strcpy(kl, keylist);
-	pos = decode_rev(b, len, kl);
+    strcpy(kl, keylist);
+    pos = decode_rev(b, len, kl);
 
-	if (!pos)
-		return 0;
+    if (!pos)
+        return 0;
 
-	switch (method) {
+    switch (method) {
 
-	case QUERY_STR:
-		return (buf_str(b + pos, len - pos, ps, pi));
-	case QUERY_INT:
-		return (buf_int(b + pos, len - pos, 'i', 'e', pi));
-	case QUERY_POS:
-		if (pi)
-			*pi = decode_rev(b + pos, len - pos, (const char *)0);
-		return pos;
-	case QUERY_LONG:
-		return (buf_long(b + pos, len - pos, 'i', 'e', pl));
-	default:
-		return 0;
-	}
+        case QUERY_STR:
+            return (buf_str(b + pos, len - pos, ps, pi));
+        case QUERY_INT:
+            return (buf_int(b + pos, len - pos, 'i', 'e', pi));
+        case QUERY_POS:
+            if (pi)
+                *pi = decode_rev(b + pos, len - pos, (const char *) 0);
+            return pos;
+        case QUERY_LONG:
+            return (buf_long(b + pos, len - pos, 'i', 'e', pl));
+        default:
+            return 0;
+    }
 }
 
 size_t bencode_buf(const char *buf, size_t len, FILE * fp)
 {
 
-	char slen[MAX_INT_SIZ];
+	char slen[MAX_INT_SIZ] = {0};
 
-	if (MAX_INT_SIZ <= snprintf(slen, MAX_INT_SIZ, "%d:", (int)len))
+	if (MAX_INT_SIZ <= snprintf(slen, MAX_INT_SIZ, "%zd:", len))
 		return 0;
 
 	if (fwrite(slen, strlen(slen), 1, fp) != 1)
@@ -344,3 +351,8 @@ size_t decode_list2path(const char *b, size_t n, char *pathname)
 
 	return (pb - b + 1);
 }
+
+#ifdef __cplusplus
+}
+#endif
+  
