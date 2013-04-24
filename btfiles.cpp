@@ -1,15 +1,8 @@
 #include "btfiles.h"
 
-#ifdef WINDOWS
-#include <io.h>
-#include <memory.h>
-#include <direct.h>
-#else
 #include <unistd.h>
 #include <dirent.h>
 #include <sys/param.h>
-#endif
-
 #include <sys/stat.h>
 #include <stdlib.h>
 #include <string.h>
