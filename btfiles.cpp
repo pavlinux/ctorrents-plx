@@ -45,6 +45,10 @@ btFiles::~btFiles()
 	_btf_destroy();
 	if (m_directory)
 		delete[]m_directory;
+        if (m_file)     {  
+            delete[]m_file;
+            m_file = NULL;
+        }
 }
 
 BTFILE *btFiles::_new_bfnode()
