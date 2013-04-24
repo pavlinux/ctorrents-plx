@@ -3,13 +3,16 @@
 
 #include "def.h"
 
+#ifndef WINDOWS
 extern "C" {
 
-	RETSIGTYPE sig_catch(int sig_no);
-	RETSIGTYPE sig_catch2(int sig_no);
-	RETSIGTYPE signals(int sig_no);
+RETSIGTYPE sig_catch(int sig_no);
+RETSIGTYPE sig_catch2(int sig_no);
+RETSIGTYPE signals(int sig_no);
 
-}				// extern "C"
+} // extern "C"
+#endif
+
 void sig_setup();
 
 #endif

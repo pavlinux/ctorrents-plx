@@ -56,12 +56,15 @@ ssize_t btStream::Send_Bitfield(char *bit_buf, size_t len)
 {
 	size_t q = htonl(len + H_BASE_LEN);
 	unsigned char t = M_BITFIELD;
+
 	ssize_t r = out_buffer.Put(sock, (char *)&q, H_LEN);
 	if (r < 0)
 		return r;
 	r = out_buffer.Put(sock, (char *)&t, H_BASE_LEN);
+
 	if (r < 0)
 		return r;
+
 	return out_buffer.Put(sock, bit_buf, len);
 }
 

@@ -1,4 +1,3 @@
-#ifndef WINDOWS
 #include "sigint.h"		// def.h
 
 #include <sys/types.h>
@@ -12,35 +11,34 @@
 
 extern "C" {
 
-	RETSIGTYPE sig_catch(int sig_no) {
-		if (SIGINT == sig_no || SIGTERM == sig_no) {
-			Tracker.ClearRestart();
-			Tracker.SetStoped();
-			signal(sig_no, sig_catch2);
-		}
-	} RETSIGTYPE sig_catch2(int sig_no) {
-		if (SIGINT == sig_no || SIGTERM == sig_no) {
-			if (cfg_cache_size)
-				BTCONTENT.FlushCache();
-			BTCONTENT.SaveBitfield();
-			WORLD.CloseAll();
-			signal(sig_no, SIG_DFL);
-			raise(sig_no);
-		}
-	}
+    RETSIGTYPE sig_catch(int sig_no) {
+        if (SIGINT == sig_no || SIGTERM == sig_no) {
+            Tracker.ClearRestart();
+            Tracker.SetStoped();
+            signal(sig_no, sig_catch2);
+        }
+    }
 
-// Handler for other signals
-	RETSIGTYPE signals(int sig_no) {
-		return CONSOLE.Signal(sig_no);
-	}
+    RETSIGTYPE sig_catch2(int sig_no) {
+        if (SIGINT == sig_no || SIGTERM == sig_no) {
+            if (cfg_cache_size)
+                BTCONTENT.FlushCache();
+            BTCONTENT.SaveBitfield();
+            WORLD.CloseAll();
+            signal(sig_no, SIG_DFL);
+            raise(sig_no);
+        }
+    }
 
-}				// extern "C"
+    // Handler for other signals
+RETSIGTYPE signals(int sig_no) {
+        return CONSOLE.Signal(sig_no);
+    }
 
-#endif
+} // extern "C"
 
 void sig_setup()
 {
-#ifndef WINDOWS
 	signal(SIGPIPE, SIG_IGN);
 	signal(SIGINT, sig_catch);
 	signal(SIGTERM, sig_catch);
@@ -57,5 +55,4 @@ void sig_setup()
 
 	signal(SIGCONT, signals);
 	signal(SIGTSTP, signals);
-#endif
 }

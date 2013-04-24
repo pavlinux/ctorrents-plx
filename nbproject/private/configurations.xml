@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configurationDescriptor version="88">
+  <logicalFolder name="root" displayName="root" projectFiles="true" kind="ROOT">
+    <df root="." name="ctorrents-plx">
+      <in>bencode.cpp</in>
+      <in>bencode.h</in>
+      <in>bitfield.cpp</in>
+      <in>bitfield.h</in>
+      <in>btconfig.cpp</in>
+      <in>btconfig.h</in>
+      <in>btcontent.cpp</in>
+      <in>btcontent.h</in>
+      <in>btfiles.cpp</in>
+      <in>btfiles.h</in>
+      <in>btrequest.cpp</in>
+      <in>btrequest.h</in>
+      <in>btstream.cpp</in>
+      <in>btstream.h</in>
+      <in>bttime.h</in>
+      <in>bufio.cpp</in>
+      <in>bufio.h</in>
+      <in>compat.c</in>
+      <in>compat.h</in>
+      <in>config.h</in>
+      <in>connect_nonb.cpp</in>
+      <in>connect_nonb.h</in>
+      <in>console.cpp</in>
+      <in>console.h</in>
+      <in>ctcs.cpp</in>
+      <in>ctcs.h</in>
+      <in>ctorrent.cpp</in>
+      <in>ctorrent.h</in>
+      <in>def.h</in>
+      <in>downloader.cpp</in>
+      <in>downloader.h</in>
+      <in>httpencode.cpp</in>
+      <in>httpencode.h</in>
+      <in>iplist.cpp</in>
+      <in>iplist.h</in>
+      <in>msgencode.h</in>
+      <in>peer.cpp</in>
+      <in>peer.h</in>
+      <in>peerlist.cpp</in>
+      <in>peerlist.h</in>
+      <in>rate.cpp</in>
+      <in>rate.h</in>
+      <in>setnonblock.cpp</in>
+      <in>setnonblock.h</in>
+      <in>sha1.c</in>
+      <in>sha1.h</in>
+      <in>sigint.cpp</in>
+      <in>sigint.h</in>
+      <in>tracker.cpp</in>
+      <in>tracker.h</in>
+    </df>
+  </logicalFolder>
+  <projectmakefile>Makefile</projectmakefile>
+  <confs>
+    <conf name="Default" type="0">
+      <toolsSet>
+        <developmentServer>localhost</developmentServer>
+        <platform>2</platform>
+      </toolsSet>
+      <dbx_gdbdebugger version="1">
+        <gdb_pathmaps>
+        </gdb_pathmaps>
+        <gdb_interceptlist>
+          <gdbinterceptoptions gdb_all="false" gdb_unhandled="true" gdb_unexpected="true"/>
+        </gdb_interceptlist>
+        <gdb_options>
+          <DebugOptions>
+          </DebugOptions>
+        </gdb_options>
+        <gdb_buildfirst gdb_buildfirst_overriden="false" gdb_buildfirst_old="false"/>
+      </dbx_gdbdebugger>
+      <nativedebugger version="1">
+        <engine>gdb</engine>
+      </nativedebugger>
+      <runprofile version="9">
+        <runcommandpicklist>
+          <runcommandpicklistitem>"${OUTPUT_PATH}"</runcommandpicklistitem>
+        </runcommandpicklist>
+        <runcommand>"${OUTPUT_PATH}"</runcommand>
+        <rundir>.</rundir>
+        <buildfirst>true</buildfirst>
+        <terminal-type>0</terminal-type>
+        <remove-instrumentation>0</remove-instrumentation>
+        <environment>
+        </environment>
+      </runprofile>
+    </conf>
+  </confs>
+</configurationDescriptor>

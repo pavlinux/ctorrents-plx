@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configurationDescriptor version="88">
+  <logicalFolder name="root" displayName="root" projectFiles="true" kind="ROOT">
+    <df root="." name="ctorrents-plx">
+      <in>bencode.cpp</in>
+      <in>bencode.h</in>
+      <in>bitfield.cpp</in>
+      <in>bitfield.h</in>
+      <in>btconfig.cpp</in>
+      <in>btconfig.h</in>
+      <in>btcontent.cpp</in>
+      <in>btcontent.h</in>
+      <in>btfiles.cpp</in>
+      <in>btfiles.h</in>
+      <in>btrequest.cpp</in>
+      <in>btrequest.h</in>
+      <in>btstream.cpp</in>
+      <in>btstream.h</in>
+      <in>bttime.h</in>
+      <in>bufio.cpp</in>
+      <in>bufio.h</in>
+      <in>compat.c</in>
+      <in>compat.h</in>
+      <in>config.h</in>
+      <in>connect_nonb.cpp</in>
+      <in>connect_nonb.h</in>
+      <in>console.cpp</in>
+      <in>console.h</in>
+      <in>ctcs.cpp</in>
+      <in>ctcs.h</in>
+      <in>ctorrent.cpp</in>
+      <in>def.h</in>
+      <in>downloader.cpp</in>
+      <in>downloader.h</in>
+      <in>httpencode.cpp</in>
+      <in>httpencode.h</in>
+      <in>iplist.cpp</in>
+      <in>iplist.h</in>
+      <in>msgencode.h</in>
+      <in>peer.cpp</in>
+      <in>peer.h</in>
+      <in>peerlist.cpp</in>
+      <in>peerlist.h</in>
+      <in>rate.cpp</in>
+      <in>rate.h</in>
+      <in>setnonblock.cpp</in>
+      <in>setnonblock.h</in>
+      <in>sha1.c</in>
+      <in>sha1.h</in>
+      <in>sigint.cpp</in>
+      <in>sigint.h</in>
+      <in>tracker.cpp</in>
+      <in>tracker.h</in>
+    </df>
+    <logicalFolder name="ExternalFiles"
+                   displayName="Важные файлы"
+                   projectFiles="false"
+                   kind="IMPORTANT_FILES_FOLDER">
+      <itemPath>Makefile</itemPath>
+    </logicalFolder>
+  </logicalFolder>
+  <sourceFolderFilter>^(nbproject)$</sourceFolderFilter>
+  <sourceRootList>
+    <Elem>.</Elem>
+  </sourceRootList>
+  <projectmakefile>Makefile</projectmakefile>
+  <confs>
+    <conf name="Default" type="0">
+      <toolsSet>
+        <remote-sources-mode>LOCAL_SOURCES</remote-sources-mode>
+        <compilerSet>default</compilerSet>
+      </toolsSet>
+      <codeAssistance>
+      </codeAssistance>
+      <makefileType>
+        <makeTool>
+          <buildCommandWorkingDir>.</buildCommandWorkingDir>
+          <buildCommand>${MAKE} -f Makefile</buildCommand>
+          <cleanCommand>${MAKE} -f Makefile clean</cleanCommand>
+          <executablePath></executablePath>
+        </makeTool>
+      </makefileType>
+      <item path="bencode.cpp" ex="false" tool="1" flavor2="8">
+        <ccTool>
+        </ccTool>
+      </item>
+      <item path="bencode.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="bitfield.cpp" ex="false" tool="1" flavor2="8">
+        <ccTool>
+        </ccTool>
+      </item>
+      <item path="bitfield.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="btconfig.cpp" ex="false" tool="1" flavor2="8">
+        <ccTool>
+        </ccTool>
+      </item>
+      <item path="btconfig.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="btcontent.cpp" ex="false" tool="1" flavor2="8">
+        <ccTool>
+        </ccTool>
+      </item>
+      <item path="btcontent.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="btfiles.cpp" ex="false" tool="1" flavor2="8">
+        <ccTool>
+        </ccTool>
+      </item>
+      <item path="btfiles.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="btrequest.cpp" ex="false" tool="1" flavor2="8">
+        <ccTool>
+        </ccTool>
+      </item>
+      <item path="btrequest.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="btstream.cpp" ex="false" tool="1" flavor2="8">
+        <ccTool>
+        </ccTool>
+      </item>
+      <item path="btstream.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="bttime.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="bufio.cpp" ex="false" tool="1" flavor2="8">
+        <ccTool>
+        </ccTool>
+      </item>
+      <item path="bufio.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="compat.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="compat.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="config.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="connect_nonb.cpp" ex="false" tool="1" flavor2="8">
+        <ccTool>
+        </ccTool>
+      </item>
+      <item path="connect_nonb.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="console.cpp" ex="false" tool="1" flavor2="8">
+        <ccTool>
+        </ccTool>
+      </item>
+      <item path="console.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="ctcs.cpp" ex="false" tool="1" flavor2="8">
+        <ccTool>
+        </ccTool>
+      </item>
+      <item path="ctcs.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="ctorrent.cpp" ex="false" tool="1" flavor2="8">
+        <ccTool>
+        </ccTool>
+      </item>
+      <item path="def.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="downloader.cpp" ex="false" tool="1" flavor2="8">
+        <ccTool>
+        </ccTool>
+      </item>
+      <item path="downloader.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="httpencode.cpp" ex="false" tool="1" flavor2="8">
+        <ccTool>
+        </ccTool>
+      </item>
+      <item path="httpencode.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="iplist.cpp" ex="false" tool="1" flavor2="8">
+        <ccTool>
+        </ccTool>
+      </item>
+      <item path="iplist.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="msgencode.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="peer.cpp" ex="false" tool="1" flavor2="8">
+        <ccTool>
+        </ccTool>
+      </item>
+      <item path="peer.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="peerlist.cpp" ex="false" tool="1" flavor2="8">
+        <ccTool>
+        </ccTool>
+      </item>
+      <item path="peerlist.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="rate.cpp" ex="false" tool="1" flavor2="8">
+        <ccTool>
+        </ccTool>
+      </item>
+      <item path="rate.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="setnonblock.cpp" ex="false" tool="1" flavor2="8">
+        <ccTool>
+        </ccTool>
+      </item>
+      <item path="setnonblock.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="sha1.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="sha1.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="sigint.cpp" ex="false" tool="1" flavor2="8">
+        <ccTool>
+        </ccTool>
+      </item>
+      <item path="sigint.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="tracker.cpp" ex="false" tool="1" flavor2="8">
+        <ccTool>
+        </ccTool>
+      </item>
+      <item path="tracker.h" ex="false" tool="3" flavor2="0">
+      </item>
+    </conf>
+  </confs>
+</configurationDescriptor>

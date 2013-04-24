@@ -30,20 +30,17 @@ void Downloader()
 	fd_set rfd, rfdnext;
 	fd_set wfd, wfdnext;
 	int stopped = 0, f_idleused = 0, f_poll = 0;
-	//struct timespec nowspec;
 	double maxsleep;
-	time_t then; 
-        time_t concheck = (time_t) 0;
+	time_t then, concheck = (time_t) 0;
 
 	FD_ZERO(&rfdnext);
 	FD_ZERO(&wfdnext);
 
 	do {
-              time(&now);
+		time(&now);
 		if (!stopped) {
 			if (!Tracker.IsQuitting() && BTCONTENT.SeedTimeout())
 				Tracker.SetStoped();
-                        
 			if (Tracker.IsQuitting() && !Tracker.IsRestarting()) {
 				stopped = 1;
 				WORLD.Pause();

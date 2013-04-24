@@ -1,17 +1,14 @@
-#include "def.h"
+#include "./def.h"
 
 #include "bencode.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
+#include <unistd.h>
+#include <fcntl.h>
+#include <stdio.h>
+#include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <limits.h>
 #include <ctype.h>
 
 #ifndef HAVE_SNPRINTF
@@ -29,8 +26,7 @@ static const char *next_key(const char *keylist)
 	return keylist;
 }
 
-static inline size_t compare_key(const char *key, size_t keylen,
-				 const char *keylist)
+static size_t compare_key(const char *key, size_t keylen, const char *keylist)
 {
 
 	for (; keylen && *keylist && *key == *keylist;
@@ -46,7 +42,6 @@ static inline size_t compare_key(const char *key, size_t keylen,
 size_t buf_long(const char *b, size_t len, char beginchar, char endchar,
 		int64_t * pi)
 {
-
 	const char *p = b;
 	const char *psave;
 
@@ -122,7 +117,6 @@ size_t decode_dict(const char *b, size_t len, const char *keylist)
 {
 	size_t rl, dl, nl;
 	const char *pkey;
-        
 	dl = 0;
 	if (2 > len || *b != 'd')
 		return 0;
@@ -161,15 +155,12 @@ size_t decode_dict(const char *b, size_t len, const char *keylist)
 
 size_t decode_list(const char *b, size_t len, const char *keylist)
 {
-
 	size_t ll, rl;
-
+	ll = 0;
 	if (2 > len || *b != 'l')
 		return 0;
-
 	len--;
-	ll = 1;
-
+	ll++;
 	for (; len && *(b + ll) != 'e';) {
 		rl = decode_rev(b + ll, len, keylist);
 		if (!rl)
@@ -178,19 +169,15 @@ size_t decode_list(const char *b, size_t len, const char *keylist)
 		ll += rl;
 		len -= rl;
 	}
-
 	if (!len)
 		return 0;
-
-	return (ll + 1);	/* add last char 'e' */
+	return ll + 1;		/* add last char 'e' */
 }
 
 size_t decode_rev(const char *b, size_t len, const char *keylist)
 {
-
 	if (!b)
 		return 0;
-
 	switch (*b) {
 	case 'i':
 		return decode_int(b, len);
@@ -204,51 +191,40 @@ size_t decode_rev(const char *b, size_t len, const char *keylist)
 }
 
 size_t decode_query(const char *b, size_t len, const char *keylist,
-        const char **ps, size_t * pi, int64_t * pl, int method) 
-{   
-    char kl[KEYNAME_LISTSIZ] = {0};
-    size_t pos;
-
-    if (keylist == NULL)
-        return 0;
-
-    strcpy(kl, keylist);
-    pos = decode_rev(b, len, kl);
-
-    if (!pos)
-        return 0;
-
-    switch (method) {
-
-        case QUERY_STR:
-            return (buf_str(b + pos, len - pos, ps, pi));
-        case QUERY_INT:
-            return (buf_int(b + pos, len - pos, 'i', 'e', pi));
-        case QUERY_POS:
-            if (pi)
-                *pi = decode_rev(b + pos, len - pos, (const char *) 0);
-            return pos;
-        case QUERY_LONG:
-            return (buf_long(b + pos, len - pos, 'i', 'e', pl));
-        default:
-            return 0;
-    }
+		    const char **ps, size_t * pi, int64_t * pl, int method)
+{
+	size_t pos;
+	char kl[KEYNAME_LISTSIZ];
+	strcpy(kl, keylist);
+	pos = decode_rev(b, len, kl);
+	if (!pos)
+		return 0;
+	switch (method) {
+	case QUERY_STR:
+		return (buf_str(b + pos, len - pos, ps, pi));
+	case QUERY_INT:
+		return (buf_int(b + pos, len - pos, 'i', 'e', pi));
+	case QUERY_POS:
+		if (pi)
+			*pi = decode_rev(b + pos, len - pos, (const char *)0);
+		return pos;
+	case QUERY_LONG:
+		return (buf_long(b + pos, len - pos, 'i', 'e', pl));
+	default:
+		return 0;
+	}
 }
 
 size_t bencode_buf(const char *buf, size_t len, FILE * fp)
 {
+	char slen[MAX_INT_SIZ];
 
-	char slen[MAX_INT_SIZ] = {0};
-
-	if (MAX_INT_SIZ <= snprintf(slen, MAX_INT_SIZ, "%zd:", len))
+	if (MAX_INT_SIZ <= snprintf(slen, MAX_INT_SIZ, "%d:", (int)len))
 		return 0;
-
 	if (fwrite(slen, strlen(slen), 1, fp) != 1)
 		return 0;
-
 	if (fwrite(buf, len, 1, fp) != 1)
 		return 0;
-
 	return 1;
 }
 
@@ -259,19 +235,14 @@ size_t bencode_str(const char *str, FILE * fp)
 
 size_t bencode_int(const uint64_t integer, FILE * fp)
 {
-
 	char buf[MAX_INT_SIZ];
-
 	if (EOF == fputc('i', fp))
 		return 0;
-
 	if (MAX_INT_SIZ <=
 	    snprintf(buf, MAX_INT_SIZ, "%llu", (unsigned long long)integer))
 		return 0;
-
 	if (fwrite(buf, strlen(buf), 1, fp) != 1)
 		return 0;
-
 	return (EOF == fputc('e', fp)) ? 0 : 1;
 }
 
@@ -292,7 +263,6 @@ size_t bencode_end_dict_list(FILE * fp)
 
 size_t bencode_path2list(const char *pathname, FILE * fp)
 {
-
 	const char *pn;
 	const char *p = pathname;
 
@@ -317,15 +287,12 @@ size_t bencode_path2list(const char *pathname, FILE * fp)
 
 size_t decode_list2path(const char *b, size_t n, char *pathname)
 {
-
 	const char *pb = b;
 	const char *s = (char *)0;
-
 	size_t r, q;
 
 	if ('l' != *pb)
 		return 0;
-
 	pb++;
 	n--;
 
@@ -335,24 +302,15 @@ size_t decode_list2path(const char *b, size_t n, char *pathname)
 	for (; n;) {
 		if (!(r = buf_str(pb, n, &s, &q)))
 			return 0;
-
 		memcpy(pathname, s, q);
 		pathname += q;
 		pb += r;
 		n -= r;
-
 		if ('e' != *pb) {
 			*pathname = PATH_SP, pathname++;
 		} else
 			break;
 	}
-
-	*pathname = ('\0');
-
+	*pathname = '\0';
 	return (pb - b + 1);
 }
-
-#ifdef __cplusplus
-}
-#endif
-  

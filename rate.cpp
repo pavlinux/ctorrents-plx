@@ -282,10 +282,9 @@ size_t Rate::NominalRate()
 
 size_t Rate::RateMeasure()
 {
-	// calculate rate based on bandwidth history data
-	//time_t timestamp = now;
-	unsigned long countbytes = 0;
-	double timeused = 0;
+	// calculate rate based on bandwidth history data	
+	unsigned long countbytes = 0ul;
+	double timeused = 0.0F;
 	BWSAMPLE *p;
 
 	if (m_history && now == m_lastrate.lasttime &&
@@ -306,9 +305,9 @@ size_t Rate::RateMeasure()
 		countbytes += p->bytes;
 	}
 	timeused = (double)(now - (time_t) (m_history->timestamp));
-	if (timeused == 0)
-		timeused = 1;
-	else if (timeused < 0)
+	if (timeused == 0.0F)
+		timeused = 1.0F;
+	else if (timeused < 0.0F)
 		ClearHistory();	// time went backward
 	else
 		m_update_nominal = 1;

@@ -26,8 +26,10 @@ int IpList::Add(const struct sockaddr_in *psin)
 		return -1;
 	// if not exist;
 	node = new IPLIST;
+#ifndef WINDOWS
 	if (!node)
 		return -1;
+#endif
 	count++;
 	memcpy(&node->address, psin, sizeof(struct sockaddr_in));
 	node->next = ipl_head;

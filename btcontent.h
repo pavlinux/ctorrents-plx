@@ -48,7 +48,7 @@ typedef struct _bfnode {
 
 class btContent
 {
-  //METAINFOï¿½ï¿½Ô±
+  //METAINFO³ÉÔ±
   char *m_announce;
   unsigned char *m_hash_table;
   unsigned char m_shake_buffer[68];
@@ -57,18 +57,14 @@ class btContent
 
   size_t m_hashtable_length;
   size_t m_piece_length;
-  size_t m_npieces;
-  size_t m_check_piece;
-  time_t m_create_date;
-  time_t m_seed_timestamp;
-  time_t m_start_timestamp;
+  size_t m_npieces, m_check_piece;
+  time_t m_create_date, m_seed_timestamp, m_start_timestamp;
   size_t m_private;
 
   uint64_t m_left_bytes;
   btFiles m_btfiles;
 
-  time_t m_flush_failed;
-  time_t m_flush_tried;
+  time_t m_flush_failed, m_flush_tried;
 
   BTCACHE **m_cache, *m_cache_oldest, *m_cache_newest;
   size_t m_cache_size, m_cache_used;

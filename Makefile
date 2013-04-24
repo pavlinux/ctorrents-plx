@@ -3,39 +3,21 @@
 #
 # If not linked try:   ln -sf `g++ -print-file-name=libstdc++.a`
 #
-VERSION = 0.0.3
 
-CXX = g++
-CC  = gcc
+CXX ?= g++
+CC  ?= gcc
 
-CXXFLAGS=-Wall -W -Wextra -march=native -g0 -Os -s  -Wno-format-y2k
-CFLAGS	=-Wall -W -Wextra -march=native -g0 -Os -s -Wno-format-y2k
+# CXXFLAGS=-W -Wall -Wextra -mtune=atom -flto -Ofast -DFORTIFY_SOURCE=2 -g0 -fomit-frame-pointer -std=gnu++0x -static-libstdc++
+# CFLAGS=-W -Wall -Wextra -mtune=atom -flto -Ofast -DFORTIFY_SOURCE=2 -g0 -fomit-frame-pointer -std=gnu99 -static
 
-CACHE=$(shell cat /proc/cpuinfo | grep "cache size" | head -1 | cut -d" " -f3)
-
-# GCC 4.5+
-# for l2-cache-size view you're /proc/cpuinfo
-ZZFLAGS =-frecord-gcc-switches -flto \
-        -g0 -Ofast -march=native \
-        -funroll-all-loops -ftree-vectorize \
-        -fno-inline-functions-called-once \
-        -fmerge-all-constants -ffreestanding \
-        --param l2-cache-size=$(CACHE) \
-        -floop-interchange -floop-block -floop-strip-mine \
-        -ftree-loop-distribution -fexcess-precision=fast \
-	-fno-strict-aliasing -fwhole-program \
-	-fipa-sra -fsplit-stack -s -pipe  -Wno-format-y2k
-
-# CXXFLAGS = $(ZZFLAGS)
-# CFLAGS = $(ZZFLAGS)
+CXXFLAGS=-W -Wall -Wextra -mtune=generic -O0 -g3 -gdwarf-2 -fno-omit-frame-pointer -std=gnu++0x -static-libstdc++
+CFLAGS=-W -Wall -Wextra -mtune=generic -O0 -g3 -gdwarf-2 -fno-omit-frame-pointer -std=gnu99 -static
 
 #CXXFLAGS=-DDEBUG -W -Wall -Wextra -Wshadow -std=gnu99 -O0 -g3 -ggdb3 -gdwarf-2 -fno-omit-frame-pointer
 
-LINK = g++
-LIBS=-lrt
-LDFLAGS=-static-libstdc++ $(LIBS) -Wl,-Ofast -Wl,--as-needed
-
-# -static-libstdc++
+LINK ?= g++
+LDFLAGS=-pthread -flto
+LIBS=-lrt -static-libstdc++ -L.
 
 EXEC = ctorrent
 
@@ -50,11 +32,21 @@ OBJECTS = bencode.o bitfield.o btconfig.o btcontent.o btfiles.o \
 	  console.o ctcs.o ctorrent.o downloader.o httpencode.o \
 	  iplist.o peer.o peerlist.o rate.o setnonblock.o sigint.o \
 	  tracker.o sha1.o
-	  
+
+ifneq (,$(findstring DDEBUG,$(CXXFLAGS)))
+    CXXFLAGS += -lgcov -fprofile-arcs -ftest-coverage 
+    LINK   += -lgcov -fprofile-arcs -ftest-coverage 
+endif
+
+VERSION = 0.0.5
+
 CPUS = $(shell grep processor /proc/cpuinfo | wc -l)
 MAKEFLAGS += j${CPUS}
 
 .SUFFIXES: .o .cpp .c
+
+.o:
+	$(CXX) -c $(CXXFLAGS) -o $@ $<
 
 all: $(EXEC)
 
@@ -69,7 +61,7 @@ small:
 	upx -9 $(EXEC)
 
 install:
-	install -s -m 550 -o 0 -g 0 -D ${EXEC} /usr/bin/;
+	install -s -D -m 755 -o 65535 -g 65534 -D ${EXEC} /usr/bin/;
 
 uninstall:
 	rm -f /usr/bin/${EXEC};
@@ -86,5 +78,3 @@ lzma:
 	tar -c *.c *.cpp *.h Makefile | lzma -z -c9 > ${EXEC}-${VERSION}.tar.lzma
 xz:	
 	tar -c *.c *.cpp *.h Makefile | xz -z -c9 > ${EXEC}-${VERSION}.tar.xz
-
-

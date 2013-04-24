@@ -115,9 +115,9 @@ int RequestQueue::Copy(const RequestQueue * prq, size_t idx)
 
 int RequestQueue::CopyShuffle(const RequestQueue * prq, size_t idx)
 {
-	PSLICE n, u, ps, prev, end = 0, psnext, temp;
+	PSLICE n, u, ps, prev, end, psnext, temp;
 	SLICE dummy;
-	unsigned long rndbits = 0xdeadbeef;
+	unsigned long rndbits;
 	int len, shuffle, i = 0, setsend = 0;
 	size_t firstoff;
 
@@ -227,7 +227,7 @@ size_t RequestQueue::Qlen(size_t piece) const
 	size_t cnt = 0;
 	PSLICE n = rq_head;
 	PSLICE u = (PSLICE) 0;
-	size_t idx = 0;
+	size_t idx;
 
 	for (; n && n->index != piece; n = n->next) ;
 
@@ -315,7 +315,7 @@ int RequestQueue::Add(size_t idx, size_t off, size_t len)
 int RequestQueue::Append(PSLICE ps)
 {
 	PSLICE n = rq_head;
-	PSLICE u = (PSLICE)NULL;
+	PSLICE u = (PSLICE) 0;
 
 	for (; n; u = n, n = u->next) ;	// move to end
 
@@ -531,8 +531,8 @@ PendingQueue PENDINGQUEUE;
 
 PendingQueue::PendingQueue()
 {
-	int i;
-	for (i = 0; i < PENDING_QUEUE_SIZE; i++)
+	int i = 0;
+	for (; i < PENDING_QUEUE_SIZE; i++)
 		pending_array[i] = (PSLICE) 0;
 	pq_count = 0;
 }
@@ -545,8 +545,8 @@ PendingQueue::~PendingQueue()
 
 void PendingQueue::Empty()
 {
-	int i;
-	for (i = 0; i < PENDING_QUEUE_SIZE && pq_count; i++)
+	int i = 0;
+	for (; i < PENDING_QUEUE_SIZE && pq_count; i++)
 		if (pending_array[i] != (PSLICE) 0) {
 			_empty_slice_list(&(pending_array[i]));
 			pq_count--;
@@ -555,8 +555,8 @@ void PendingQueue::Empty()
 
 int PendingQueue::Exist(size_t idx) const
 {
-	size_t i, j;
-	for (i = 0, j = 0; i < PENDING_QUEUE_SIZE && j < pq_count; i++) {
+	int i, j = 0;
+	for (i = 0; i < PENDING_QUEUE_SIZE && j < pq_count; i++) {
 		if (pending_array[i]) {
 			j++;
 			if (idx == pending_array[i]->index)
@@ -568,9 +568,8 @@ int PendingQueue::Exist(size_t idx) const
 
 int PendingQueue::HasSlice(size_t idx, size_t off, size_t len)
 {
-	size_t i, j;
-        
-	for (i = 0, j = 0; i < PENDING_QUEUE_SIZE && j < pq_count; i++) {
+	int i, j = 0;
+	for (i = 0; i < PENDING_QUEUE_SIZE && j < pq_count; i++) {
 		if (pending_array[i]) {
 			j++;
 			if (idx == pending_array[i]->index &&
@@ -593,7 +592,7 @@ int PendingQueue::Pending(RequestQueue * prq)
 {
 	int retval = 0;
 	int i = 0, j = -1;
-	PSLICE n, u = (PSLICE) NULL;
+	PSLICE n, u = (PSLICE) 0;
 	size_t idx, off, len;
 	RequestQueue tmprq;
 
@@ -638,7 +637,7 @@ int PendingQueue::Pending(RequestQueue * prq)
 		n->reqtime = (time_t) 0;
 	}
 	if (n) {
-		u->next = (PSLICE) NULL;
+		u->next = (PSLICE) 0;
 		tmprq.SetHead(n);
 		i = Pending(&tmprq);
 		if (i < 0)
@@ -653,11 +652,11 @@ int PendingQueue::Pending(RequestQueue * prq)
 
 size_t PendingQueue::ReAssign(RequestQueue * prq, BitField & bf)
 {
-	size_t i;
+	int i = 0;
 	size_t sc = pq_count;
 	size_t idx = BTCONTENT.GetNPieces();
 
-	for (i = 0; i < PENDING_QUEUE_SIZE && sc; i++) {
+	for (; i < PENDING_QUEUE_SIZE && sc; i++) {
 		if (pending_array[i] != (PSLICE) 0) {
 			if (bf.IsSet(pending_array[i]->index) &&
 			    !prq->HasIdx(pending_array[i]->index)) {
@@ -675,30 +674,28 @@ size_t PendingQueue::ReAssign(RequestQueue * prq, BitField & bf)
 	return idx;
 }
 
-int PendingQueue::Delete(size_t idx) {
-    
-    size_t i, j, r;
-
-    for (i = 0, j = 0, r = 0; i < PENDING_QUEUE_SIZE && j < pq_count; i++) {
-        if (pending_array[i]) {
-            j++;
-            if (idx == pending_array[i]->index) {
-                r = 1;
-                _empty_slice_list(&(pending_array[i]));
-                pq_count--;
-                break;
-            }
-        }
-    }
-    return r;
+int PendingQueue::Delete(size_t idx)
+{
+	int i, j = 0, r = 0;
+	for (i = 0; i < PENDING_QUEUE_SIZE && j < pq_count; i++) {
+		if (pending_array[i]) {
+			j++;
+			if (idx == pending_array[i]->index) {
+				r = 1;
+				_empty_slice_list(&(pending_array[i]));
+				pq_count--;
+				break;
+			}
+		}
+	}
+	return r;
 }
 
 int PendingQueue::DeleteSlice(size_t idx, size_t off, size_t len)
 {
-	size_t i, j, r;
+	int i, j = 0, r = 0;
 	RequestQueue rq;
-        
-	for (i = 0, j = 0, r = 0; i < PENDING_QUEUE_SIZE && j < pq_count; i++) {
+	for (i = 0; i < PENDING_QUEUE_SIZE && j < pq_count; i++) {
 		if (pending_array[i]) {
 			j++;
 			if (idx == pending_array[i]->index) {

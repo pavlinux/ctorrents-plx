@@ -1,13 +1,17 @@
+#include "./bufio.h"
+
+#ifndef WINDOWS
+#include <unistd.h>
 #include <stdio.h>		// autoconf manual: Darwin + others prereq for stdlib.h
 #include <stdlib.h>		// autoconf manual: Darwin prereq for sys/socket.h
-#include <string.h>
-#include <unistd.h>
-#include <errno.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <netinet/in.h>
+#endif
 
-#include "bufio.h"
+#include <string.h>
+#include <errno.h>
+
 #include "btrequest.h"
 
 #define _left_buffer_size (n - p)
@@ -16,11 +20,11 @@ BufIo::BufIo()
 {
 	f_socket_remote_closed = 0;
 	b = new char[BUF_DEF_SIZ];
-
-        if (!b)
+#ifndef WINDOWS
+	if (!b)
 		throw 9;
-	
-        p = 0;
+#endif
+	p = 0;
 	n = BUF_DEF_SIZ;
 }
 
@@ -42,8 +46,11 @@ ssize_t BufIo::SetSize(size_t len)
 		return 0;
 
 	tbuf = new char[len];
+#ifndef WINDOWS
 	if (!tbuf)
 		return -1;
+#endif
+
 	if (p)
 		memcpy(tbuf, b, p);
 	delete[]b;
@@ -55,15 +62,17 @@ ssize_t BufIo::SetSize(size_t len)
 
 // retval
 // successful return bytes sended. otherwise -1;
-ssize_t BufIo::_SEND(socket_t sk, char *buf, size_t len)
+ssize_t BufIo::_SEND(SOCKET sk, char *buf, size_t len)
 {
 	ssize_t r;
 	size_t t = 0;
 	for (; len;) {
 		r = SEND(sk, buf, len);
 		if (r < 0) {
+#ifndef WINDOWS
 			if (errno == EINTR)
 				continue;
+#endif
 			return (EWOULDBLOCK == errno
 				|| EAGAIN == errno) ? (ssize_t) t : -1;
 		} else if (0 == r) {
@@ -77,37 +86,34 @@ ssize_t BufIo::_SEND(socket_t sk, char *buf, size_t len)
 	return (ssize_t) t;
 }
 
-ssize_t BufIo::_RECV(socket_t sk, char *buf, size_t len)
+ssize_t BufIo::_RECV(SOCKET sk, char *buf, size_t len)
 {
 	ssize_t r;
 	size_t t = 0;
-        
 	for (; len;) {
-            
 		r = RECV(sk, (char *)buf, len);
-                
 		if (r < 0) {
+#ifndef WINDOWS
 			if (errno == EINTR)
 				continue;
+#endif
 			return (EWOULDBLOCK == errno
 				|| EAGAIN == errno) ? (ssize_t) t : -1;
-		} else 
-                    if (0 == r) {
+		} else if (0 == r) {
 			f_socket_remote_closed = 1;
 			return (ssize_t) t;	//connection closed by remote.
-                    } else {
+		} else {
 			buf += r;
 			len -= r;
 			t += r;
-		   }
+		}
 	}
 	return (ssize_t) t;
 }
 
-ssize_t BufIo::Put(socket_t sk, char *buf, size_t len)
+ssize_t BufIo::Put(SOCKET sk, char *buf, size_t len)
 {
 	ssize_t r;
-        
 	if (_left_buffer_size < len) {	//no enough space
 		r = FlushOut(sk);
 		if (r < 0)
@@ -121,12 +127,12 @@ ssize_t BufIo::Put(socket_t sk, char *buf, size_t len)
 	return 0;
 }
 
-ssize_t BufIo::FeedIn(socket_t sk)
+ssize_t BufIo::FeedIn(SOCKET sk)
 {
 	return FeedIn(sk, _left_buffer_size);
 }
 
-ssize_t BufIo::FeedIn(socket_t sk, size_t limit)
+ssize_t BufIo::FeedIn(SOCKET sk, size_t limit)
 {
 	ssize_t r;
 
@@ -148,7 +154,7 @@ ssize_t BufIo::FeedIn(socket_t sk, size_t limit)
 	return (ssize_t) p;
 }
 
-ssize_t BufIo::PutFlush(socket_t sk, char *buf, size_t len)
+ssize_t BufIo::PutFlush(SOCKET sk, char *buf, size_t len)
 {
 	if (_left_buffer_size < len && p) {
 		if (FlushOut(sk) < 0)
@@ -167,7 +173,7 @@ ssize_t BufIo::PutFlush(socket_t sk, char *buf, size_t len)
 // retval
 // >= 0 left bytes in buffer
 // < 0 failed
-ssize_t BufIo::FlushOut(socket_t sk)
+ssize_t BufIo::FlushOut(SOCKET sk)
 {
 	ssize_t r;
 	if (!p)
