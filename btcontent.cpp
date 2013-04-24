@@ -1,12 +1,5 @@
 #include "btcontent.h"
 
-#ifdef WINDOWS
-#include <direct.h>
-#include <io.h>
-#include <memory.h>
-// include windows sha1 header here.
-
-#else
 #include <unistd.h>
 #include <sys/param.h>
 
@@ -18,8 +11,6 @@
 #include <ssl/sha.h>
 #elif defined(HAVE_SHA_H)
 #include <sha.h>
-#endif
-
 #endif
 
 #include <stdio.h>
