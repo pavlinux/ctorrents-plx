@@ -6,10 +6,6 @@
 
 #include "./bufio.h"
 
-#ifdef WINDOWS
-#include <Winsock2.h>
-
-#else
 #include <unistd.h>
 #include <netdb.h>   // Solaris defines MAXHOSTNAMELEN here.
 #include <stdio.h>   // autoconf manual: Darwin + others prereq for stdlib.h
@@ -18,16 +14,16 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <sys/param.h>
-#endif
-
 #include <time.h>
 
 #include "btconfig.h"
 
-#define T_FREE 		0
-#define T_CONNECTING	1
-#define T_READY		2
-#define T_FINISHED	3
+enum {
+    T_FREE = 0,
+    T_CONNECTING,
+    T_READY,
+    T_FINISHED
+};
 
 class btTracker
 {
@@ -48,9 +44,9 @@ class btTracker
   unsigned char m_f_boguspeercnt:1;
   unsigned char m_reserved:1;
 
-  time_t m_interval;		// 与Tracker通信的时间间隔
+  time_t m_interval;		// Tracker
   time_t m_default_interval;		// interval that the tracker tells us to wait
-  time_t m_last_timestamp;	// 最后一次成功与Tracker通信的时间
+  time_t m_last_timestamp;	// Tracker
   size_t m_connect_refuse_click;
 
   size_t m_ok_click;	// tracker ok response counter

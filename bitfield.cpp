@@ -33,6 +33,7 @@ BitField::BitField() {
 }
 
 BitField::BitField(size_t npcs) {
+    
     nbits = npcs;
     nbytes = nbits / 8;
     if (nbits % 8)
@@ -43,7 +44,7 @@ BitField::BitField(size_t npcs) {
     if (!b)
         throw 9;
 
-    memset(b, 0, nbytes);
+    memset((void *)b, 0, nbytes);
     nset = 0;
 }
 
@@ -64,11 +65,13 @@ BitField::BitField(const BitField & bf) {
 }
 
 void BitField::operator=(const BitField & bf) {
+    
     nset = bf.nset;
+    
     if (_isfull_sp(bf)) {
         if (b) {
             delete[]b;
-            b = (unsigned char *) 0;
+            b = (unsigned char *)0;
         }
     } else {
         if (!b) {

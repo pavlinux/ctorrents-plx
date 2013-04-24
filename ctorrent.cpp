@@ -145,9 +145,10 @@ int main(int argc, char **argv) {
 #endif
 
 int param_check(int argc, char **argv) {
-    const char *opts;
+    
     int c, l;
-
+    const char *opts;
+    
     if (0 == strncmp(argv[1], "-t", 2))
         opts = "tc:l:ps:u:";
     else

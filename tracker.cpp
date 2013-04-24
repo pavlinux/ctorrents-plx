@@ -414,10 +414,11 @@ next_step:
 }
 
 int btTracker::IsPrivateAddress(uint32_t addr) {
-    return (addr & htonl(0xff000000)) == htonl(0x0a000000) || // 10.x.x.x/8
+    
+    return  (addr & htonl(0xff000000)) == htonl(0x0a000000) || // 10.x.x.x/8
             (addr & htonl(0xfff00000)) == htonl(0xac100000) || // 172.16.x.x/12
             (addr & htonl(0xffff0000)) == htonl(0xc0a80000) || // 192.168.x.x/16
-            (addr & htonl(0xff000000)) == htonl(0x7f000000); // 127.x.x.x/8
+            (addr & htonl(0xff000000)) == htonl(0x7f000000);   // 127.x.x.x/8
 }
 
 int btTracker::BuildBaseRequest() {
