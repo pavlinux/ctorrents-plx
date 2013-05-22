@@ -60,28 +60,32 @@ int snprintf(char *str, size_t size, const char *format, ...)
 
 #ifndef HAVE_STRNSTR
 #include <string.h>
+
+#define NULLC ((char *)0)
+
 /* FUNCTION PROGRAMER: Siberiaic Sang */
 char *strnstr(const char *haystack, const char *needle, size_t haystacklen)
 {
 	char *p;
 	ssize_t plen;
-	ssize_t len = strlen(needle);
+	ssize_t len;
 
 	if (*needle == '\0')
 		return (char *)haystack;
 
 	plen = haystacklen;
-	for (p = (char *)haystack;
-	     p != (char *)0; p = (char *)memchr(p + 1, *needle, plen - 1)) {
-		plen = haystacklen - (p - haystack);
+	len = strlen(needle);
 
+	for (p = (char *)haystack; p != NULLC; p = (char *)memchr(p + 1, *needle, plen - 1)) {
+
+	    plen = haystacklen - (p - haystack);
 		if (plen < len)
-			return (char *)0;
+			return NULLC;
 
 		if (strncmp(p, needle, len) == 0)
 			return (p);
 	}
-	return (char *)0;
+	return NULLC;
 }
 #endif
 
