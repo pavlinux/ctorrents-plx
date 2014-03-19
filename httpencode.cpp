@@ -9,9 +9,36 @@
 
 #include "./config.h"
 
-#if !defined(HAVE_STRNSTR) || !defined(HAVE_STRNCASECMP)
-#include "compat.h"
-#endif
+#ifndef HAVE_STRNSTR
+#include <string.h>
+
+#define NULLC ((char *)0)
+
+/* FUNCTION PROGRAMER: Siberiaic Sang */
+char *strnstr(const char *haystack, const char *needle, size_t haystacklen)
+{
+        char *p;
+        ssize_t plen;
+        ssize_t len;
+
+        if (*needle == '\0')
+                return (char *)haystack;
+
+        plen = haystacklen;
+        len = strlen(needle);
+
+        for (p = (char *)haystack; p != NULLC; p = (char *)memchr(p + 1, *needle, plen - 1)) {
+
+            plen = haystacklen - (p - haystack);
+                if (plen < len)
+                        return NULLC;
+
+                if (strncmp(p, needle, len) == 0)
+                        return (p);
+        }
+        return NULLC;
+}
+#endif /* HAVE_STRNSTR */
 
 static void url_encode_char(char *b, char c)
 {
@@ -86,10 +113,10 @@ size_t Http_split(char *b, size_t n, char **pd, size_t * dlen)
 	hlen = 0;
 
 	if (n < 16)
-		return 0;	// 长度太小，不可能是一个HTML报文
+		return 0;
 
 	if (strncasecmp(b, "HTTP/", 5) != 0) {
-		return 0;	// 没有HTML首部????
+		return 0;
 		/* message without http header */
 		//*pd = b;
 		//*dlen = n;
@@ -103,7 +130,7 @@ size_t Http_split(char *b, size_t n, char **pd, size_t * dlen)
 			hlen = p - b;
 			*pd = (p + addtion);
 			*dlen = n - hlen - addtion;
-		} else {	// 只有首部信息????
+		} else {
 			hlen = n;
 			*pd = (char *)0;
 			*dlen = 0;
