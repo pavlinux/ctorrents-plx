@@ -1615,7 +1615,7 @@ int btPeer::NeedPrefetch() const {
 
 void btPeer::Prefetch(time_t deadline) {
 
-    size_t rd, ru = 0;
+    size_t rd, ru = 0u;
     size_t idx, off, len;
     time_t predict, next_chance;
 
@@ -1672,15 +1672,15 @@ void btPeer::Prefetch(time_t deadline) {
             predict = m_next_send_time;
 
         // Don't prefetch if it will expire from cache before being sent.
-        if (predict < deadline && (0 == (rd = Self.RateDL()) ||
-                predict <=
-                now +
-                cfg_cache_size * 1024 * 1024 / rd)) {
+        if (predict < deadline &&
+                (0 == (rd = Self.RateDL()) ||
+                predict <= now + cfg_cache_size * 1024 * 1024 / rd)) {
+
             // This allows re-prefetch if it might have expired from the cache.
+            ru = Self.RateUL();
             if (!m_prefetch_time
-                    || (0 == rd && 0 == (ru = Self.RateUL()))
-                    || now - m_prefetch_time >
-                    BTCONTENT.CacheSize() / (rd + ru)) {
+                    || (0 == rd && 0 == ru)
+                    || now - m_prefetch_time > BTCONTENT.CacheSize() / (rd + ru)) {
                 BTCONTENT.ReadSlice(NULL, idx, off, len);
                 m_prefetch_time = now;
             }
