@@ -615,9 +615,12 @@ int btTracker::SendRequest() {
     return 0;
 }
 
-int btTracker::IntervalCheck(fd_set * rfdp, fd_set * wfdp) {
+int btTracker::IntervalCheck(fd_set * rdp, fd_set * wrp) {
 
+    fd_set *rfdp = rdp; // bit outside of fd_set selected
+    fd_set *wfdp = wrp; // bit outside of fd_set selected // FIXME
     /* tracker communication */
+
     if (T_FREE == m_status) {
         if (INVALID_SOCKET != m_sock) {
             FD_CLR(m_sock, rfdp);
