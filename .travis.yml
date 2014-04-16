@@ -2,7 +2,7 @@ env:
   global:
    # The next declaration is the encrypted COVERITY_SCAN_TOKEN, created
    # via the "travis encrypt" command using the project repo's public key
-   - secure: ""
+   - secure: "cTcMJYMkpuMrV4tVHLKZqNeGNyMEZVjIH+vTqnEchFkafOerY9vrOs406FFtLMKCCnSKCt4KID+ljaS4DLLp2FeBSDKURau/7GwzlX5CholRmG1+Y1uqAFEopcsTijxkmQPM7JrBWgYh16UoOFfX2k5DKnGjd5QwaqgGOCcY91k="
 
 addons:
   coverity_scan:
@@ -12,7 +12,7 @@ addons:
     notification_email: pavel@pavlinux.ru
     build_command_prepend: "make clean"
     build_command: "make -j4"
-    branch_pattern: coverity_scan
+    branch_pattern: master
 
 compiler:
   - gcc
