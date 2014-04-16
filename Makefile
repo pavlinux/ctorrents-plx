@@ -7,8 +7,8 @@
 CXX ?= g++
 CC  ?= gcc
 
-CXXFLAGS=-W -Wall -Wextra -mtune=core2 -O2 -DFORTIFY_SOURCE=2 -g0 -fomit-frame-pointer -std=gnu++0x -static-libstdc++
-CFLAGS=-W -Wall -Wextra -mtune=core2 -O2 -DFORTIFY_SOURCE=2 -g0 -fomit-frame-pointer -std=gnu99 -static
+CXXFLAGS =-W -Wall -Wextra -mtune=core2 -O2 -DFORTIFY_SOURCE=2 -g0 -fomit-frame-pointer -std=gnu++0x -static-libstdc++
+CFLAGS =-W -Wall -Wextra -mtune=core2 -O2 -DFORTIFY_SOURCE=2 -g0 -fomit-frame-pointer -std=gnu99 -static
 
 # CXXFLAGS=-W -Wall -Wextra -mtune=generic -O0 -g3 -gdwarf-2 -fno-omit-frame-pointer -std=gnu++0x -static-libstdc++
 # CFLAGS=-W -Wall -Wextra -mtune=generic -O0 -g3 -gdwarf-2 -fno-omit-frame-pointer -std=gnu99 -static
@@ -24,8 +24,8 @@ EXEC = ctorrent
 SOURSES = bencode.cpp bitfield.cpp btconfig.cpp btcontent.cpp btfiles.cpp \
 	  btrequest.cpp btstream.cpp bufio.cpp connect_nonb.cpp \
 	  console.cpp ctcs.cpp ctorrent.cpp downloader.cpp httpencode.cpp \
-	  iplist.cpp peer.cpp peerlist.cpp rate.cpp setnonblock.cpp sigint.cpp \
-	  tracker.cpp sha1.c
+	  iplist.cpp peer.cpp peerlist.cpp rate.cpp setnonblock.cpp \
+	  sigint.cpp tracker.cpp sha1.c
 
 OBJECTS = bencode.o bitfield.o btconfig.o btcontent.o btfiles.o \
 	  btrequest.o btstream.o bufio.o connect_nonb.o \
@@ -34,11 +34,11 @@ OBJECTS = bencode.o bitfield.o btconfig.o btcontent.o btfiles.o \
 	  tracker.o sha1.o
 
 ifneq (,$(findstring DDEBUG,$(CXXFLAGS)))
-    CXXFLAGS += -lgcov -fprofile-arcs -ftest-coverage 
-    LINK   += -lgcov -fprofile-arcs -ftest-coverage 
+    CXXFLAGS += -lgcov -fprofile-arcs -ftest-coverage
+    LINK   += -lgcov -fprofile-arcs -ftest-coverage
 endif
 
-VERSION = 0.0.6
+VERSION = 0.0.7
 
 CPUS = $(shell grep processor /proc/cpuinfo | wc -l)
 MAKEFLAGS += j${CPUS}
@@ -46,7 +46,7 @@ MAKEFLAGS += j${CPUS}
 .SUFFIXES: .o .cpp .c
 
 .o:
-	$(CXX) -c $(CXXFLAGS) -o $@ $<
+	$(CXX) -c $(CXXFLAGS) -lrt -o $@ $<
 
 all: $(EXEC)
 
