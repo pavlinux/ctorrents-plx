@@ -10,16 +10,15 @@ addons:
       name: "pavlinux/ctorrents-plx"
       description: "Console Torrent Client"
     notification_email: pavel@pavlinux.ru
-    build_command_prepend:
-    build_command:
+    build_command_prepend: "make clean"
+    build_command: "make -j4"
     branch_pattern: coverity_scan
 
 compiler:
   - gcc
   - g++
 
-install: make
-
-
-
+script:
+  - make -j4
+  - if [ "${COVERITY_SCAN}" = '1' ]; then eval "$COVERITY_SCAN_BUILD"; else eval "$STANDARD_BUILD_COMMAND"; fi
 
