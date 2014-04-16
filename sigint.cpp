@@ -31,28 +31,28 @@ extern "C" {
     }
 
     // Handler for other signals
-RETSIGTYPE signals(int sig_no) {
+
+    RETSIGTYPE signals(int sig_no) {
         return CONSOLE.Signal(sig_no);
     }
 
 } // extern "C"
 
-void sig_setup()
-{
-	signal(SIGPIPE, SIG_IGN);
-	signal(SIGINT, sig_catch);
-	signal(SIGTERM, sig_catch);
+void sig_setup() {
+    signal(SIGPIPE, SIG_IGN);
+    signal(SIGINT, sig_catch);
+    signal(SIGTERM, sig_catch);
 
-	// Don't let printf restart a write after SIGTTOU, we will hard-loop!
-	struct sigaction handler;
-	handler.sa_handler = signals;
-	sigemptyset(&(handler.sa_mask));
-	handler.sa_flags = 0;	// SA_RESTART is not set
-	sigaction(SIGTTOU, &handler, (struct sigaction *)0);
+    // Don't let printf restart a write after SIGTTOU, we will hard-loop!
+    struct sigaction handler;
+    handler.sa_handler = signals;
+    sigemptyset(&(handler.sa_mask));
+    handler.sa_flags = 0; // SA_RESTART is not set
+    sigaction(SIGTTOU, &handler, (struct sigaction *) 0);
 
-	// Likewise with input after SIGTTIN
-	sigaction(SIGTTIN, &handler, (struct sigaction *)0);
+    // Likewise with input after SIGTTIN
+    sigaction(SIGTTIN, &handler, (struct sigaction *) 0);
 
-	signal(SIGCONT, signals);
-	signal(SIGTSTP, signals);
+    signal(SIGCONT, signals);
+    signal(SIGTSTP, signals);
 }

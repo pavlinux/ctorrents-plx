@@ -75,12 +75,12 @@ void ConStream::Close() {
 }
 
 void ConStream::Associate(FILE * stream, const char *name, int mode) {
-    
+
     m_stream = stream;
     m_filemode = mode;
-    
+
     m_name = new char[strlen(name) + 1];
-            
+
     if (m_name != NULL)
         strcpy(m_name, name);
     else
@@ -367,7 +367,8 @@ void Console::User(fd_set * rfdp, fd_set * wfdp __attribute__((unused)),
         if (K_LINES == m_streams[O_INPUT]->GetInputMode()) { // command parameter
             SyncNewlines(O_INPUT);
             if (m_streams[O_INPUT]->Input(param, sizeof (param))) {
-                if (s = strchr(param, '\n'))
+                s = strchr(param, '\n');
+                if (s != NULL)
                     *s = '\0';
                 if ('0' == pending) {
                     if (OperatorMenu(param))

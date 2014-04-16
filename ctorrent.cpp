@@ -1,12 +1,8 @@
-#include "./def.h"
+#include "def.h"
 #include <sys/types.h>
 
-#ifdef WINDOWS
-#include <windows.h>
-#else
 #include <unistd.h>
 #include <signal.h>
-#endif
 
 #include <sys/time.h>
 #include <time.h>
@@ -22,33 +18,25 @@
 #include "ctcs.h"
 #include "console.h"
 
-#include "./config.h"
+#include "config.h"
+#include "sigint.h"
 
 #ifndef HAVE_RANDOM
 #include "compat.h"
 #endif
 
-#ifndef WINDOWS
-#include "sigint.h"
-#endif
-
 void usage();
 int param_check(int argc, char **argv);
 
-#ifdef WINDOWS
-
-int APIENTRY WinMain(HINSTANCE hInstance,
-        HINSTANCE hPrzevInstance, LPSTR lpCmdLine, int nCmdShow) {
-}
-
-#else
-
 void Random_init() {
+
     unsigned long seed;
 #ifdef HAVE_GETTIMEOFDAY
+
     struct timeval tv;
-    gettimeofday(&tv, (struct timezone *) 0);
+    gettimeofday(&tv, (struct timezone *) NULL);
     seed = tv.tv_usec + tv.tv_sec + getpid();
+
 #else
     seed = (unsigned long) time((time_t *) 0);
 #endif
@@ -56,19 +44,20 @@ void Random_init() {
 }
 
 int main(int argc, char **argv) {
+
     char *s;
 
     Random_init();
     arg_user_agent = new char[MAX_PF_LEN + 1];
     strcpy(arg_user_agent, PEER_PFX);
 
-    cfg_user_agent =
-            new char[strlen(PACKAGE_NAME) + strlen(PACKAGE_VERSION) + 2];
-#ifndef WINDOWS
+    cfg_user_agent = new char[strlen(PACKAGE_NAME) + strlen(PACKAGE_VERSION) + 2];
+
     if (!cfg_user_agent)
         return -1;
-#endif
+
     sprintf(cfg_user_agent, "%s/%s", PACKAGE_NAME, PACKAGE_VERSION);
+
     while (s = strchr(cfg_user_agent, ' '))
         *s = '-';
 
@@ -142,13 +131,11 @@ int main(int argc, char **argv) {
     exit(0);
 }
 
-#endif
-
 int param_check(int argc, char **argv) {
-    
+
     int c, l;
     const char *opts;
-    
+
     if (0 == strncmp(argv[1], "-t", 2))
         opts = "tc:l:ps:u:";
     else

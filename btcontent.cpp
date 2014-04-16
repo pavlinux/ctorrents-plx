@@ -311,11 +311,15 @@ int btContent::InitialFromMI(const char *metainfo_fname, const char *saveas) {
     m_announce[r] = '\0';
 
     // announce-list
-    if (r = meta_pos("announce-list")) {
+    r = meta_pos("announce-list");
+
+    if (r != 0) {
         const char *sptr;
-        size_t slen, n = 0;
-        if (q = decode_list(b + r, flen - r, (char *) 0)) {
-            int alend = r + q;
+        size_t slen, n = 0u;
+
+        q = decode_list(b + r, flen - r, NULL);
+        if (q != 0) {
+            size_t alend = r + q;
             r++; // 'l'
             for (; r < alend && *(b + r) != 'e' && n < 9;) { // each list
                 if (!
@@ -346,14 +350,19 @@ int btContent::InitialFromMI(const char *metainfo_fname, const char *saveas) {
 
     if (meta_int("creation date", &r))
         m_create_date = (time_t) r;
+
     if (meta_str("comment", &s, &r) && r) {
-        if (m_comment = new char[r + 1]) {
+
+        m_comment = new char[r + 1];
+        if (m_comment != NULL) {
             memcpy(m_comment, s, r);
             m_comment[r] = '\0';
         }
     }
+
     if (meta_str("created by", &s, &r) && r) {
-        if (m_created_by = new char[r + 1]) {
+        m_created_by = new char[r + 1];
+        if (m_created_by != NULL) {
             memcpy(m_created_by, s, r);
             m_created_by[r] = '\0';
         }

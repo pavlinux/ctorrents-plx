@@ -1,66 +1,71 @@
 #ifndef BTSTREAM_H
 #define BTSTREAM_H
 
-#include "./def.h"
-#include "./bufio.h"
-
-#ifdef WINDOWS
-#include <Winsock2.h>
-#else
 #include <unistd.h>
-#endif
 
+#include "def.h"
+#include "bufio.h"
 #include "rate.h"
 
 size_t get_nl(char *from);
 void set_nl(char *to, size_t from);
 
-class btStream
-{
+class btStream {
 private:
-  SOCKET sock, sock_was;
-  size_t m_oldbytes;
+    SOCKET sock, sock_was;
+    size_t m_oldbytes;
 
 public:
-  BufIo in_buffer;
-  BufIo out_buffer;
+    BufIo in_buffer;
+    BufIo out_buffer;
 
-  btStream() { sock = sock_was = INVALID_SOCKET; m_oldbytes = 0; }
-  ~btStream() { if( INVALID_SOCKET != sock) CLOSE_SOCKET(sock); }
-
-  SOCKET GetSocket() { return (INVALID_SOCKET==sock) ? sock_was : sock; }
-  void SetSocket(SOCKET sk){ sock = sk; }
-
-  void Close(){
-    if( INVALID_SOCKET != sock ){
-      CLOSE_SOCKET(sock);
-      sock_was = sock;
-      sock = INVALID_SOCKET;
+    btStream() {
+        sock = sock_was = INVALID_SOCKET;
+        m_oldbytes = 0;
     }
-    in_buffer.Close();
-    out_buffer.Close();
-  }
 
-  ssize_t PickMessage(); //ÒÆ³ý½ÓÊÕ»º´æÖÐµÄÒ»ÌõÏûÏ¢
-  ssize_t Feed();
-  ssize_t Feed(Rate *rate);
-  ssize_t Feed(size_t limit, Rate *rate);
+    ~btStream() {
+        if (INVALID_SOCKET != sock) CLOSE_SOCKET(sock);
+    }
 
-  int HaveMessage();  // ·µ»ØÖµ 1: »º´æÖÐÓÐÏûÏ¢ 0: ÔÝÎÞÏûÏ¢ -1: Ê§°Ü
-  char PeekMessage();
-  int PeekMessage(char m);
-  int PeekNextMessage(char m);
+    SOCKET GetSocket() {
+        return (INVALID_SOCKET == sock) ? sock_was : sock;
+    }
 
-  ssize_t Send_Keepalive();
-  ssize_t Send_State(unsigned char state);
-  ssize_t Send_Have(size_t idx);
-  ssize_t Send_Piece(size_t idx,size_t off,char *piece_buf,size_t len);
-  ssize_t Send_Bitfield(char *bit_buf,size_t len);
-  ssize_t Send_Request(size_t idx,size_t off,size_t len);
-  ssize_t Send_Cancel(size_t idx,size_t off,size_t len);
-  ssize_t Send_Buffer(char *buf,size_t len);
+    void SetSocket(SOCKET sk) {
+        sock = sk;
+    }
 
-  ssize_t Flush();
+    void Close() {
+        if (INVALID_SOCKET != sock) {
+            CLOSE_SOCKET(sock);
+            sock_was = sock;
+            sock = INVALID_SOCKET;
+        }
+        in_buffer.Close();
+        out_buffer.Close();
+    }
+
+    ssize_t PickMessage(); //ï¿½Æ³ï¿½ï¿½ï¿½Õ»ï¿½ï¿½ï¿½ï¿½Ðµï¿½Ò»ï¿½ï¿½ï¿½ï¿½Ï¢
+    ssize_t Feed();
+    ssize_t Feed(Rate *rate);
+    ssize_t Feed(size_t limit, Rate *rate);
+
+    int HaveMessage(); // ï¿½ï¿½ï¿½ï¿½Öµ 1: ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï¢ 0: ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï¢ -1: Ê§ï¿½ï¿½
+    char PeekMessage();
+    int PeekMessage(char m);
+    int PeekNextMessage(char m);
+
+    ssize_t Send_Keepalive();
+    ssize_t Send_State(unsigned char state);
+    ssize_t Send_Have(size_t idx);
+    ssize_t Send_Piece(size_t idx, size_t off, char *piece_buf, size_t len);
+    ssize_t Send_Bitfield(char *bit_buf, size_t len);
+    ssize_t Send_Request(size_t idx, size_t off, size_t len);
+    ssize_t Send_Cancel(size_t idx, size_t off, size_t len);
+    ssize_t Send_Buffer(char *buf, size_t len);
+
+    ssize_t Flush();
 };
 
 #endif

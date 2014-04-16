@@ -704,20 +704,22 @@ int Ctcs::Send_Detail() {
                 allFilter.SetAll();
                 pfilter = (BitField *) 0;
 
-                while (pfilter =
-                        BTCONTENT.GetNextFilter(pfilter)) {
+                while (pfilter = BTCONTENT.GetNextFilter(pfilter)) {
+
                     priority++;
                     allFilter.And(*pfilter); // cumulation of filters
                     tmpFilter = allFilter;
                     tmpFilter.Invert(); // what's included by the filters...
                     tmpFilter.And(fileFilter); // ...that's also in this file
-                    if (tmpFilter.Count() >=
-                            fileFilter.Count())
+
+                    if (tmpFilter.Count() >= fileFilter.Count())
                         break;
                 }
+
                 if (!pfilter)
                     priority = 0;
             }
+
             snprintf(message, CTCS_BUFSIZE,
                     "CTFILE %d %d %d %d %d %d %llu %s", (int) n,
                     priority, current,

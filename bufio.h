@@ -4,55 +4,72 @@
 #include "def.h"
 #include <sys/types.h>
 
-#ifdef WINDOWS
-#include <Winsock2.h>
-#endif
-
 #include "btconfig.h"
 
-#define BUF_DEF_SIZ 256     
-#define BUF_INC_SIZ 256    
+#define BUF_DEF_SIZ 256
+#define BUF_INC_SIZ 256
 #define BUF_MAX_SIZ (cfg_max_slice_size + BUF_DEF_SIZ + BUF_INC_SIZ)
 
-class BufIo
-{
- private:
-  char *b;   // buffer
-  size_t p;  // amount of data in the buffer
-  size_t n;  // buffer size
+class BufIo {
+private:
+    char *b; // buffer
+    size_t p; // amount of data in the buffer
+    size_t n; // buffer size
 
-  int f_socket_remote_closed;
+    int f_socket_remote_closed;
 
-  ssize_t _realloc_buffer();
-  ssize_t _SEND(SOCKET socket,char *buf,size_t len);
-  ssize_t _RECV(SOCKET socket,char *buf,size_t len);
-  
- public:
-  BufIo();
-  ~BufIo() { if(b){ delete []b; b = (char*) 0;} }
+    ssize_t _realloc_buffer();
+    ssize_t _SEND(SOCKET socket, char *buf, size_t len);
+    ssize_t _RECV(SOCKET socket, char *buf, size_t len);
 
-  ssize_t SetSize(size_t len);
+public:
+    BufIo();
 
-  void Reset(){ p = 0; f_socket_remote_closed = 0;}
+    ~BufIo() {
+        if (b) {
+            delete []b;
+            b = (char*) 0;
+        }
+    }
 
-  void Close(){
-    if( b ){ delete []b; b = (char*) 0; }
-    p = n = 0;
-  }
+    ssize_t SetSize(size_t len);
 
-  size_t Count() const { return p; } //»º´æÖÐÏÖÓÐ×Ö½ÚÊý
-  size_t LeftSize() const { return (n - p); }
+    void Reset() {
+        p = 0;
+        f_socket_remote_closed = 0;
+    }
 
-  ssize_t PickUp(size_t len); //ÒÆ³ý»º´æÖÐÇ°len¸ö×Ö½Ú
+    void Close() {
+        if (b) {
+            delete []b;
+            b = (char*) 0;
+        }
+        p = n = 0;
+    }
 
-  ssize_t FeedIn(SOCKET sk); //´Ósk¶ÁÊý¾Ýµ½»º´æÖ±µ½ÔÝÊ±ÎÞÊý¾Ý¿É¶Á»ò»º³åÇøÂú
-  ssize_t FeedIn(SOCKET sk, size_t limit);
-  ssize_t FlushOut(SOCKET sk); //½«»º´æÖÐÊý¾ÝÐ´µ½socket
-  ssize_t Put(SOCKET sk,char *buf,size_t len); //½«bufÄÚÈÝÌí¼Óµ½»º´æ
-  ssize_t PutFlush(SOCKET sk,char *buf,size_t len);
+    size_t Count() const {
+        return p;
+    } //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö½ï¿½ï¿½ï¿½
 
-  char *BasePointer() { return b; }
-  char *CurrentPointer() { return ( b + p); }
+    size_t LeftSize() const {
+        return (n - p);
+    }
+
+    ssize_t PickUp(size_t len); //ï¿½Æ³ï¿½ï¿½ï¿½ï¿½Ç°lenï¿½ï¿½ï¿½Ö½ï¿½
+
+    ssize_t FeedIn(SOCKET sk); //ï¿½ï¿½skï¿½ï¿½ï¿½ï¿½Ýµï¿½ï¿½ï¿½ï¿½ï¿½Ö±ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½ï¿½ï¿½Ý¿É¶ï¿½ï¿½ò»º³ï¿½ï¿½ï¿½ï¿½ï¿½
+    ssize_t FeedIn(SOCKET sk, size_t limit);
+    ssize_t FlushOut(SOCKET sk); //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð´ï¿½ï¿½socket
+    ssize_t Put(SOCKET sk, char *buf, size_t len); //ï¿½ï¿½bufï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Óµï¿½ï¿½ï¿½ï¿½ï¿½
+    ssize_t PutFlush(SOCKET sk, char *buf, size_t len);
+
+    char *BasePointer() {
+        return b;
+    }
+
+    char *CurrentPointer() {
+        return ( b + p);
+    }
 };
 
 #endif

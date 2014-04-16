@@ -1,5 +1,3 @@
-#include "def.h"
-
 /* compat.c:  Copyright 2007 Dennis Holmes  (dholmes@rahul.net)
  *            except as noted.
  */
@@ -8,16 +6,18 @@
 #include <sys/param.h>
 #endif
 
+#include "def.h"
 #include "compat.h"
 
 #ifndef HAVE_CLOCK_GETTIME
+
 int clock_gettime(clockid_t clock_id, struct timespec *tp)
 {
 	int r = 0;
 
 #if defined(HAVE_GETTIMEOFDAY)
 	struct timeval tv;
-	if ((r = gettimeofday(&tv, (struct timezone *)0)) == 0) {
+	if ((r = gettimeofday(&tv, (struct timezone *) 0)) == 0) {
 		tp->tv_sec = tv.tv_sec;
 		tp->tv_nsec = tv.tv_usec * 1000;
 	}
@@ -31,10 +31,11 @@ int clock_gettime(clockid_t clock_id, struct timespec *tp)
 #endif
 
 #ifndef HAVE_VSNPRINTF
+
 int vsnprintf(char *str, size_t size, const char *format, va_list ap)
 {
 	int r;
-	char *buffer[4 * MAXPATHLEN];	/* git-r-dun */
+	char *buffer[4 * MAXPATHLEN]; /* git-r-dun */
 
 	if ((r = vsprintf(buffer, format, ap)) >= 0) {
 		strncpy(str, buffer, size - 1);
@@ -45,6 +46,7 @@ int vsnprintf(char *str, size_t size, const char *format, va_list ap)
 #endif
 
 #ifndef HAVE_SNPRINTF
+
 int snprintf(char *str, size_t size, const char *format, ...)
 {
 	int r;
@@ -71,19 +73,19 @@ char *strnstr(const char *haystack, const char *needle, size_t haystacklen)
 	ssize_t len;
 
 	if (*needle == '\0')
-		return (char *)haystack;
+		return(char *) haystack;
 
 	plen = haystacklen;
 	len = strlen(needle);
 
-	for (p = (char *)haystack; p != NULLC; p = (char *)memchr(p + 1, *needle, plen - 1)) {
+	for (p = (char *) haystack; p != NULLC; p = (char *) memchr(p + 1, *needle, plen - 1)) {
 
-	    plen = haystacklen - (p - haystack);
+		plen = haystacklen - (p - haystack);
 		if (plen < len)
 			return NULLC;
 
 		if (strncmp(p, needle, len) == 0)
-			return (p);
+			return(p);
 	}
 	return NULLC;
 }
@@ -91,6 +93,7 @@ char *strnstr(const char *haystack, const char *needle, size_t haystacklen)
 
 #ifndef HAVE_STRNCASECMP
 #include <ctype.h>
+
 int strncasecmp(const char *s1, const char *s2, size_t len)
 {
 	unsigned char c1, c2;
@@ -99,8 +102,8 @@ int strncasecmp(const char *s1, const char *s2, size_t len)
 	for (; r == 0 && len && *s1 && *s2; s1++, s2++, len--) {
 		if (*s1 == *s2)
 			continue;
-		c1 = (unsigned char)tolower((int)*s1);
-		c2 = (unsigned char)tolower((int)*s2);
+		c1 = (unsigned char) tolower((int) *s1);
+		c2 = (unsigned char) tolower((int) *s2);
 		if (c1 == c2)
 			continue;
 		else if (c1 < c2)
@@ -121,6 +124,7 @@ int strncasecmp(const char *s1, const char *s2, size_t len)
 #endif
 
 #ifndef HAVE_STRCASECMP
+
 int strcasecmp(const char *s1, const char *s2)
 {
 	return strncasecmp(s1, s2, strlen(s1));
@@ -128,6 +132,7 @@ int strcasecmp(const char *s1, const char *s2)
 #endif
 
 #ifndef HAVE_RANDOM
+
 long random(void)
 {
 	long result;
@@ -136,12 +141,12 @@ long random(void)
 	maxlong--;
 	maxlong /= 2;
 
-	result = (long)rand();
+	result = (long) rand();
 	while (i < maxlong) {
 		result = (result * 2UL * (RAND_MAX + 1UL)) | rand();
 		i *= 2UL * (RAND_MAX + 1UL);
 	}
-	return (result < 0) ? -result : result;
+	return(result < 0) ? -result : result;
 }
 
 void srandom(unsigned long seed)
@@ -155,7 +160,7 @@ void srandom(unsigned long seed)
 			mask = (mask << 16) | 0xffff;
 			i += 2;
 		}
-		useed = (unsigned)(seed & mask);
+		useed = (unsigned) (seed & mask);
 	} else
 		useed = seed;
 
