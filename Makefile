@@ -7,15 +7,15 @@
 CXX ?= g++
 CC  ?= gcc
 
-CXXFLAGS =-W -Wall -Wextra -mtune=core2 -O2 -DFORTIFY_SOURCE=2 -g0 -fomit-frame-pointer -std=gnu++0x -static-libstdc++ -flto -lrt -L .
-CFLAGS =-W -Wall -Wextra -mtune=core2 -O2 -DFORTIFY_SOURCE=2 -g0 -fomit-frame-pointer -std=gnu99 -flto -lrt -L .
+CXXFLAGS =-W -Wall -Wextra -mtune=core2 -O2 -DFORTIFY_SOURCE=2 -g0 -fomit-frame-pointer -std=gnu++0x -static-libstdc++ -lrt -L .
+CFLAGS =-W -Wall -Wextra -mtune=core2 -O2 -DFORTIFY_SOURCE=2 -g0 -fomit-frame-pointer -std=gnu99 -lrt -L .
 
 # CXXFLAGS=-W -Wall -Wextra -mtune=generic -O0 -g3 -gdwarf-2 -fno-omit-frame-pointer -std=gnu++0x -static-libstdc++
 # CFLAGS=-W -Wall -Wextra -mtune=generic -O0 -g3 -gdwarf-2 -fno-omit-frame-pointer -std=gnu99 -static
 #CXXFLAGS=-DDEBUG -W -Wall -Wextra -Wshadow -std=gnu99 -O0 -g3 -ggdb3 -gdwarf-2 -fno-omit-frame-pointer
 
 LINK ?= g++
-LDFLAGS :=-pthread -flto
+LDFLAGS :=-pthread
 LIBS := -lrt -static-libstdc++ -L.
 
 EXEC = ctorrent
@@ -31,7 +31,7 @@ ifneq (,$(findstring DDEBUG,$(CXXFLAGS)))
     LINK   += -lgcov -fprofile-arcs -ftest-coverage
 endif
 
-VERSION = 0.0.7
+VERSION = 0.0.8
 
 CPUS = $(shell grep processor /proc/cpuinfo | wc -l)
 MAKEFLAGS += j${CPUS}
