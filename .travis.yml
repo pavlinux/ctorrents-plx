@@ -10,8 +10,8 @@ addons:
       name: "pavlinux/ctorrents-plx"
       description: "Console Torrent Client"
     notification_email: pavel@pavlinux.ru
-    build_command_prepend: "make clean"
-    build_command: "make -j4"
+    build_command_prepend: "ln -sf `g++ -print-file-name=libstdc++.a`"
+    build_command: "make"
     branch_pattern: master
 
 compiler:

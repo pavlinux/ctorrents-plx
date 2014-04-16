@@ -7,25 +7,18 @@
 CXX ?= g++
 CC  ?= gcc
 
-CXXFLAGS =-W -Wall -Wextra -mtune=core2 -O2 -DFORTIFY_SOURCE=2 -g0 -fomit-frame-pointer -std=gnu++0x -static-libstdc++
-CFLAGS =-W -Wall -Wextra -mtune=core2 -O2 -DFORTIFY_SOURCE=2 -g0 -fomit-frame-pointer -std=gnu99 -static
+CXXFLAGS =-W -Wall -Wextra -mtune=core2 -O2 -DFORTIFY_SOURCE=2 -g0 -fomit-frame-pointer -std=gnu++0x -static-libstdc++ -flto
+CFLAGS =-W -Wall -Wextra -mtune=core2 -O2 -DFORTIFY_SOURCE=2 -g0 -fomit-frame-pointer -std=gnu99 -flto
 
 # CXXFLAGS=-W -Wall -Wextra -mtune=generic -O0 -g3 -gdwarf-2 -fno-omit-frame-pointer -std=gnu++0x -static-libstdc++
 # CFLAGS=-W -Wall -Wextra -mtune=generic -O0 -g3 -gdwarf-2 -fno-omit-frame-pointer -std=gnu99 -static
-
 #CXXFLAGS=-DDEBUG -W -Wall -Wextra -Wshadow -std=gnu99 -O0 -g3 -ggdb3 -gdwarf-2 -fno-omit-frame-pointer
 
 LINK ?= g++
-LDFLAGS=-pthread
+LDFLAGS=-pthread -flto
 LIBS=-lrt -static-libstdc++ -L.
 
 EXEC = ctorrent
-
-SOURSES = bencode.cpp bitfield.cpp btconfig.cpp btcontent.cpp btfiles.cpp \
-	  btrequest.cpp btstream.cpp bufio.cpp connect_nonb.cpp \
-	  console.cpp ctcs.cpp ctorrent.cpp downloader.cpp httpencode.cpp \
-	  iplist.cpp peer.cpp peerlist.cpp rate.cpp setnonblock.cpp \
-	  sigint.cpp tracker.cpp sha1.c
 
 OBJECTS = bencode.o bitfield.o btconfig.o btcontent.o btfiles.o \
 	  btrequest.o btstream.o bufio.o connect_nonb.o \
@@ -75,5 +68,5 @@ bz2:
 	tar -c *.c *.cpp *.h Makefile | bzip2 -c9 > ${EXEC}-${VERSION}.tar.bz2
 lzma:
 	tar -c *.c *.cpp *.h Makefile | lzma -z -c9 > ${EXEC}-${VERSION}.tar.lzma
-xz:	
+xz:
 	tar -c *.c *.cpp *.h Makefile | xz -z -c9 > ${EXEC}-${VERSION}.tar.xz
