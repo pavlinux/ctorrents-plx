@@ -20,10 +20,10 @@
 #include "rate.h"
 #include "btconfig.h"
 
-#define P_CONNECTING (unsigned char) 0u		// connecting
-#define P_HANDSHAKE  (unsigned char) 1u		// handshaking
-#define P_SUCCESS    (unsigned char) 2u		// successful
-#define P_FAILED     (unsigned char) 3u		// failed
+#define P_CONNECTING (unsigned char) 0u	// connecting
+#define P_HANDSHAKE  (unsigned char) 1u	// handshaking
+#define P_SUCCESS    (unsigned char) 2u	// successful
+#define P_FAILED     (unsigned char) 3u	// failed
 
 typedef struct _btstatus {
     unsigned char remote_choked : 1;

@@ -24,11 +24,12 @@ size_t BitField::nbytes = 0;
 size_t BitField::nbits = 0;
 
 BitField::BitField() {
+
     b = new unsigned char[nbytes];
     if (!b)
         throw 9;
 
-    memset(b, 0, nbytes);
+    memset((void *) b, 0, nbytes);
     nset = 0;
 }
 

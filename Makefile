@@ -7,16 +7,16 @@
 CXX ?= g++
 CC  ?= gcc
 
-CXXFLAGS =-W -Wall -Wextra -mtune=core2 -O2 -DFORTIFY_SOURCE=2 -g0 -fomit-frame-pointer -std=gnu++0x -static-libstdc++ -flto
-CFLAGS =-W -Wall -Wextra -mtune=core2 -O2 -DFORTIFY_SOURCE=2 -g0 -fomit-frame-pointer -std=gnu99 -flto
+CXXFLAGS =-W -Wall -Wextra -mtune=core2 -O2 -DFORTIFY_SOURCE=2 -g0 -fomit-frame-pointer -std=gnu++0x -static-libstdc++ -flto -lrt -L .
+CFLAGS =-W -Wall -Wextra -mtune=core2 -O2 -DFORTIFY_SOURCE=2 -g0 -fomit-frame-pointer -std=gnu99 -flto -lrt -L .
 
 # CXXFLAGS=-W -Wall -Wextra -mtune=generic -O0 -g3 -gdwarf-2 -fno-omit-frame-pointer -std=gnu++0x -static-libstdc++
 # CFLAGS=-W -Wall -Wextra -mtune=generic -O0 -g3 -gdwarf-2 -fno-omit-frame-pointer -std=gnu99 -static
 #CXXFLAGS=-DDEBUG -W -Wall -Wextra -Wshadow -std=gnu99 -O0 -g3 -ggdb3 -gdwarf-2 -fno-omit-frame-pointer
 
 LINK ?= g++
-LDFLAGS=-pthread -flto
-LIBS=-lrt -static-libstdc++ -L.
+LDFLAGS :=-pthread -flto
+LIBS := -lrt -static-libstdc++ -L.
 
 EXEC = ctorrent
 
@@ -39,7 +39,7 @@ MAKEFLAGS += j${CPUS}
 .SUFFIXES: .o .cpp .c
 
 .o:
-	$(CXX) -c $(CXXFLAGS) -lrt -o $@ $<
+	$(CXX) $(CXXFLAGS) $(LIBS) -c -o $@ $<
 
 all: $(EXEC)
 
