@@ -658,11 +658,12 @@ int btPeer::MsgDeliver() {
 }
 
 int btPeer::ReponseSlice() {
-    size_t len = 0;
-    struct timespec nowspec;
 
+    struct timespec nowspec;
     ssize_t retval;
     size_t idx, off;
+    size_t len = 0;
+
     reponse_q.Pop(&idx, &off, &len);
 
     if (BTCONTENT.global_buffer_size < len) {
@@ -681,28 +682,34 @@ int btPeer::ReponseSlice() {
 
     size_t currentrate = CurrentUL();
     if (arg_verbose)
-        CONSOLE.Debug("Sending %d/%d/%d to %p",
-            (int) idx, (int) off, (int) len, this);
+        CONSOLE.Debug("Sending %zu/%zu/%zu to %p", idx, off, len, this);
+
     // project the time to send another slice
     if (0 == currentrate) { // don't know peer's rate; use best guess
         // These are "int" for signed calculations below.
         int rate = (int) (Self.RateUL());
         int unchoked = (int) (WORLD.GetUnchoked()); // can't be 0 here
-        if (cfg_max_bandwidth_up < unchoked
-                || cfg_max_bandwidth_up <= rate) {
-            if (rate < unchoked || rate < (unchoked * len) / 3600)
-                m_next_send_time = now;
-            else
-                m_next_send_time =
-                    now + len / (rate / unchoked);
-        } else {
-            m_next_send_time = now + len /
-                    (((int) cfg_max_bandwidth_up - rate >
-                    (int) cfg_max_bandwidth_up / unchoked) ?
-                    (cfg_max_bandwidth_up - rate) :
-                    ((cfg_max_bandwidth_up + unchoked -
-                    1) / unchoked));
-        }
+
+        if (0 != unchoked && rate != 0) { // not div by zero
+            if (cfg_max_bandwidth_up < unchoked
+                    || cfg_max_bandwidth_up <= rate) {
+                if (rate < unchoked || rate < (unchoked * len) / 3600)
+                    m_next_send_time = now;
+                else
+                    m_next_send_time =
+                        now + len / (rate / unchoked);
+            } else {
+                m_next_send_time = now + len /
+                        (
+                        ((int) cfg_max_bandwidth_up - rate >
+                        (int) cfg_max_bandwidth_up / unchoked)
+                        ?
+                        (cfg_max_bandwidth_up - rate)
+                        :
+                        ((cfg_max_bandwidth_up + unchoked - 1) / unchoked));
+            }
+        } // unchoked != 0
+
     } else
         m_next_send_time = now + len /
             ((currentrate < cfg_max_bandwidth_up
@@ -1457,7 +1464,8 @@ int btPeer::RecvModule() {
         return -1;
     }
 
-    while (r = stream.HaveMessage()) {
+    do {
+        r = stream.HaveMessage();
         if (r < 0)
             return -1;
         if ((r = MsgDeliver()) == -2) {
@@ -1467,7 +1475,7 @@ int btPeer::RecvModule() {
         }
         if (r < 0 || stream.PickMessage() < 0)
             return -1;
-    }
+    } while (r);
 
     return 0;
 }

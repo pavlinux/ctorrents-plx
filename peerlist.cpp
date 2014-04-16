@@ -1025,19 +1025,19 @@ int PeerList::Initial_ListenPort() {
         lis_addr.sin_addr.s_addr = cfg_listen_ip;
 
     if (cfg_listen_port) {
-        int opt = 1;
-        setsockopt(m_listen_sock, SOL_SOCKET, SO_REUSEADDR, &opt,
-                sizeof (opt));
+        socklen_t opt = 1;
+        (void) setsockopt(m_listen_sock, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof (opt));
+        errno = 0;
         lis_addr.sin_port = htons(cfg_listen_port);
+
         if (bind(m_listen_sock, (struct sockaddr *) &lis_addr,
                 sizeof (struct sockaddr_in)) == 0)
             r = 1;
         else {
             opt = 0;
-            setsockopt(m_listen_sock, SOL_SOCKET, SO_REUSEADDR,
-                    &opt, sizeof (opt));
-            CONSOLE.Warning(2,
-                    "warn, couldn't bind on specified port %d:  %s",
+            (void) setsockopt(m_listen_sock, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof (opt));
+            errno = 0;
+            CONSOLE.Warning(2, "warn, couldn't bind on specified port %d:  %s",
                     cfg_listen_port, strerror(errno));
         }
     }

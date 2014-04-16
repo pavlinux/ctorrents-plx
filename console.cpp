@@ -338,7 +338,8 @@ Console::~Console() {
         g_console_ready = 0;
 }
 
-int Console::IntervalCheck(fd_set * rfdp, fd_set * wfdp __attribute__((unused))) {
+int Console::IntervalCheck(fd_set * rfdp, fd_set *wfdp __attribute__((unused))) {
+
     Status(0);
 
     if (m_oldfd >= 0) {
@@ -382,64 +383,36 @@ void Console::User(fd_set * rfdp, fd_set * wfdp __attribute__((unused)),
                         switch (pending) {
                             case 'n': // get1file
                                 if (arg_file_to_download)
-                                    delete
-                                    []arg_file_to_download;
-                                arg_file_to_download =
-                                        new
-                                        char[strlen(param) +
-                                        1];
+                                    delete[]arg_file_to_download;
+
+                                arg_file_to_download = new char[strlen(param) + 1];
                                 if (!arg_file_to_download)
-                                    Warning(1,
-                                        "error, failed to allocate memory for option");
+                                    Warning(1, "error, failed to allocate memory for option");
                                 else
-                                    strcpy
-                                        (arg_file_to_download,
-                                        param);
+                                    strcpy(arg_file_to_download, param);
+
                                 BTCONTENT.SetFilter();
                                 break;
                             case 'S': // CTCS server
                                 if (!strchr(param, ':'))
-                                    Interact
-                                        ("Invalid input");
+                                    Interact("Invalid input");
                                 else {
                                     if (arg_ctcs)
-                                        delete
-                                        []arg_ctcs;
-                                    if (0 ==
-                                            strcmp(":",
-                                            param)) {
+                                        delete[]arg_ctcs;
+                                    if (0 == strcmp(":", param)) {
                                         if (arg_ctcs)
-                                            CTCS.
-                                                Reset
-                                                (1);
-                                        arg_ctcs
-                                                =
-                                                (char
-                                                *)
-                                                0;
+                                            CTCS.Reset(1);
+
+                                        arg_ctcs = (char*) NULL;
+
                                     } else {
-                                        arg_ctcs
-                                                =
-                                                new
-                                                char
-                                                [strlen
-                                                (param)
-                                                +
-                                                1];
+                                        arg_ctcs = new char[strlen(param) + 1];
                                         if (!arg_ctcs)
-                                            Warning
-                                                (1,
-                                                "error, failed to allocate memory for option");
+                                            Warning(1, "error, failed to allocate memory for option");
                                         else {
-                                            strcpy
-                                                    (arg_ctcs,
-                                                    param);
-                                            CTCS.
-                                                    Initial
-                                                    ();
-                                            CTCS.
-                                                    Reset
-                                                    (1);
+                                            strcpy(arg_ctcs, param);
+                                            CTCS.Initial();
+                                            CTCS.Reset(1);
                                         }
                                     }
                                 }
@@ -448,31 +421,22 @@ void Console::User(fd_set * rfdp, fd_set * wfdp __attribute__((unused)),
                                 if (arg_completion_exit)
                                     delete
                                     []arg_completion_exit;
-                                arg_completion_exit =
-                                        new
-                                        char[strlen(param) +
-                                        1];
+                                arg_completion_exit = new char[strlen(param) + 1];
                                 if (!arg_completion_exit)
                                     Warning(1,
                                         "error, failed to allocate memory for option");
                                 else
-                                    strcpy
-                                        (arg_completion_exit,
-                                        param);
+                                    strcpy(arg_completion_exit, param);
                                 break;
                             case 'Q': // quit
                                 if ('y' == *param
                                         || 'Y' == *param) {
-                                    Tracker.
-                                            ClearRestart
-                                            ();
-                                    Tracker.
-                                            SetStoped();
+                                    Tracker.ClearRestart();
+                                    Tracker.SetStoped();
                                 }
                                 break;
                             default:
-                                Interact
-                                        ("Input mode error");
+                                Interact("Input mode error");
                         }
                 }
             } else {

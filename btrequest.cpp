@@ -107,7 +107,8 @@ int RequestQueue::Copy(const RequestQueue * prq, size_t idx) {
 }
 
 int RequestQueue::CopyShuffle(const RequestQueue * prq, size_t idx) {
-    PSLICE n, u, ps, prev, end, psnext, temp;
+
+    PSLICE n, u, ps, prev, end = NULL, psnext, temp;
     SLICE dummy;
     unsigned long rndbits;
     int len, shuffle, i = 0, setsend = 0;
@@ -148,6 +149,7 @@ int RequestQueue::CopyShuffle(const RequestQueue * prq, size_t idx) {
     shuffle = (random() & 0x07) + 2;
     if (shuffle > len / 2)
         shuffle = len / 2;
+
     for (; shuffle; shuffle--) {
         prev = u;
         ps = u->next->next;
@@ -661,9 +663,11 @@ int PendingQueue::Delete(size_t idx) {
 }
 
 int PendingQueue::DeleteSlice(size_t idx, size_t off, size_t len) {
-    int i, j = 0, r = 0;
+
+    int i, j, r = 0;
     RequestQueue rq;
-    for (i = 0; i < PENDING_QUEUE_SIZE && j < pq_count; i++) {
+
+    for (i = 0, j = 0; i < PENDING_QUEUE_SIZE && j < pq_count; i++) {
         if (pending_array[i]) {
             j++;
             if (idx == pending_array[i]->index) {

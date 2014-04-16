@@ -616,6 +616,7 @@ int btTracker::SendRequest() {
 }
 
 int btTracker::IntervalCheck(fd_set * rfdp, fd_set * wfdp) {
+
     /* tracker communication */
     if (T_FREE == m_status) {
         if (INVALID_SOCKET != m_sock) {
