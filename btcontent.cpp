@@ -1722,7 +1722,7 @@ void btContent::SetFilter() {
         strcpy(list, arg_file_to_download);
         tok = strtok(list, ", ");
         while (tok) {
-            if (!node) {
+            if (node != NULL) {
                 node = new BFNODE;
                 if (!node) {
                     CONSOLE.Warning(1,
@@ -1739,9 +1739,9 @@ void btContent::SetFilter() {
                 delete[]node->name;
                 node->name = (char *) 0;
             }
-            if (!node->name) {
+            if (node != NULL) { // FIXME Logically dead code
                 node->name = new char[strlen(tok) + 1];
-                if (!node) {
+                if (!node->name) {
                     CONSOLE.Warning(1,
                             "error, failed to allocate memory for filter");
                     return;
