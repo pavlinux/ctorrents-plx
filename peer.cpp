@@ -15,8 +15,20 @@
 #include "bttime.h"
 #include "console.h"
 
-#if !defined(HAVE_CLOCK_GETTIME) || !defined(HAVE_SNPRINTF)
-#include "compat.h"
+#if !defined(HAVE_CLOCK_GETTIME)
+
+int clock_gettime(int clk_id __attribute__((unused)), struct timespec *tp) {
+    struct timeval now;
+    int rv = gettimeofday(&now, NULL);
+    if (rv != 0) {
+        tp->tv_sec = 0;
+        tp->tv_nsec = 0;
+        return rv;
+    }
+    tp->tv_sec = now.tv_sec;
+    tp->tv_nsec = now.tv_usec * 1000;
+    return 0;
+}
 #endif
 
 // Convert a peer ID to a printable string.
@@ -720,7 +732,7 @@ int btPeer::ReponseSlice() {
 
     m_prefetch_time = (time_t) 0;
 
-    clock_gettime(CLOCK_REALTIME, &nowspec);
+    clock_gettime(CLOCK_MONOTONIC_RAW, &nowspec);
 
     retval =
             stream.Send_Piece(idx, off, BTCONTENT.global_piece_buffer, len);
