@@ -46,10 +46,8 @@ btFiles::~btFiles() {
 BTFILE *btFiles::_new_bfnode() {
     BTFILE *pnew = new BTFILE;
 
-#ifndef WINDOWS
     if (!pnew)
         return (BTFILE *) 0;
-#endif
 
     pnew->bf_flag_opened = 0;
     pnew->bf_flag_readonly = 0;
@@ -102,7 +100,8 @@ int btFiles::_btf_close(BTFILE * pbf) {
 }
 
 int btFiles::_btf_open(BTFILE * pbf, const int iotype) {
-    char fn[MAXPATHLEN];
+
+    char fn[MAXPATHLEN] = {0};
 
     if (pbf->bf_flag_opened) {
         if (pbf->bf_flag_readonly && iotype)
@@ -553,29 +552,27 @@ int btFiles::BuildFromMI(const char *metabuf, const size_t metabuf_len,
 
         if (saveas) {
             m_directory = new char[strlen(saveas) + 1];
-#ifndef WINDOWS
+
             if (!m_directory)
                 return -1;
-#endif
+
             strcpy(m_directory, saveas);
         } else {
             int f_conv;
             char *tmpfn = new char[strlen(path) * 2 + 5];
-#ifndef WINDOWS
+
             if (!tmpfn)
                 return -1;
-#endif
+
             if (f_conv =
                     ConvertFilename(tmpfn, path, strlen(path) * 2 + 5)) {
                 if (arg_flg_convert_filenames) {
                     m_directory =
                             new char[strlen(tmpfn) + 1];
-#ifndef WINDOWS
                     if (!m_directory) {
                         delete[]tmpfn;
                         return -1;
                     }
-#endif
                     strcpy(m_directory, tmpfn);
                 } else {
                     CONSOLE.Warning(3,
@@ -586,10 +583,10 @@ int btFiles::BuildFromMI(const char *metabuf, const size_t metabuf_len,
             delete[]tmpfn;
             if (!f_conv || !arg_flg_convert_filenames) {
                 m_directory = new char[strlen(path) + 1];
-#ifndef WINDOWS
+
                 if (!m_directory)
                     return -1;
-#endif
+
                 strcpy(m_directory, path);
             }
         }
@@ -604,10 +601,10 @@ int btFiles::BuildFromMI(const char *metabuf, const size_t metabuf_len,
                     (size_t *) 0, &t, QUERY_LONG))
                 return -1;
             pbf = _new_bfnode();
-#ifndef WINDOWS
+
             if (!pbf)
                 return -1;
-#endif
+
             pbf->bf_length = t;
             m_total_files_length += t;
             r = decode_query(p, dl, "path", (const char **) 0, &n,
@@ -619,22 +616,22 @@ int btFiles::BuildFromMI(const char *metabuf, const size_t metabuf_len,
 
             int f_conv;
             char *tmpfn = new char[strlen(path) * 2 + 5];
-#ifndef WINDOWS
+
             if (!tmpfn)
                 return -1;
-#endif
+
             if (f_conv =
                     ConvertFilename(tmpfn, path,
                     strlen(path) * 2 + 5)) {
                 if (arg_flg_convert_filenames) {
                     pbf->bf_filename =
                             new char[strlen(tmpfn) + 1];
-#ifndef WINDOWS
+
                     if (!pbf->bf_filename) {
                         delete[]tmpfn;
                         return -1;
                     }
-#endif
+
                     strcpy(pbf->bf_filename, tmpfn);
                 } else if (!f_warned) {
                     CONSOLE.Warning(3,
@@ -645,10 +642,10 @@ int btFiles::BuildFromMI(const char *metabuf, const size_t metabuf_len,
             delete[]tmpfn;
             if (!f_conv || !arg_flg_convert_filenames) {
                 pbf->bf_filename = new char[strlen(path) + 1];
-#ifndef WINDOWS
+
                 if (!pbf->bf_filename)
                     return -1;
-#endif
+
                 strcpy(pbf->bf_filename, path);
             }
             if (pbf_last)
@@ -663,40 +660,40 @@ int btFiles::BuildFromMI(const char *metabuf, const size_t metabuf_len,
                 QUERY_LONG))
             return -1;
         m_btfhead = _new_bfnode();
-#ifndef WINDOWS
+
         if (!m_btfhead)
             return -1;
-#endif
+
         m_btfhead->bf_length = m_total_files_length = t;
         if (saveas) {
             m_btfhead->bf_filename = new char[strlen(saveas) + 1];
-#ifndef WINDOWS
+
             if (!m_btfhead->bf_filename)
                 return -1;
-#endif
+
             strcpy(m_btfhead->bf_filename, saveas);
         } else if (arg_flg_convert_filenames) {
             char *tmpfn = new char[strlen(path) * 2 + 5];
-#ifndef WINDOWS
+
             if (!tmpfn)
                 return -1;
-#endif
+
             ConvertFilename(tmpfn, path, strlen(path) * 2 + 5);
             m_btfhead->bf_filename = new char[strlen(tmpfn) + 1];
-#ifndef WINDOWS
+
             if (!m_btfhead->bf_filename) {
                 delete[]tmpfn;
                 return -1;
             }
-#endif
+
             strcpy(m_btfhead->bf_filename, tmpfn);
             delete[]tmpfn;
         } else {
             m_btfhead->bf_filename = new char[strlen(path) + 1];
-#ifndef WINDOWS
+
             if (!m_btfhead->bf_filename)
                 return -1;
-#endif
+
             strcpy(m_btfhead->bf_filename, path);
         }
     }

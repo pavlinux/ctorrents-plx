@@ -48,8 +48,9 @@ int main(int argc, char **argv) {
     char *s;
 
     Random_init();
+
     arg_user_agent = new char[MAX_PF_LEN + 1];
-    strcpy(arg_user_agent, PEER_PFX);
+    memmove(arg_user_agent, PEER_PFX, MAX_PF_LEN);
 
     cfg_user_agent = new char[strlen(PACKAGE_NAME) + strlen(PACKAGE_VERSION) + 2];
 

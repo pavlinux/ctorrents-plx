@@ -530,7 +530,9 @@ void PendingQueue::Empty() {
 }
 
 int PendingQueue::Exist(size_t idx) const {
-    int i, j = 0;
+
+    size_t i, j = 0u;
+
     for (i = 0; i < PENDING_QUEUE_SIZE && j < pq_count; i++) {
         if (pending_array[i]) {
             j++;
@@ -542,7 +544,8 @@ int PendingQueue::Exist(size_t idx) const {
 }
 
 int PendingQueue::HasSlice(size_t idx, size_t off, size_t len) {
-    int i, j = 0;
+
+    size_t i, j = 0u;
     for (i = 0; i < PENDING_QUEUE_SIZE && j < pq_count; i++) {
         if (pending_array[i]) {
             j++;

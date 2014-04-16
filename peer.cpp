@@ -1,10 +1,11 @@
+#include "peer.h"
+
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
 #include <sys/time.h>
 #include <errno.h>
 
-#include "peer.h"
 #include "btstream.h"
 #include "btcontent.h"
 #include "msgencode.h"
@@ -719,6 +720,7 @@ int btPeer::ReponseSlice() {
     m_prefetch_time = (time_t) 0;
 
     clock_gettime(CLOCK_REALTIME, &nowspec);
+
     retval =
             stream.Send_Piece(idx, off, BTCONTENT.global_piece_buffer, len);
     if (retval >= 0) {
@@ -1679,7 +1681,7 @@ void btPeer::Prefetch(time_t deadline) {
             ru = Self.RateUL();
             if (!m_prefetch_time
                     || (0 == rd && 0 == ru)
-                    || now - m_prefetch_time > BTCONTENT.CacheSize() / (rd + ru)) {
+                    || now - m_prefetch_time > (time_t) BTCONTENT.CacheSize() / (rd + ru)) {
                 BTCONTENT.ReadSlice(NULL, idx, off, len);
                 m_prefetch_time = now;
             }

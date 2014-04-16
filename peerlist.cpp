@@ -1,14 +1,10 @@
 #include "peerlist.h"		// def.h
 
 #include <sys/types.h>
-
 #include <stdlib.h>
-
 #include <stdio.h>
 #include <errno.h>
-
 #include <string.h>
-
 #include <sys/time.h>
 
 #include "btconfig.h"
@@ -1708,18 +1704,14 @@ int PeerList::IsIdle() {
             || (slow = (Self.RateDL() < cfg_max_bandwidth_down / 2)))
             && BandWidthLimitDown(Self.LateDL(), (int) Self.RateDL() * 2))
             || (!slow && BandWidthLimitDown(Self.LateDL())))
-
-            && !(dlate && m_f_dlate) && ((cfg_max_bandwidth_up > 0 && (ulate = (now > (time_t) (Self.LastSendTime() + Self.LateUL() + Self.LastSizeSent() / (double) cfg_max_bandwidth_up)))) || 0 == Self.RateUL() || (slow = 0) || // re-initialization
+            && !(dlate && m_f_dlate) && ((cfg_max_bandwidth_up > 0 &&
+            (ulate = (now > (time_t) (Self.LastSendTime() + Self.LateUL() +
+            Self.LastSizeSent() / (double) cfg_max_bandwidth_up))))
+            || 0 == Self.RateUL() || (slow = 0) || // re-initialization
             ((0 == cfg_max_bandwidth_up ||
-            (slow =
-            (Self.RateUL() <
-            cfg_max_bandwidth_up / 2)))
-            && BandWidthLimitUp(Self.LateUL(),
-            (int) Self.
-            RateUL() * 2))
-            || (!slow
-            && BandWidthLimitUp(Self.
-            LateUL())))
+            (slow = (Self.RateUL() < cfg_max_bandwidth_up / 2)))
+            && BandWidthLimitUp(Self.LateUL(), (int) Self.RateUL() * 2))
+            || (!slow && BandWidthLimitUp(Self.LateUL())))
             ) {
         idle = 1;
     }
