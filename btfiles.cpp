@@ -281,22 +281,25 @@ int btFiles::_btf_ftruncate(int fd, int64_t length) {
         int64_t len = 0;
 
         for (int i = 0; len < length; i++) {
+
             if (len + 256 * 1024 > length)
                 wlen = (size_t) (length - len);
             else
                 wlen = 256 * 1024;
+
             if (0 == i % 100)
                 CONSOLE.Interact_n(".");
 
-            if ((r = write(fd, c, wlen)) < 0) {
-                delete[]c;
-                return r;
-            }
+            r = write(fd, c, wlen);
+            if (r < 0)
+                goto del;
+
             len += wlen;
         }
-
+del:
+        memset((void *) c, 0, 256 * 1024);
         delete[]c;
-        return r;
+        return r; // CID 28202 
     }
     // ftruncate() not allowed on [v]fat under linux
     int retval = ftruncate(fd, length);
