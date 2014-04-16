@@ -3,11 +3,6 @@
 
 #include "config.h"
 
-#if !defined(HAVE_CLOCK_GETTIME)
-extern "C" {
-    int clock_gettime(int clk_id __attribute__((unused)), struct timespec *tp);
-}
-#endif
 #define CLOSE_SOCKET(sk) close((sk))
 
 #ifndef SOCKET

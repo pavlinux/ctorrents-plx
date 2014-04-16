@@ -151,7 +151,7 @@ void Rate::UnCount(size_t nbytes) {
 void Rate::RateAdd(size_t nbytes, size_t bwlimit) {
     struct timespec nowspec;
 
-    clock_gettime(CLOCK_REALTIME, &nowspec);
+    clock_gettime(CLOCK_MONOTONIC_RAW, &nowspec);
 
     RateAdd(nbytes, bwlimit,
             nowspec.tv_sec + (double) (nowspec.tv_nsec) / 1000000000);
@@ -244,7 +244,7 @@ size_t Rate::CurrentRate() {
         return 0; // no current rate
 
     struct timespec timestamp;
-    clock_gettime(CLOCK_REALTIME, &timestamp);
+    clock_gettime(CLOCK_MONOTONIC_RAW, &timestamp);
 
     double timeused =
             timestamp.tv_sec + (double) (timestamp.tv_nsec) / 1000000000 -

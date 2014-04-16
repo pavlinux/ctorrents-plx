@@ -1642,7 +1642,7 @@ int PeerList::BandWidthLimitUp(double when, int limit) {
         struct timespec nowspec;
         double rightnow;
 
-        clock_gettime(CLOCK_REALTIME, &nowspec);
+        clock_gettime(CLOCK_MONOTONIC_RAW, &nowspec);
         rightnow =
                 nowspec.tv_sec + (double) (nowspec.tv_nsec) / 1000000000;
 
@@ -1677,7 +1677,7 @@ int PeerList::BandWidthLimitDown(double when, int limit) {
         struct timespec nowspec;
         double rightnow;
 
-        clock_gettime(CLOCK_REALTIME, &nowspec);
+        clock_gettime(CLOCK_MONOTONIC_RAW, &nowspec);
         rightnow =
                 nowspec.tv_sec + (double) (nowspec.tv_nsec) / 1000000000;
 
@@ -1746,7 +1746,7 @@ double PeerList::WaitBW() const {
     }
     // could optimize away the clock call when maxwait will be > MAX_SLEEP
     if (now <= (time_t) nextup || now <= (time_t) nextdn) {
-        clock_gettime(CLOCK_REALTIME, &nowspec);
+        clock_gettime(CLOCK_MONOTONIC_RAW, &nowspec);
         rightnow =
                 nowspec.tv_sec + (double) (nowspec.tv_nsec) / 1000000000;
     } else

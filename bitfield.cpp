@@ -8,10 +8,6 @@
 #include <sys/param.h>
 #include <sys/stat.h>
 
-#ifndef HAVE_RANDOM
-#include "compat.h"
-#endif
-
 const unsigned char BIT_HEX[] = {0x80, 0x40, 0x20, 0x10, 0x08, 0x04, 0x02, 0x01};
 
 #define _isset(idx)		(b[(idx) / 8 ] & BIT_HEX[(idx) % 8])
@@ -105,7 +101,7 @@ inline void BitField::_setall(unsigned char *buf) {
 }
 
 inline void BitField::_recalc() {
-    // ���¼��� nset ��ֵ
+
     static unsigned char BITS[256] = {0xff};
     size_t i;
 

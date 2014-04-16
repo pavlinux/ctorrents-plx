@@ -134,7 +134,7 @@ ssize_t btStream::Feed(size_t limit, Rate * rate) {
     ssize_t retval;
     struct timespec nowspec;
 
-    clock_gettime(CLOCK_REALTIME, &nowspec);
+    clock_gettime(CLOCK_MONOTONIC_RAW, &nowspec);
     retval = in_buffer.FeedIn(sock, limit);
 
     if (H_LEN + H_PIECE_LEN < in_buffer.Count() &&
