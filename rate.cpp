@@ -282,7 +282,7 @@ size_t Rate::RateMeasure() {
     m_lastrate.lasttime = now;
     if (!m_last_timestamp || !m_history) {
         m_lastrate.value = 0;
-        return 0; // no current rate
+        return 0u; // no current rate
     }
 
     Cleanup();
@@ -299,16 +299,16 @@ size_t Rate::RateMeasure() {
     if (now < (time_t) m_recent_realtime) {
         if (m_history) {
             m_recent_realtime = (double) now;
-            m_prev_realtime = (double) (now - 1);
-            m_recent_size = m_prev_size = 0;
+            m_prev_realtime = (double) (now - 1.0F);
+            m_recent_size = m_prev_size = 0u;
         } else {
-            m_recent_realtime = m_prev_realtime = 0;
-            m_recent_size = m_prev_size = 0;
+            m_recent_realtime = m_prev_realtime = 0.0F;
+            m_recent_size = m_prev_size = 0u;
         }
     }
     if (!m_history) {
-        m_lastrate.value = 0;
-        return 0;
+        m_lastrate.value = 0u;
+        return 0u;
     }
     // Don't let the most recent addition inflate the rate measurement.
     if (now == (time_t) m_recent_realtime) {
@@ -337,6 +337,7 @@ size_t Rate::RateMeasure() {
 }
 
 size_t Rate::RateMeasure(const Rate & ra_to) {
+
     time_t timeused = TimeUsed();
     int tmp = ra_to.m_count_bytes - m_count_bytes;
     return (size_t) ((tmp > 0) ? (tmp / (timeused ? timeused : 1)) : 0);
