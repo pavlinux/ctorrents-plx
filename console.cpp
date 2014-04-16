@@ -327,6 +327,8 @@ Console::Console() {
     m_streams[O_INPUT]->SetInputMode(K_CHARS);
     m_conmode = K_CHARS;
 
+    m_reserved = 0; //FIXME: A scalar field is not initialized by the constructor.
+
     if (this == &CONSOLE)
         g_console_ready = 1;
 }
