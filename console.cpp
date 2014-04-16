@@ -1551,7 +1551,9 @@ RETSIGTYPE Console::Signal(int sig_no) {
 }
 
 void Console::Daemonize() {
+
 #ifdef HAVE_WORKING_FORK
+
     size_t orig_cache_size = 0;
     pid_t r;
     int nullfd = -1;
@@ -1606,13 +1608,19 @@ restorecache:
 }
 
 int Console::OpenNull(int nullfd, ConStream * stream, int sfd) {
+
     if (stream->IsTTY() || arg_daemon == 1) {
+
         int mfd = stream->Fileno();
+
         if (mfd < 0)
             mfd = sfd;
+
         stream->Close();
+
         if (nullfd < 0)
             nullfd = open("/dev/null", O_RDWR);
+
         if (nullfd >= 0 && nullfd != mfd)
             dup2(nullfd, mfd);
     }

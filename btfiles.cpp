@@ -311,11 +311,12 @@ int btFiles::_btf_ftruncate(int fd, int64_t length) {
 }
 
 int btFiles::_btf_recurses_directory(const char *cur_path, BTFILE * *plastnode) {
+
     char full_cur[MAXPATHLEN];
     char fn[MAXPATHLEN];
     struct stat sb;
     struct dirent *dirp;
-    DIR *dp;
+    DIR *dp = NULL;
     BTFILE *pbf;
 
     if (!getcwd(full_cur, MAXPATHLEN))
@@ -327,14 +328,14 @@ int btFiles::_btf_recurses_directory(const char *cur_path, BTFILE * *plastnode) 
                 snprintf(full_cur, MAXPATHLEN, "%s%c%s", fn, PATH_SP,
                 cur_path)) {
             errno = ENAMETOOLONG;
-            return -1;
+            return (-1);
         }
     }
 
     if ((DIR *) 0 == (dp = opendir(full_cur))) {
         CONSOLE.Warning(1, "error, open directory \"%s\" failed:  %s",
                 cur_path, strerror(errno));
-        return -1;
+        return (-1);
     }
 
     while ((struct dirent *) 0 != (dirp = readdir(dp))) {
@@ -364,20 +365,20 @@ int btFiles::_btf_recurses_directory(const char *cur_path, BTFILE * *plastnode) 
         if (S_IFREG & sb.st_mode) {
 
             pbf = _new_bfnode();
-#ifndef WINDOWS
+
             if (!pbf) {
                 errno = ENOMEM;
                 return -1;
             }
-#endif
+
             pbf->bf_filename = new char[strlen(fn) + 1];
-#ifndef WINDOWS
+
             if (!pbf->bf_filename) {
                 closedir(dp);
                 errno = ENOMEM;
                 return -1;
             }
-#endif
+
             strcpy(pbf->bf_filename, fn);
 
             pbf->bf_length = sb.st_size;
