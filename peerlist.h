@@ -1,12 +1,12 @@
 #ifndef PEERLIST_H
 #define PEERLIST_H
 
-#include "./def.h"
+#include "def.h"
 #include <sys/types.h>
 #include <time.h>
 
-#include "./peer.h"
-#include "./rate.h"
+#include "peer.h"
+#include "rate.h"
 
 typedef struct _peernode {
     btPeer *peer;

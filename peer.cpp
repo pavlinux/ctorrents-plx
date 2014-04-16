@@ -34,6 +34,7 @@ int clock_gettime(int clk_id __attribute__((unused)), struct timespec *tp) {
 // Convert a peer ID to a printable string.
 
 int TextPeerID(const unsigned char *peerid, char *txtid) {
+
     int i, j;
 
     for (i = j = 0; i < PEER_ID_LEN; i++) {
