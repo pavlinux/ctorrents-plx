@@ -1,7 +1,7 @@
 #ifndef DEF_H
 #define DEF_H
 
-#include "./config.h"
+#include "config.h"
 
 #define CLOSE_SOCKET(sk) close((sk))
 

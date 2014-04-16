@@ -1,11 +1,8 @@
 #ifndef PEER_H
 #define PEER_H
 
-#include "./def.h"
+#include "def.h"
 
-#ifdef WINDOWS
-#include <Winsock2.h>
-#else
 #include <unistd.h>
 #include <stdio.h>   // autoconf manual: Darwin + others prereq for stdlib.h
 #include <stdlib.h>  // autoconf manual: Darwin prereq for sys/socket.h
@@ -13,8 +10,6 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <netinet/in.h>
-#endif
-
 #include <inttypes.h>
 #include <time.h>
 #include <string.h>

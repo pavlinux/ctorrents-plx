@@ -1,11 +1,10 @@
-#include "peer.h"
-
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
 #include <sys/time.h>
 #include <errno.h>
 
+#include "peer.h"
 #include "btstream.h"
 #include "btcontent.h"
 #include "msgencode.h"
