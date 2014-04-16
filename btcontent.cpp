@@ -1360,21 +1360,24 @@ int btContent::CheckNextPiece() {
 
 char *btContent::_file2mem(const char *fname, size_t * psiz) {
 
-    char *b = (char *) 0;
+    char *b = NULL;
     struct stat sb;
     FILE *fp;
 
     fp = fopen(fname, "r");
-    if (!fp) {
+    if (fp == NULL) {
         CONSOLE.Warning(1, "error, open \"%s\" failed:  %s", fname,
                 strerror(errno));
-        return (char *) 0;
+        return NULL;
     }
 
     if (stat(fname, &sb) < 0) {
         CONSOLE.Warning(1, "error, stat \"%s\" failed:  %s", fname,
                 strerror(errno));
-        return (char *) 0;
+        if (fp != NULL)
+            fclose(fp); // RESOURCE_LEAK, CID 28190 
+
+        return NULL;
     }
 
     if (sb.st_size > MAX_METAINFO_FILESIZ) {
