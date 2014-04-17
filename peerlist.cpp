@@ -625,11 +625,12 @@ size_t PeerList::What_Can_Duplicate(BitField & bf, const btPeer * proposer,
         size_t idx, qlen, count;
     };
     struct qdata *data;
-    int endgame, pass, i, mark;
     PEERNODE *p;
     PSLICE ps;
-    size_t slots, piece, qsize;
     double work, best;
+    size_t slots, piece, qsize;
+    size_t endgame, pass, i, mark;
+
 
     endgame = idx < BTCONTENT.GetNPieces(); // else initial-piece mode
     slots = endgame ? BTCONTENT.GetNPieces() - BTCONTENT.pBF->Count() :
