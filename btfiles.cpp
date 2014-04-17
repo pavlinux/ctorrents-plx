@@ -44,6 +44,7 @@ btFiles::~btFiles() {
 }
 
 BTFILE *btFiles::_new_bfnode() {
+
     BTFILE *pnew = new BTFILE;
 
     if (!pnew)
@@ -59,6 +60,7 @@ BTFILE *btFiles::_new_bfnode() {
 
     pnew->bf_last_timestamp = (time_t) 0;
     pnew->bf_next = (BTFILE *) 0;
+
     return pnew;
 }
 
@@ -68,6 +70,7 @@ void btFiles::CloseFile(size_t nfile) {
 }
 
 int btFiles::_btf_close_oldest() {
+
     BTFILE *pbf_n, *pbf_close;
     pbf_close = (BTFILE *) 0;
     for (pbf_n = m_btfhead; pbf_n; pbf_n = pbf_n->bf_next) {
@@ -299,7 +302,7 @@ int btFiles::_btf_ftruncate(int fd, int64_t length) {
 del:
         memset((void *) c, 0, 256 * 1024);
         delete[]c;
-        return r; // CID 28202 
+        return r; // CID 28202
     }
     // ftruncate() not allowed on [v]fat under linux
     int retval = ftruncate(fd, length);
@@ -529,7 +532,8 @@ int btFiles::BuildFromFS(const char *pathname) {
 
 int btFiles::BuildFromMI(const char *metabuf, const size_t metabuf_len,
         const char *saveas) {
-    char path[MAXPATHLEN];
+
+    char path[MAXPATHLEN] = {'\0'};
     const char *s, *p;
     size_t r, q, n;
     int64_t t;
@@ -612,35 +616,37 @@ int btFiles::BuildFromMI(const char *metabuf, const size_t metabuf_len,
 
             pbf->bf_length = t;
             m_total_files_length += t;
-            r = decode_query(p, dl, "path", (const char **) 0, &n,
-                    (int64_t *) 0, QUERY_POS);
+
+            r = decode_query(p, dl, "path", (const char **) 0, &n, (int64_t *) 0, QUERY_POS);
             if (!r)
                 return -1;
-            if (!decode_list2path(p + r, n, path))
+
+            if (!decode_list2path(p + r, n, path)) {
+                delete[]pbf;
                 return -1;
+            }
 
             int f_conv;
             char *tmpfn = new char[strlen(path) * 2 + 5];
 
-            if (!tmpfn)
+            if (!tmpfn) {
+                delete[]pbf;
                 return -1;
+            }
 
-            if (f_conv =
-                    ConvertFilename(tmpfn, path,
-                    strlen(path) * 2 + 5)) {
+            if (f_conv = ConvertFilename(tmpfn, path, strlen(path) * 2 + 5)) {
                 if (arg_flg_convert_filenames) {
-                    pbf->bf_filename =
-                            new char[strlen(tmpfn) + 1];
+                    pbf->bf_filename = new char[strlen(tmpfn) + 1];
 
                     if (!pbf->bf_filename) {
                         delete[]tmpfn;
+                        delete[]pbf;
                         return -1;
                     }
-
                     strcpy(pbf->bf_filename, tmpfn);
+
                 } else if (!f_warned) {
-                    CONSOLE.Warning(3,
-                            "Filename contains non-printable characters; use -T to convert.");
+                    CONSOLE.Warning(3, "Filename contains non-printable characters; use -T to convert.");
                     f_warned = 1;
                 }
             }
