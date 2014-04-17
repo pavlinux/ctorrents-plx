@@ -46,7 +46,7 @@ MAKEFLAGS += j${CPUS}
 all: $(EXEC)
 
 $(EXEC): $(OBJECTS)
-	$(LINK) $(LDFLAGS) $(LIBS) $(OBJECTS) -o $(EXEC)
+	$(LINK) $(OBJECTS) $(LDFLAGS) $(LIBS) -o $(EXEC)
 
 small:
 	strip --discard-locals $(EXEC)
