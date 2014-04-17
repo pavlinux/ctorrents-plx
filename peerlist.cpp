@@ -150,7 +150,8 @@ int PeerList::NewPeer(struct sockaddr_in addr, SOCKET sk) {
                     ("Connect to peer at %s:%hu failed:  %s",
                     inet_ntoa(addr.sin_addr),
                     ntohs(addr.sin_port), strerror(errno));
-            return -1;
+
+            goto err;
         }
 
         peer = new btPeer;
@@ -173,10 +174,8 @@ int PeerList::NewPeer(struct sockaddr_in addr, SOCKET sk) {
             goto err;
 
         peer = new btPeer;
-#ifndef WINDOWS
         if (!peer)
             goto err;
-#endif
 
         peer->SetAddress(addr);
         peer->stream.SetSocket(sk);
@@ -205,10 +204,8 @@ int PeerList::NewPeer(struct sockaddr_in addr, SOCKET sk) {
         delete p->peer;
     } else {
         p = new PEERNODE;
-#ifndef WINDOWS
         if (!p)
             goto err;
-#endif
     }
 
     m_peers_count++;
