@@ -573,8 +573,8 @@ int btFiles::BuildFromMI(const char *metabuf, const size_t metabuf_len,
             if (!tmpfn)
                 return -1;
 
-            if (f_conv =
-                    ConvertFilename(tmpfn, path, strlen(path) * 2 + 5)) {
+            f_conv = ConvertFilename(tmpfn, path, strlen(path) * 2 + 5);
+            if (f_conv) {
                 if (arg_flg_convert_filenames) {
                     m_directory =
                             new char[strlen(tmpfn) + 1];
@@ -633,8 +633,8 @@ int btFiles::BuildFromMI(const char *metabuf, const size_t metabuf_len,
                 delete[]pbf;
                 return -1;
             }
-
-            if (f_conv = ConvertFilename(tmpfn, path, strlen(path) * 2 + 5)) {
+            f_conv = ConvertFilename(tmpfn, path, strlen(path) * 2 + 5);
+            if (f_conv) {
                 if (arg_flg_convert_filenames) {
                     pbf->bf_filename = new char[strlen(tmpfn) + 1];
 

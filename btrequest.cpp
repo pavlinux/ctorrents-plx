@@ -668,7 +668,7 @@ int PendingQueue::Delete(size_t idx) {
 
 int PendingQueue::DeleteSlice(size_t idx, size_t off, size_t len) {
 
-    int i, j, r = 0;
+    size_t i, j, r = 0;
     RequestQueue rq;
 
     for (i = 0, j = 0; i < PENDING_QUEUE_SIZE && j < pq_count; i++) {

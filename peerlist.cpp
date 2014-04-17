@@ -309,11 +309,11 @@ int PeerList::IntervalCheck(fd_set * rfdp, fd_set * wfdp) {
                     (double) m_prev_limit_up >
                     1 / (double) m_unchoke_interval
                     && (cfg_max_bandwidth_up <
-                    cfg_req_slice_size * (MIN_OPT_CYCLE -
+                    (ssize_t) cfg_req_slice_size * (MIN_OPT_CYCLE -
                     1) /
                     (MIN_UNCHOKE_INTERVAL * MIN_OPT_CYCLE)
                     || m_prev_limit_up <
-                    cfg_req_slice_size * (MIN_OPT_CYCLE -
+                    (ssize_t) cfg_req_slice_size * (MIN_OPT_CYCLE -
                     1) /
                     (MIN_UNCHOKE_INTERVAL * MIN_OPT_CYCLE)))) {
                 SetUnchokeIntervals();
@@ -481,7 +481,7 @@ skip_continue:
         if (!UNCHOKER[0])
             Self.StopULTimer();
 
-        for (int i = 0; i < m_max_unchoke + 1; i++) {
+        for (size_t i = 0; i < m_max_unchoke + 1; i++) {
             if (!UNCHOKER[i])
                 break;
 
@@ -537,7 +537,7 @@ void PeerList::SetUnchokeIntervals() {
         } else {
             // Allow each peer at least 60 seconds unchoked.
             m_unchoke_interval = MIN_UNCHOKE_INTERVAL;
-            if (m_max_unchoke + 1 < 60 / m_unchoke_interval) {
+            if ((time_t) m_max_unchoke + 1 < 60 / m_unchoke_interval) {
                 int maxopt =
                         (int) (1 /
                         (1 -
@@ -1295,8 +1295,9 @@ void PeerList::CloseAllConnectionToSeed() {
 }
 
 int PeerList::UnChokeCheck(btPeer * peer, btPeer * peer_array[]) {
-    int i = 0;
-    int cancel_idx = 0;
+
+    size_t i = 0u;
+    size_t cancel_idx = 0u;
     btPeer *loster = (btPeer *) 0;
     int f_seed = BTCONTENT.Seeding();
     int no_opt = 0;

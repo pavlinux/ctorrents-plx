@@ -32,7 +32,7 @@ extern time_t cfg_seed_hours;
 extern double cfg_seed_ratio;
 
 extern int cfg_max_bandwidth_down;
-extern int cfg_max_bandwidth_up;
+extern ssize_t cfg_max_bandwidth_up;
 
 // arguments global value
 extern char *arg_metainfo_file;

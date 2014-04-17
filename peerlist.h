@@ -24,7 +24,7 @@ private:
     time_t m_unchoke_interval, m_opt_interval;
     size_t m_defer_count, m_missed_count, m_upload_count, m_up_opt_count;
     size_t m_dup_req_pieces;
-    int m_prev_limit_up;
+    ssize_t m_prev_limit_up;
     char m_listen[22];
 
     unsigned char m_ul_limited : 1;
