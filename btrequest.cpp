@@ -650,7 +650,8 @@ size_t PendingQueue::ReAssign(RequestQueue * prq, BitField & bf) {
 }
 
 int PendingQueue::Delete(size_t idx) {
-    int i, j = 0, r = 0;
+
+    size_t i, j = 0, r = 0;
     for (i = 0; i < PENDING_QUEUE_SIZE && j < pq_count; i++) {
         if (pending_array[i]) {
             j++;
