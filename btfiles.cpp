@@ -743,26 +743,22 @@ int btFiles::CreateFiles() {
                     return -1;
                 }
             } else {
-                CONSOLE.Warning(1,
-                        "error, couldn't create file \"%s\":  %s",
+                CONSOLE.Warning(1, "error, couldn't create file \"%s\":  %s",
                         fn, strerror(errno));
                 return -1;
             }
         } else {
             if (!check_exist)
                 check_exist = 1;
+
             if (!(S_IFREG & sb.st_mode)) {
-                CONSOLE.Warning(1,
-                        "error, file \"%s\" is not a regular file.",
-                        fn);
+                CONSOLE.Warning(1, "error, \"%s\" is not a regular file.", fn);
                 return -1;
             }
-            if (sb.st_size != pbt->bf_length) {
+            if (sb.st_size != (off_t) pbt->bf_length) {
                 CONSOLE.Warning(1,
                         "error, file \"%s\" size doesn't match; must be %llu",
-                        fn,
-                        (unsigned long long) (pbt->
-                        bf_length));
+                        fn, (unsigned long long) (pbt->bf_length));
                 return -1;
             }
         }
@@ -770,8 +766,7 @@ int btFiles::CreateFiles() {
 
     m_file = new BTFILE *[m_nfiles];
     if (!m_file) {
-        CONSOLE.Warning(1,
-                "error, failed to allocate memory for files list");
+        CONSOLE.Warning(1, "error, failed to allocate memory for files list");
         return -1;
     }
     for (pbt = m_btfhead; pbt; pbt = pbt->bf_next) {
@@ -818,31 +813,24 @@ size_t btFiles::FillMetaInfo(FILE * fp) {
         // multi files
         if (bencode_str("files", fp) != 1)
             return 0;
-
         if (bencode_begin_list(fp) != 1)
             return 0;
-
         for (p = m_btfhead; p; p = p->bf_next) {
             if (bencode_begin_dict(fp) != 1)
                 return 0;
-
             if (bencode_str("length", fp) != 1)
                 return 0;
             if (bencode_int(p->bf_length, fp) != 1)
                 return 0;
-
             if (bencode_str("path", fp) != 1)
                 return 0;
             if (bencode_path2list(p->bf_filename, fp) != 1)
                 return 0;
-
             if (bencode_end_dict_list(fp) != 1)
                 return 0;
         }
-
         if (bencode_end_dict_list(fp) != 1)
             return 0;
-
         if (bencode_str("name", fp) != 1)
             return 0;
         return bencode_str(m_directory, fp);
@@ -852,7 +840,6 @@ size_t btFiles::FillMetaInfo(FILE * fp) {
             return 0;
         if (bencode_int(m_btfhead->bf_length, fp) != 1)
             return 0;
-
         if (bencode_str("name", fp) != 1)
             return 0;
         return bencode_str(m_btfhead->bf_filename, fp);

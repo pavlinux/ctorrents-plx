@@ -71,7 +71,7 @@ size_t buf_int(const char *b, size_t len, char beginchar, char endchar,
     size_t r;
 
     if (pi) {
-        int64_t pl;
+        int64_t pl = 0u;
         r = buf_long(b, len, beginchar, endchar, &pl);
         *pi = (size_t) pl;
     } else {
