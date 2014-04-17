@@ -1604,7 +1604,8 @@ restorecache:
         cfg_cache_size = orig_cache_size;
         BTCONTENT.CacheConfigure();
     }
-    close(nullfd);
+    if (nullfd)
+        close(nullfd);
 #endif
 }
 
