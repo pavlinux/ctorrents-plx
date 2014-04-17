@@ -370,7 +370,7 @@ void Console::User(fd_set * rfdp, fd_set * wfdp __attribute__((unused)),
         if (K_LINES == m_streams[O_INPUT]->GetInputMode()) { // command parameter
             SyncNewlines(O_INPUT);
             if (m_streams[O_INPUT]->Input(param, sizeof (param))) {
-                s = strchr(param, '\n');
+                s = index(param, '\n');
                 if (s != NULL)
                     *s = '\0';
                 if ('0' == pending) {
@@ -394,7 +394,7 @@ void Console::User(fd_set * rfdp, fd_set * wfdp __attribute__((unused)),
                                 BTCONTENT.SetFilter();
                                 break;
                             case 'S': // CTCS server
-                                if (!strchr(param, ':'))
+                                if (!index(param, ':'))
                                     Interact("Invalid input");
                                 else {
                                     if (arg_ctcs)

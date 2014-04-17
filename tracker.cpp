@@ -433,7 +433,7 @@ int btTracker::BuildBaseRequest() {
 
     strcpy(tmppath, m_path);
 
-    if (strchr(m_path, '?'))
+    if (index(m_path, '?'))
         format = REQ_URL_P1A_FMT;
     else
         format = REQ_URL_P1_FMT;

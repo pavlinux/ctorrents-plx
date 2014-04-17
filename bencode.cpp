@@ -252,7 +252,7 @@ size_t bencode_path2list(const char *pathname, FILE * fp) {
         return 0;
 
     for (; *p;) {
-        pn = strchr(p, PATH_SP);
+        pn = index(p, PATH_SP);
         if (pn) {
             if (bencode_buf(p, pn - p, fp) != 1)
                 return 0;

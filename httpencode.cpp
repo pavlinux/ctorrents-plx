@@ -158,7 +158,7 @@ int Http_get_header(const char *b, int n, const char *header, char *v) {
     header_len = strlen(h);
 
     /* remove status line. */
-    e = strchr(b, '\n');
+    e = index(b, '\n');
     if (!e)
         return -1;
     e++;
@@ -166,7 +166,7 @@ int Http_get_header(const char *b, int n, const char *header, char *v) {
     b = e;
 
     for (; n >= 0;) {
-        e = strchr(b, '\n');
+        e = index(b, '\n');
         if (!e)
             r = n; /* last line */
         else {

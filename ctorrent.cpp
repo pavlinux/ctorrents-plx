@@ -59,7 +59,7 @@ int main(int argc, char **argv) {
 
     sprintf(cfg_user_agent, "%s/%s", PACKAGE_NAME, PACKAGE_VERSION);
 
-    while (s = strchr(cfg_user_agent, ' '))
+    while (s = index(cfg_user_agent, ' '))
         *s = '-';
 
     if (argc < 2) {
@@ -335,7 +335,7 @@ int param_check(int argc, char **argv) {
                 if (!arg_ctcs)
                     return -1;
 #endif
-                if (!strchr(optarg, ':')) {
+                if (!index(optarg, ':')) {
                     CONSOLE.Warning(1,
                             "-%c argument requires a port number",
                             c);

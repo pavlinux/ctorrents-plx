@@ -264,7 +264,7 @@ int btContent::PrintOut() {
         if (s) {
             strcpy(s, m_comment);
             for (char *t = s; *t; t++)
-                if (!isprint(*t) && !strchr("\t\r\n", *t))
+                if (!isprint(*t) && !index("\t\r\n", *t))
                     *t = '?';
             CONSOLE.Print("Comment: %s", s);
             delete[]s;
@@ -1763,7 +1763,7 @@ void btContent::SetFilter() {
             strcpy(node->name, tok);
 
             pfilter = &(node->bitfield);
-            if (strstr(tok, "...") || strchr(tok, '*')) {
+            if (strstr(tok, "...") || index(tok, '*')) {
                 pfilter->Clear();
                 pBMasterFilter->Clear();
                 pnode = node;
@@ -1777,9 +1777,9 @@ void btContent::SetFilter() {
                         m_piece_length);
                 pfilter->And(tmpFilter);
 
-                plus = strchr(tok, '+');
+                plus = index(tok, '+');
 
-                if ((dash = strchr(tok, '-'))
+                if ((dash = index(tok, '-'))
                         && (!plus || dash < plus)) {
                     end = atoi(dash + 1);
                     while (++start <= end) {
