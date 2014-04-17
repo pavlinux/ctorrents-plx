@@ -145,20 +145,15 @@ int PeerList::NewPeer(struct sockaddr_in addr, SOCKET sk) {
 
         if (-1 == (r = connect_nonb(sk, (struct sockaddr *) &addr))) {
             if (arg_verbose)
-                CONSOLE.
-                    Debug
-                    ("Connect to peer at %s:%hu failed:  %s",
-                    inet_ntoa(addr.sin_addr),
-                    ntohs(addr.sin_port), strerror(errno));
+                CONSOLE.Debug("Connect to peer at %s:%hu failed:  %s",
+                    inet_ntoa(addr.sin_addr), ntohs(addr.sin_port), strerror(errno));
 
             goto err;
         }
 
         peer = new btPeer;
-#ifndef WINDOWS
         if (!peer)
             goto err;
-#endif
 
         peer->SetConnect();
         peer->SetAddress(addr);
