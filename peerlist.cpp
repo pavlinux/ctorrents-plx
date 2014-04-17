@@ -636,11 +636,10 @@ size_t PeerList::What_Can_Duplicate(BitField & bf, const btPeer * proposer,
             m_downloads * 2;
     if (slots < m_dup_req_pieces + 2)
         slots = m_dup_req_pieces + 2;
+
     data = new struct qdata[slots];
-#ifndef WINDOWS
     if (!data)
         return BTCONTENT.GetNPieces();
-#endif
 
     // In initial mode, only dup a piece with trade value.
     // In endgame mode, dup any if there are no pieces with trade value.
@@ -648,13 +647,16 @@ size_t PeerList::What_Can_Duplicate(BitField & bf, const btPeer * proposer,
     if (bf.IsEmpty()) {
         if (endgame)
             bf = proposer->bitfield;
-        else
+        else {
+            delete[]data;
             return BTCONTENT.GetNPieces();
+        }
     }
     // initialize
     data[0].idx = BTCONTENT.GetNPieces();
     data[0].qlen = 0;
     data[0].count = 0;
+
     for (i = 1; i < slots; i++)
         memcpy(data + i, data, sizeof (struct qdata));
 
@@ -699,8 +701,7 @@ size_t PeerList::What_Can_Duplicate(BitField & bf, const btPeer * proposer,
     /* Find the best workload for initial/endgame.
        In endgame mode, request the piece that should take the longest.
        In initial mode, request the piece that should complete the fastest. */
-    best =
-            endgame ? 0 : BTCONTENT.GetPieceLength() / cfg_req_slice_size + 2;
+    best = endgame ? 0 : BTCONTENT.GetPieceLength() / cfg_req_slice_size + 2;
     mark = slots;
     for (i = 0; i < slots; i++) {
         if (data[i].idx == BTCONTENT.GetNPieces())
