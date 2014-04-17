@@ -87,14 +87,15 @@ btContent::btContent() {
 }
 
 int btContent::CreateMetainfoFile(const char *mifn) {
+
     FILE *fp;
     fp = fopen(mifn, "r");
-    if (fp) {
+    if (fp != NULL) {
         CONSOLE.Warning(1, "error, file \"%s\" already exists.", mifn);
-        return -1;
+        goto err;
     } else if (ENOENT != errno) {
         CONSOLE.Warning(1, "error, couldn't create \"%s\".", mifn);
-        return -1;
+        goto err;
     }
 
     fp = fopen(mifn, "w");
@@ -1375,7 +1376,7 @@ char *btContent::_file2mem(const char *fname, size_t * psiz) {
         CONSOLE.Warning(1, "error, stat \"%s\" failed:  %s", fname,
                 strerror(errno));
         if (fp != NULL)
-            fclose(fp); // RESOURCE_LEAK, CID 28190 
+            fclose(fp); // RESOURCE_LEAK, CID 28190
 
         return NULL;
     }
