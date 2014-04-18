@@ -182,9 +182,15 @@ size_t decode_rev(const char *b, size_t len, const char *keylist) {
 
 size_t decode_query(const char *b, size_t len, const char *keylist,
         const char **ps, size_t * pi, int64_t * pl, int method) {
+
     size_t pos;
-    char kl[KEYNAME_LISTSIZ];
-    strcpy(kl, keylist);
+    char kl[KEYNAME_LISTSIZ] = {'\0'};
+
+    if (strlen(keylist) > KEYNAME_LISTSIZ)
+        return -1;
+
+    memmove((void *) kl, keylist, strlen(keylist));
+
     pos = decode_rev(b, len, kl);
     if (!pos)
         return 0;

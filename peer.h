@@ -33,11 +33,6 @@ typedef struct _btstatus {
     unsigned char reserved : 4; /* unused */
 } BTSTATUS;
 
-extern "C" {
-
-    int clock_gettime(clockid_t, struct timespec *);
-}
-
 int TextPeerID(const unsigned char *peerid, char *txtid);
 
 class btBasic {
