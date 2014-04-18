@@ -189,7 +189,7 @@ size_t decode_query(const char *b, size_t len, const char *keylist,
     if (strlen(keylist) > KEYNAME_LISTSIZ)
         return -1;
 
-    memmove((void *) kl, keylist, strlen(keylist));
+    memmove((void *) kl, (void *) keylist, strlen(keylist));
 
     pos = decode_rev(b, len, kl);
     if (!pos)
