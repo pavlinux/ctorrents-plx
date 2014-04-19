@@ -1750,10 +1750,9 @@ void btContent::SetFilter() {
             }
 
             if (node->name && (strlen(node->name) < strlen(tok))) {
-                delete[](node->name);
-                node->name = new char[strlen(tok) + 1];
+                node->name = (char *) realloc((void *) node->name, strlen(tok) + 1);
                 if (!node->name) {
-                    CONSOLE.Warning(1, "error, failed to allocate memory for filter");
+                    CONSOLE.Warning(1, "error, failed to reallocate memory for filter");
                     return;
                 }
                 memset(node->name, 0, strlen(tok) + 1);
