@@ -1749,17 +1749,14 @@ void btContent::SetFilter() {
                     m_filters = node;
             }
 
-            if (node->name && strlen(node->name) < strlen(tok)) {
-                delete[]node->name;
-                node->name = (char *) 0;
-            }
-            if (node != NULL) { // FIXME Logically dead code
+            if (node->name && (strlen(node->name) < strlen(tok))) {
+                delete[](node->name);
                 node->name = new char[strlen(tok) + 1];
                 if (!node->name) {
-                    CONSOLE.Warning(1,
-                            "error, failed to allocate memory for filter");
+                    CONSOLE.Warning(1, "error, failed to allocate memory for filter");
                     return;
                 }
+                memset(node->name, 0, strlen(tok) + 1);
             }
             strcpy(node->name, tok);
 
