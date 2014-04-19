@@ -19,10 +19,17 @@ private:
     PEERNODE *m_head, *m_dead;
     size_t m_peers_count, m_seeds_count, m_conn_count, m_downloads;
     size_t m_max_unchoke;
-    time_t m_unchoke_check_timestamp, m_keepalive_check_timestamp,
-    m_last_progress_timestamp, m_opt_timestamp, m_interval_timestamp;
-    time_t m_unchoke_interval, m_opt_interval;
-    size_t m_defer_count, m_missed_count, m_upload_count, m_up_opt_count;
+    time_t m_unchoke_check_timestamp;
+    time_t m_keepalive_check_timestamp;
+    time_t m_last_progress_timestamp; /* Unused */
+    time_t m_opt_timestamp;
+    time_t m_interval_timestamp;
+    time_t m_unchoke_interval;
+    time_t m_opt_interval;
+    size_t m_defer_count;
+    time_t m_missed_count;
+    time_t m_upload_count;
+    time_t m_up_opt_count;
     size_t m_dup_req_pieces;
     ssize_t m_prev_limit_up;
     char m_listen[22];
