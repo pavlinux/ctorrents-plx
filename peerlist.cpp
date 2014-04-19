@@ -1693,9 +1693,7 @@ int PeerList::IsIdle() {
             (dlate = (now > (time_t) (Self.LastRecvTime() + Self.LateDL() +
             Self.LastSizeRecv() /
             (double) cfg_max_bandwidth_down))))
-            || 0 == Self.RateDL()
-            ||
-            ((0 == cfg_max_bandwidth_down
+            || 0 == Self.RateDL() || ((0 == cfg_max_bandwidth_down
             || (slow = (Self.RateDL() < cfg_max_bandwidth_down / 2)))
             && BandWidthLimitDown(Self.LateDL(), (int) Self.RateDL() * 2))
             || (!slow && BandWidthLimitDown(Self.LateDL())))

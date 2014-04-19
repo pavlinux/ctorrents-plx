@@ -1739,33 +1739,31 @@ void btContent::SetFilter() {
             if (node != NULL) {
                 node = new BFNODE;
                 if (!node) {
-                    CONSOLE.Warning(1,
-                            "error, failed to allocate memory for filter");
+                    CONSOLE.Warning(1, "error, failed to allocate memory for filter");
                     return;
                 }
                 if (pnode)
                     pnode->next = node;
                 else
                     m_filters = node;
-            }
 
-            if (node->name && (strlen(node->name) < strlen(tok))) {
-                node->name = (char *) realloc((void *) node->name, strlen(tok) + 1);
-                if (!node->name) {
-                    CONSOLE.Warning(1, "error, failed to reallocate memory for filter");
-                    return;
+                if (node->name && (strlen(node->name) < strlen(tok))) {
+                    node->name = (char *) realloc((void *) node->name, strlen(tok) + 1);
+                    if (!node->name) {
+                        CONSOLE.Warning(1, "error, failed to reallocate memory for filter");
+                        return;
+                    }
+                    memset(node->name, 0, strlen(tok) + 1);
                 }
-                memset(node->name, 0, strlen(tok) + 1);
-            }
-            strcpy(node->name, tok);
-
-            pfilter = &(node->bitfield);
-            if (strstr(tok, "...") || index(tok, '*')) {
-                pfilter->Clear();
-                pBMasterFilter->Clear();
-                pnode = node;
-                node = node->next;
-                break;
+                strcpy(node->name, tok);
+                pfilter = &(node->bitfield);
+                if (strstr(tok, "...") || index(tok, '*')) {
+                    pfilter->Clear();
+                    pBMasterFilter->Clear();
+                    pnode = node;
+                    node = node->next;
+                    break;
+                }
             }
             pfilter->SetAll();
             do {
