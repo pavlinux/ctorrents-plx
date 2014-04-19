@@ -54,7 +54,7 @@ PeerList::PeerList() {
     m_upload_count = m_up_opt_count = 0;
     m_prev_limit_up = cfg_max_bandwidth_up;
     m_dup_req_pieces = 0;
-    m_last_progress_timestamp = 0;
+    m_last_progress_timestamp = 0; /* unused */
     m_reserved = '\0';
 }
 

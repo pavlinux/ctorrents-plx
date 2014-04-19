@@ -31,6 +31,7 @@ btFiles::btFiles() {
     m_total_opened = 0;
     m_flag_automanage = 1;
     m_directory = (char *) 0;
+    m_flag_reserved = 0;
 }
 
 btFiles::~btFiles() {
