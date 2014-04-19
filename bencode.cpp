@@ -194,6 +194,7 @@ size_t decode_query(const char *b, size_t len, const char *keylist,
     pos = decode_rev(b, len, kl);
     if (!pos)
         return 0;
+
     switch (method) {
         case QUERY_STR:
             return (buf_str(b + pos, len - pos, ps, pi));

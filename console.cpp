@@ -419,12 +419,10 @@ void Console::User(fd_set * rfdp, fd_set * wfdp __attribute__((unused)),
                                 break;
                             case 'X': // completion command (user exit)
                                 if (arg_completion_exit)
-                                    delete
-                                    []arg_completion_exit;
+                                    delete[]arg_completion_exit;
                                 arg_completion_exit = new char[strlen(param) + 1];
                                 if (!arg_completion_exit)
-                                    Warning(1,
-                                        "error, failed to allocate memory for option");
+                                    Warning(1, "error, failed to allocate memory for option");
                                 else
                                     strcpy(arg_completion_exit, param);
                                 break;
@@ -557,8 +555,7 @@ void Console::User(fd_set * rfdp, fd_set * wfdp __attribute__((unused)),
                         Interact
                                 ("Enter a command to run upon download completion.");
                         if (arg_completion_exit)
-                            Interact("Currently: %s",
-                                arg_completion_exit);
+                            Interact("Currently: %s", arg_completion_exit);
                         Interact_n(">");
                     }
                     break;
@@ -1604,7 +1601,7 @@ restorecache:
         cfg_cache_size = orig_cache_size;
         BTCONTENT.CacheConfigure();
     }
-    if (nullfd)
+    if (nullfd > -1)
         close(nullfd);
 #endif
 }

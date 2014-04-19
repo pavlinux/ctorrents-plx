@@ -348,15 +348,13 @@ int Ctcs::Send_Config() {
         snprintf(desc, MAXPATHLEN, "Current peers: %d",
                 (int) (WORLD.GetPeersCount()));
         if ((r =
-                SendMessage(ConfigMsg
-                ("min_peers", "I", "1-1000", value,
+                SendMessage(ConfigMsg("min_peers", "I", "1-1000", value,
                 "Min peers [-m]", desc))) < 0)
             return r;
 
         if (!BTCONTENT.IsFull() &&
                 (r = SendMessage(ConfigMsg("file_list", "S", maxlen,
-                arg_file_to_download ?
-                arg_file_to_download : "",
+                arg_file_to_download ? arg_file_to_download : "",
                 "Download files [-n]", ""))) < 0)
             return r;
 
@@ -368,46 +366,34 @@ int Ctcs::Send_Config() {
             return r;
 
         if ((r = SendMessage(ConfigMsg("pause", "B", "0",
-                WORLD.IsPaused() ? "1" : "0",
-                "Pause torrent",
+                WORLD.IsPaused() ? "1" : "0", "Pause torrent",
                 "Stop upload/download"))) < 0)
             return r;
 
         if (!BTCONTENT.IsFull() &&
                 (r = SendMessage(ConfigMsg("user_exit", "S", maxlen,
-                arg_completion_exit ?
-                arg_completion_exit : "",
-                "Completion command [-X]",
+                arg_completion_exit ? arg_completion_exit : "", "Completion command [-X]",
                 ""))) < 0)
             return r;
 
         if ((r = SendMessage(ConfigMsg("out_normal", "S", maxlen,
-                CONSOLE.GetChannel(O_NORMAL),
-                "Normal/status output",
-                ""))) < 0)
+                CONSOLE.GetChannel(O_NORMAL), "Normal/status output", ""))) < 0)
             return r;
         if ((r = SendMessage(ConfigMsg("out_interact", "S", maxlen,
-                CONSOLE.GetChannel(O_INTERACT),
-                "Interactive output", ""))) < 0)
+                CONSOLE.GetChannel(O_INTERACT), "Interactive output", ""))) < 0)
             return r;
         if ((r = SendMessage(ConfigMsg("out_error", "S", maxlen,
-                CONSOLE.GetChannel(O_WARNING),
-                "Error/warning output",
-                ""))) < 0)
+                CONSOLE.GetChannel(O_WARNING), "Error/warning output", ""))) < 0)
             return r;
         if ((r = SendMessage(ConfigMsg("out_debug", "S", maxlen,
-                CONSOLE.GetChannel(O_DEBUG),
-                "Debug/verbose output",
-                ""))) < 0)
+                CONSOLE.GetChannel(O_DEBUG), "Debug/verbose output", ""))) < 0)
             return r;
-        if ((r = SendMessage(ConfigMsg("input", "S", maxlen,
-                CONSOLE.GetChannel(O_INPUT),
+        if ((r = SendMessage(ConfigMsg("input", "S", maxlen, CONSOLE.GetChannel(O_INPUT),
                 "Console input", ""))) < 0)
             return r;
 
         if ((r = SendMessage(ConfigMsg("ctcs_server", "S", maxlen,
-                arg_ctcs, "CTCS server",
-                ""))) < 0)
+                arg_ctcs, "CTCS server", ""))) < 0)
             return r;
 
         sprintf(message, "CTCONFIGDONE");
