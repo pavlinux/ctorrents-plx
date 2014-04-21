@@ -66,8 +66,16 @@ btContent::btContent() {
     m_announce = global_piece_buffer = (char *) 0;
     global_buffer_size = 0;
     memset(m_announcelist, 0, 9 * sizeof (char *));
+    m_cache = NULL;
     m_hash_table = (unsigned char *) 0;
-    m_create_date = m_seed_timestamp = (time_t) 0;
+
+    m_hashtable_length = m_piece_length = m_npieces =
+            m_left_bytes = m_cache_hit = m_cache_miss =
+            m_cache_pre = m_cache_eval_time = m_hash_failures =
+            m_dup_blocks = m_unwanted_blocks = 0;
+
+    m_create_date = 0;
+    m_seed_timestamp = (time_t) 0;
     m_private = 0;
     m_comment = m_created_by = (char *) 0;
 
@@ -155,8 +163,7 @@ int btContent::CreateMetainfoFile(const char *mifn) {
         // pieces (hash table)
         if (bencode_str("pieces", fp) != 1)
             goto err;
-        if (bencode_buf
-                ((const char *) m_hash_table, m_hashtable_length, fp) != 1)
+        if (bencode_buf((const char *) m_hash_table, m_hashtable_length, fp) != 1)
             goto err;
 
         // private
@@ -203,10 +210,10 @@ int btContent::InitialFromFS(const char *pathname, char *ann_url,
         return -1;
 
     global_piece_buffer = new char[m_piece_length];
-#ifndef WINDOWS
+
     if (!global_piece_buffer)
         return -1;
-#endif
+
     global_buffer_size = m_piece_length;
 
     // n pieces
@@ -217,10 +224,9 @@ int btContent::InitialFromFS(const char *pathname, char *ann_url,
     // create hash table.
     m_hashtable_length = m_npieces * 20;
     m_hash_table = new unsigned char[m_hashtable_length];
-#ifndef WINDOWS
+
     if (!m_hash_table)
         return -1;
-#endif
 
     percent = m_npieces / 100;
     if (!percent)
@@ -302,6 +308,7 @@ int btContent::InitialFromMI(const char *metainfo_fname, const char *saveas) {
     // announce
     if (!meta_str("announce", &s, &r))
         ERR_RETURN();
+
     if (r > MAXPATHLEN)
         ERR_RETURN();
 
@@ -321,23 +328,16 @@ int btContent::InitialFromMI(const char *metainfo_fname, const char *saveas) {
             size_t alend = r + q;
             r++; // 'l'
             for (; r < alend && *(b + r) != 'e' && n < 9;) { // each list
-                if (!
-                        (q =
-                        decode_list(b + r, alend - r, (char *) 0)))
+                if (!(q = decode_list(b + r, alend - r, (char *) 0)))
                     break;
                 r++; // 'l'
                 for (; r < alend && n < 9;) { // each value
-                    if (!
-                            (q =
-                            buf_str(b + r, alend - r, &sptr,
-                            &slen)))
+                    if (!(q = buf_str(b + r, alend - r, &sptr, &slen)))
                         break; // next list
                     r += q;
                     if (strncasecmp(m_announce, sptr, slen)) {
-                        m_announcelist[n] =
-                                new char[slen + 1];
-                        memcpy(m_announcelist[n], sptr,
-                                slen);
+                        m_announcelist[n] = new char[slen + 1];
+                        memcpy(m_announcelist[n], sptr, slen);
                         (m_announcelist[n])[slen] = '\0';
                         n++;
                     }
