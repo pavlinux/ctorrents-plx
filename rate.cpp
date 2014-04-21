@@ -25,6 +25,7 @@ Rate::Rate() {
     m_ontime = m_update_nominal = 0;
     m_lastrate.lasttime = (time_t) 0;
     m_nominal = DEFAULT_SLICE_SIZE / 8; // minimum "acceptable" rate
+    m_reserved = 0u;
 }
 
 void Rate::Reset() {
