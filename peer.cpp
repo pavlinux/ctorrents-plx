@@ -106,7 +106,7 @@ btPeer::btPeer() {
     m_state.remote_interested = m_state.local_interested = 0;
     m_state.reserved = 0;
 
-    m_lastmsg = ~0U;
+    m_lastmsg = '\0';
     m_err_count = 0;
     m_cached_idx = m_last_req_piece = BTCONTENT.GetNPieces();
     m_standby = 0;
