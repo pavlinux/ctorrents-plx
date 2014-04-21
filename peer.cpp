@@ -104,7 +104,9 @@ btPeer::btPeer() {
     m_last_timestamp = m_next_send_time = now;
     m_state.remote_choked = m_state.local_choked = 1;
     m_state.remote_interested = m_state.local_interested = 0;
+    m_state.reserved = 0;
 
+    m_lastmsg = ~0U;
     m_err_count = 0;
     m_cached_idx = m_last_req_piece = BTCONTENT.GetNPieces();
     m_standby = 0;
@@ -123,6 +125,8 @@ btPeer::btPeer() {
 
     rate_dl.SetSelf(Self.DLRatePtr());
     rate_ul.SetSelf(Self.ULRatePtr());
+
+    m_reserved = 0;
 }
 
 void btPeer::CopyStats(btPeer * peer) {
