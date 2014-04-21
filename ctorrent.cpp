@@ -45,6 +45,15 @@ void Random_init() {
 
 int main(int argc, char **argv) {
 
+    try {
+        if (argc < 2) {
+            throw argc;
+        }
+    } catch (int) {
+        usage();
+        exit(1);
+    }
+
     char *s;
 
     Random_init();
@@ -62,10 +71,7 @@ int main(int argc, char **argv) {
     while (s = index(cfg_user_agent, ' '))
         *s = '-';
 
-    if (argc < 2) {
-        usage();
-        exit(1);
-    } else if (param_check(argc, argv) < 0)
+    if (param_check(argc, argv) < 0)
         exit(1);
 
     if (arg_flg_make_torrent) {
