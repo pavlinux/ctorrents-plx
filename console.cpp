@@ -503,8 +503,11 @@ void Console::User(fd_set * rfdp, fd_set * wfdp __attribute__((unused)),
                 case 'd': // download bw limit
                 case 'u': // upload bw limit
                     if (arg_ctcs)
-                        Interact
-                            ("Note, changes may be overridden by CTCS.");
+                        Interact("Note, changes may be overridden by CTCS.");
+                    inc = 1;
+                    count = 0;
+                    Interact_n("");
+                    break;
                 case 'e': // seed time
                 case 'E': // seed ratio
                 case 'm': // min peers
@@ -900,23 +903,19 @@ int Console::ChangeChannel(int channel, const char *param, int notify) {
             }
         }
         if (!dest) {
-            FILE *stream;
-            if (dest = new ConStream) {
-                if (0 ==
-                        strcmp(param,
-                        m_streams[channel]->GetName())) {
+            dest = new ConStream;
+            if (dest) {
+
+                if (0 == strcmp(param, m_streams[channel]->GetName())) {
                     delete m_streams[channel];
                     m_streams[channel] = &m_off;
                 }
-                if (stream =
-                        fopen(param,
-                        (channel == O_INPUT) ? "r" : "a"))
-                    dest->Associate(stream, param,
-                        (channel ==
-                        O_INPUT) ? 0 : 1);
+                FILE *stream;
+
+                if (stream = fopen(param, (channel == O_INPUT) ? "r" : "a"))
+                    dest->Associate(stream, param, (channel == O_INPUT) ? 0 : 1);
                 else {
-                    Interact("Error opening file: %s",
-                            strerror(errno));
+                    Interact("Error opening file: %s", strerror(errno));
                     delete dest;
                     dest = (ConStream *) 0;
                 }
@@ -945,20 +944,16 @@ int Console::ChangeChannel(int channel, const char *param, int notify) {
         if (notify && (!arg_daemon || !m_streams[channel]->IsTTY())) {
             switch (channel) {
                 case O_NORMAL:
-                    Print("Output channel is now %s",
-                            dest->GetName());
+                    Print("Output channel is now %s", dest->GetName());
                     break;
                 case O_DEBUG:
-                    Debug("Debug channel is now %s",
-                            dest->GetName());
+                    Debug("Debug channel is now %s", dest->GetName());
                     break;
                 case O_INTERACT:
-                    Interact("Interactive output channel is now %s",
-                            dest->GetName());
+                    Interact("Interactive output channel is now %s", dest->GetName());
                     break;
                 case O_INPUT:
-                    Interact("Input channel is now %s",
-                            dest->GetName());
+                    Interact("Input channel is now %s", dest->GetName());
                     break;
                 default:
                     break;
@@ -1442,6 +1437,7 @@ void Console::Debug_n(const char *message, ...) {
 }
 
 void Console::Interact(const char *message, ...) {
+
     va_list ap;
 
     va_start(ap, message);

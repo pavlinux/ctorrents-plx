@@ -467,8 +467,7 @@ int btContent::InitialFromMI(const char *metainfo_fname, const char *saveas) {
     m_left_bytes = m_btfiles.GetTotalLength();
 
     if (arg_flg_check_only) {
-        struct stat sb;
-        if (stat(arg_bitfield_file, &sb) == 0) {
+        if (access(arg_bitfield_file, R_OK | W_OK) == 0) {
             if (remove(arg_bitfield_file) < 0) {
                 CONSOLE.Warning(2,
                         "warn, couldn't delete bit field file \"%s\":  %s",

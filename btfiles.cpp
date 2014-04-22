@@ -417,12 +417,16 @@ int btFiles::_btf_recurses_directory(const char *cur_path, BTFILE * *plastnode) 
 }
 
 int btFiles::_btf_creat_by_path(const char *pathname, int64_t file_length) {
+
     struct stat sb;
     int fd;
     char *p, *pnext, last = 0;
-    char sp[MAXPATHLEN];
+    char sp[MAXPATHLEN] = {0};
 
-    strcpy(sp, pathname);
+    if (strlen(pathname) < PATH_MAX)
+        strcpy(sp, pathname);
+    else
+        return (-E2BIG);
 
     pnext = sp;
     if (PATH_SP == *pnext)
@@ -440,13 +444,8 @@ int btFiles::_btf_creat_by_path(const char *pathname, int64_t file_length) {
         if (stat(sp, &sb) < 0) {
             if (ENOENT == errno) {
                 if (!last) {
-#ifdef WINDOWS
-                    if (mkdir(sp) < 0)
-                        break;
-#else
                     if (mkdir(sp, 0755) < 0)
                         break;
-#endif
                 } else {
                     if ((fd = creat(sp, 0644)) < 0) {
                         last = 0;
@@ -488,28 +487,27 @@ int btFiles::BuildFromFS(const char *pathname) {
 
     if (S_IFREG & sb.st_mode) {
         pbf = _new_bfnode();
-#ifndef WINDOWS
         if (!pbf)
             return -1;
-#endif
+
         pbf->bf_length = m_total_files_length = sb.st_size;
         pbf->bf_filename = new char[strlen(pathname) + 1];
-#ifndef WINDOWS
+
         if (!pbf->bf_filename)
             return -1;
-#endif
-        strcpy(pbf->bf_filename, pathname);
+
+        strncpy(pbf->bf_filename, pathname, strnlen(pathname, PATH_MAX));
+
         m_btfhead = pbf;
     } else if (S_IFDIR & sb.st_mode) {
         char wd[MAXPATHLEN];
         if (!getcwd(wd, MAXPATHLEN))
             return -1;
         m_directory = new char[strlen(pathname) + 1];
-#ifndef WINDOWS
         if (!m_directory)
             return -1;
-#endif
-        strcpy(m_directory, pathname);
+
+        strncpy(m_directory, pathname, strnlen(pathname, PATH_MAX));
 
         if (chdir(m_directory) < 0) {
             CONSOLE.Warning(1,
@@ -520,6 +518,7 @@ int btFiles::BuildFromFS(const char *pathname) {
 
         if (_btf_recurses_directory((const char *) 0, &lastnode) < 0)
             return -1;
+
         if (chdir(wd) < 0)
             return -1;
     } else {
@@ -540,12 +539,11 @@ int btFiles::BuildFromMI(const char *metabuf, const size_t metabuf_len,
     int64_t t;
     int f_warned = 0;
 
-    if (!decode_query
-            (metabuf, metabuf_len, "info|name", &s, &q, (int64_t *) 0,
+    if (!decode_query(metabuf, metabuf_len, "info|name", &s, &q, (int64_t *) 0,
             QUERY_STR) || MAXPATHLEN <= q)
         return -1;
 
-    memcpy(path, s, q);
+    memmove(path, s, q);
     path[q] = '\0';
 
     r = decode_query(metabuf, metabuf_len, "info|files", (const char **) 0,
@@ -561,12 +559,13 @@ int btFiles::BuildFromMI(const char *metabuf, const size_t metabuf_len,
             return -1;
 
         if (saveas) {
-            m_directory = new char[strlen(saveas) + 1];
+            size_t copylen = strlen(saveas);
+            m_directory = new char[copylen + 1];
 
             if (!m_directory)
                 return -1;
 
-            strcpy(m_directory, saveas);
+            strncpy(m_directory, saveas, copylen);
         } else {
             int f_conv;
             char *tmpfn = new char[strlen(path) * 2 + 5];
@@ -577,13 +576,12 @@ int btFiles::BuildFromMI(const char *metabuf, const size_t metabuf_len,
             f_conv = ConvertFilename(tmpfn, path, strlen(path) * 2 + 5);
             if (f_conv) {
                 if (arg_flg_convert_filenames) {
-                    m_directory =
-                            new char[strlen(tmpfn) + 1];
+                    m_directory = new char[strlen(tmpfn) + 1];
                     if (!m_directory) {
                         delete[]tmpfn;
                         return -1;
                     }
-                    strcpy(m_directory, tmpfn);
+                    strncpy(m_directory, tmpfn, strlen(tmpfn));
                 } else {
                     CONSOLE.Warning(3,
                             "Dir name contains non-printable characters; use -T to convert.");
@@ -597,7 +595,7 @@ int btFiles::BuildFromMI(const char *metabuf, const size_t metabuf_len,
                 if (!m_directory)
                     return -1;
 
-                strcpy(m_directory, path);
+                strncpy(m_directory, path, strnlen(path, PATH_MAX));
             }
         }
 
@@ -854,14 +852,14 @@ void btFiles::SetFilter(int nfile, BitField * pFilter, size_t pieceLength) {
     uint64_t sizeBuffer = 0;
     size_t index;
 
-    if (nfile == 0 || nfile > m_nfiles) {
+    if (nfile == 0 || nfile > (ssize_t) m_nfiles) {
         pFilter->Clear();
         return;
     }
 
     pFilter->SetAll();
     for (; p; p = p->bf_next) {
-        if (++id == nfile) {
+        if ((ssize_t) ++id == nfile) {
             if (0 == p->bf_length) {
                 p->bf_npieces = 0;
                 return;
