@@ -910,9 +910,8 @@ int Console::ChangeChannel(int channel, const char *param, int notify) {
                     delete m_streams[channel];
                     m_streams[channel] = &m_off;
                 }
-                FILE *stream;
-
-                if (stream = fopen(param, (channel == O_INPUT) ? "r" : "a"))
+                FILE *stream = fopen(param, (channel == O_INPUT) ? "r" : "a");
+                if (stream != NULL)
                     dest->Associate(stream, param, (channel == O_INPUT) ? 0 : 1);
                 else {
                     Interact("Error opening file: %s", strerror(errno));
@@ -971,7 +970,7 @@ int Console::ChangeChannel(int channel, const char *param, int notify) {
 
 void Console::ShowFiles() {
     BitField tmpFilter;
-    int n = 0;
+    size_t n = 0u;
 
     Interact("Files in this torrent:");
     while (++n <= BTCONTENT.GetNFiles()) {
@@ -1123,17 +1122,15 @@ void Console::StatusLine1(char buffer[], size_t length) {
 
         all = BTCONTENT.GetNPieces() - BTCONTENT.GetFilter()->Count();
 
-        if (rate = Self.RateDL()) {
-            premain =
-                    (all -
-                    have) * BTCONTENT.GetPieceLength() / rate / 60;
+        rate = Self.RateDL();
+        if (rate) {
+            premain = (all - have) * BTCONTENT.GetPieceLength() / rate / 60;
             if (premain < 60000) // 1000 hours
                 snprintf(ptime, sizeof (ptime), " %d:%2.2d",
                     (int) (premain / 60),
                     (int) (premain % 60));
         }
-        sprintf(partial, "P:%d/%d%%%s ",
-                100 * have / all, 100 * avail / all, ptime);
+        sprintf(partial, "P:%d/%d%%%s ", 100 * have / all, 100 * avail / all, ptime);
     }
 
     char checked[14] = "";
@@ -1143,11 +1140,11 @@ void Console::StatusLine1(char buffer[], size_t length) {
                 BTCONTENT.GetNPieces());
     }
 
-    char complete[8];
+    char complete[8] = {'\0'};
     if (BTCONTENT.IsFull())
-        sprintf(complete, "seeding");
+        snprintf(complete, 8, "seeding");
     else if (BTCONTENT.Seeding())
-        sprintf(complete, "seed%zu%%",
+        snprintf(complete, 8, "seed%zu%%",
             100 * BTCONTENT.pBF->Count() / BTCONTENT.GetNPieces());
     else {
         int have, avail, all;
@@ -1161,7 +1158,7 @@ void Console::StatusLine1(char buffer[], size_t length) {
 
         all =
                 BTCONTENT.GetNPieces() - BTCONTENT.pBMasterFilter->Count();
-        sprintf(complete, "%d/%d%%", 100 * have / all,
+        snprintf(complete, 8, "%d/%d%%", 100 * have / all,
                 100 * avail / all);
     }
 
