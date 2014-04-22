@@ -421,10 +421,10 @@ int btFiles::_btf_creat_by_path(const char *pathname, int64_t file_length) {
     struct stat sb;
     int fd;
     char *p, *pnext, last = 0;
-    char sp[MAXPATHLEN] = {0};
+    char sp[MAXPATHLEN] = {'\0'};
 
     if (strlen(pathname) < PATH_MAX)
-        strcpy(sp, pathname);
+        strncpy(sp, pathname, strlen(pathname));
     else
         return (-E2BIG);
 
