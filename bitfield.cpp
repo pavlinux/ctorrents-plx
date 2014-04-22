@@ -247,6 +247,7 @@ void BitField::Except(const BitField & bf) {
 }
 
 void BitField::And(const BitField & bf) {
+
     size_t i;
 
     if (!_isfull_sp(bf) && !_isempty()) {

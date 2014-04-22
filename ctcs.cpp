@@ -698,10 +698,12 @@ int Ctcs::Send_Detail() {
             if (BTCONTENT.GetFilter()) {
                 fileFilter.Invert();
                 allFilter.SetAll();
-                pfilter = (BitField *) 0;
+                pfilter = NULL;
 
-                while (pfilter = BTCONTENT.GetNextFilter(pfilter)) {
-
+                do {
+                    pfilter = BTCONTENT.GetNextFilter(pfilter);
+                    if (pfilter == NULL)
+                        break;
                     priority++;
                     allFilter.And(*pfilter); // cumulation of filters
                     tmpFilter = allFilter;
@@ -710,7 +712,7 @@ int Ctcs::Send_Detail() {
 
                     if (tmpFilter.Count() >= fileFilter.Count())
                         break;
-                }
+                } while (pfilter != NULL);
 
                 if (!pfilter)
                     priority = 0;

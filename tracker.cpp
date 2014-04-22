@@ -578,17 +578,17 @@ int btTracker::SendRequest() {
     }
     // if we have a tracker hostname (not just an IP), send a Host: header
     if (_IPsin(m_host, m_port, &addr) < 0) {
-        char REQ_HOST[MAXHOSTNAMELEN];
+        char REQ_HOST[MAXHOSTNAMELEN] = {'\0'};
         if (MAXHOSTNAMELEN <
                 snprintf(REQ_HOST, MAXHOSTNAMELEN, "\r\nHost: %s", m_host))
             return -1;
-        strcat(REQ_BUFFER, REQ_HOST);
+        strncat(REQ_BUFFER, REQ_HOST, strnlen(REQ_HOST, MAXHOSTNAMELEN));
     }
 
-    strcat(REQ_BUFFER, "\r\nUser-Agent: ");
-    strcat(REQ_BUFFER, cfg_user_agent);
+    strncat(REQ_BUFFER, "\r\nUser-Agent: ", 14);
+    strncat(REQ_BUFFER, cfg_user_agent, strnlen(cfg_user_agent, 2 * MAXHOSTNAMELEN));
+    strncat(REQ_BUFFER, "\r\n\r\n", 4);
 
-    strcat(REQ_BUFFER, "\r\n\r\n");
     // hc
     //CONSOLE.Warning(0, "SendRequest: %s", REQ_BUFFER);
 

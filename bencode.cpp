@@ -166,8 +166,10 @@ size_t decode_list(const char *b, size_t len, const char *keylist) {
 }
 
 size_t decode_rev(const char *b, size_t len, const char *keylist) {
+
     if (!b)
         return 0;
+
     switch (*b) {
         case 'i':
             return decode_int(b, len);

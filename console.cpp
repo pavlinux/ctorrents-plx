@@ -1163,7 +1163,7 @@ void Console::StatusLine1(char buffer[], size_t length) {
     }
 
     long remain = -1;
-    char timeleft[20];
+    char timeleft[20] = {'\0'};
     size_t rate;
     if (!BTCONTENT.Seeding() || BTCONTENT.FlushFailed()) { // downloading
         if (rate = Self.RateDL()) {

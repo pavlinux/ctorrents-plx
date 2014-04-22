@@ -63,12 +63,12 @@ public:
         return rate_ul;
     }
 
-    void SetDLRate(Rate rate) {
+    void SetDLRate(const Rate &rate) {
         rate_dl = rate;
         StopDLTimer();
     }
 
-    void SetULRate(Rate rate) {
+    void SetULRate(const Rate &rate) {
         rate_ul = rate;
         StopULTimer();
     }

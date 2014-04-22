@@ -1719,20 +1719,20 @@ void btContent::CheckFilter() {
 
 void btContent::SetFilter() {
     // Set up filter list
-    char *list = (char *) 0, *tok, *dash, *plus;
+    char *list = NULL, *tok, *dash, *plus;
     size_t start, end;
-    BitField tmpFilter, *pfilter;
+    BitField tmpFilter, *pfilter = NULL;
     BFNODE *node = m_filters, *pnode = (BFNODE *) 0;
 
     if (arg_file_to_download) {
         pBMasterFilter->SetAll();
         list = new char[strlen(arg_file_to_download) + 1];
         if (!list) {
-            CONSOLE.Warning(1,
-                    "error, failed to allocate memory for filter");
+            CONSOLE.Warning(1, "error, failed to allocate memory for filter");
             return;
         }
-        strcpy(list, arg_file_to_download);
+        strncpy(list, arg_file_to_download, strlen(arg_file_to_download));
+
         tok = strtok(list, ", ");
         while (tok) {
             if (node != NULL) {
