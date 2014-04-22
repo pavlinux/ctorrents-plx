@@ -149,11 +149,12 @@ int Http_reponse_code(const char *b, size_t n) {
 }
 
 int Http_get_header(const char *b, int n, const char *header, char *v) {
+
     const char *e;
-    char h[64];
+    char h[64] = {'\0'};
     int r, header_len;
 
-    strcpy(h, header);
+    strncpy(h, header, strnlen(header, 64));
     strcat(h, ": ");
     header_len = strlen(h);
 
