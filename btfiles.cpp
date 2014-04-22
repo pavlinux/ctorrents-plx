@@ -105,7 +105,7 @@ int btFiles::_btf_close(BTFILE * pbf) {
 
 int btFiles::_btf_open(BTFILE * pbf, const int iotype) {
 
-    char fn[MAXPATHLEN] = {0};
+    char fn[MAXPATHLEN] = {'\0'};
 
     if (pbf->bf_flag_opened) {
         if (pbf->bf_flag_readonly && iotype)
@@ -127,7 +127,7 @@ int btFiles::_btf_open(BTFILE * pbf, const int iotype) {
             return -1;
         }
     } else {
-        strcpy(fn, pbf->bf_filename);
+        strncpy(fn, pbf->bf_filename, strnlen(pbf->bf_filename, PATH_MAX));
     }
 
     pbf->bf_last_timestamp = now + 1;
@@ -319,8 +319,8 @@ del:
 
 int btFiles::_btf_recurses_directory(const char *cur_path, BTFILE * *plastnode) {
 
-    char full_cur[MAXPATHLEN];
-    char fn[MAXPATHLEN];
+    char full_cur[MAXPATHLEN] = {'\0'};
+    char fn[MAXPATHLEN] = {'\0'};
     struct stat sb;
     struct dirent *dirp;
     DIR *dp = NULL;
@@ -330,13 +330,13 @@ int btFiles::_btf_recurses_directory(const char *cur_path, BTFILE * *plastnode) 
         return -1;
 
     if (cur_path) {
-        strcpy(fn, full_cur);
         if (MAXPATHLEN <=
                 snprintf(full_cur, MAXPATHLEN, "%s%c%s", fn, PATH_SP,
                 cur_path)) {
             errno = ENAMETOOLONG;
             return (-1);
         }
+        strncpy(fn, full_cur, strnlen(full_cur, PATH_MAX));
     }
 
     if ((DIR *) 0 == (dp = opendir(full_cur))) {
@@ -360,7 +360,7 @@ int btFiles::_btf_recurses_directory(const char *cur_path, BTFILE * *plastnode) 
                 return -1;
             }
         } else {
-            strcpy(fn, dirp->d_name);
+            strncpy(fn, dirp->d_name, strnlen(dirp->d_name, PATH_MAX));
         }
 
         if (stat(fn, &sb) < 0) {
@@ -728,7 +728,7 @@ int btFiles::CreateFiles() {
                 return -1;
             }
         } else {
-            strcpy(fn, pbt->bf_filename);
+            strncpy(fn, pbt->bf_filename, strnlen(pbt->bf_filename, PATH_MAX));
         }
 
         if (stat(fn, &sb) < 0) {
@@ -780,18 +780,24 @@ void btFiles::PrintOut() {
     CONSOLE.Print("");
     CONSOLE.Print("FILES INFO");
     BitField tmpBitField, tmpFilter;
+
     if (m_directory)
         CONSOLE.Print("Directory: %s", m_directory);
+
     for (; p; p = p->bf_next) {
         ++id;
         CONSOLE.Print_n("");
+
         CONSOLE.Print_n("<%d> %s%s [%llu]", (int) id,
                 m_directory ? " " : "", p->bf_filename,
                 (unsigned long long) (p->bf_length));
+
         if (!arg_flg_exam_only) {
+
             BTCONTENT.SetTmpFilter(id, &tmpFilter);
             tmpBitField = *BTCONTENT.pBF;
             tmpBitField.Except(tmpFilter);
+
             CONSOLE.Print_n(" %d/%d (%d%%)",
                     (int) (tmpBitField.Count()),
                     (int) (GetFilePieces(id)),
@@ -802,8 +808,7 @@ void btFiles::PrintOut() {
                     : 100);
         }
     }
-    CONSOLE.Print("Total: %lu MB",
-            (unsigned long) (m_total_files_length / 1024 / 1024));
+    CONSOLE.Print("Total: %lu MB", (unsigned long) (m_total_files_length / 1024 / 1024));
 }
 
 size_t btFiles::FillMetaInfo(FILE * fp) {
