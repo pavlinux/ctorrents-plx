@@ -47,12 +47,26 @@ static int g_console_ready = 0;
 // ConStream class functions
 
 ConStream::ConStream() {
+
     m_stream = (FILE *) 0;
     m_name = (char *) 0;
     m_restore = 0;
     m_newline = 1;
     m_suspend = 0;
     m_inputmode = K_LINES;
+
+    m_filemode = '\0';
+    m_reserved = '\0';
+    m_original.c_iflag &= ~(IGNBRK | BRKINT | ICRNL | INLCR | PARMRK | INPCK |
+            ISTRIP | IXON);
+    m_original.c_oflag = 0;
+    m_original.c_cflag &= ~(CSIZE | PARENB);
+    m_original.c_cflag |= CS8;
+    m_original.c_lflag &= ~(ECHO | ECHONL | ICANON | IEXTEN | ISIG);
+    m_original.c_line = 0;
+    m_original.c_ispeed = B115200;
+    m_original.c_ospeed = B115200;
+
 }
 
 ConStream::~ConStream() {
