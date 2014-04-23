@@ -269,20 +269,19 @@ int PeerList::IntervalCheck(fd_set * rfdp, fd_set * wfdp) {
         m_missed_count = m_upload_count = 0;
 
         if (m_opt_interval && m_opt_interval <= now - m_opt_timestamp) {
-            m_opt_timestamp = 0;
 
+            m_opt_timestamp = 0;
             if ((time_t) m_defer_count > m_up_opt_count &&
                     m_max_unchoke > MIN_UNCHOKES
                     && cfg_max_bandwidth_up) {
                 m_max_unchoke--;
                 if (arg_verbose)
-                    CONSOLE.Debug("max unchokes down to %d",
-                        (int) m_max_unchoke);
+                    CONSOLE.Debug("max unchokes down to %u", m_max_unchoke);
             } else if (arg_verbose)
-                CONSOLE.Debug("UL deferred %d sending %d",
-                    (int) m_defer_count,
+                CONSOLE.Debug("UL deferred %u sending %d", m_defer_count,
                     (int) m_up_opt_count);
-            m_defer_count = m_up_opt_count = 0;
+            m_defer_count = 0u;
+            m_up_opt_count = 0;
         }
 
         if (0 == cfg_max_bandwidth_up)
