@@ -3,7 +3,7 @@
 #
 # If not linked try:   ln -sf `g++ -print-file-name=libstdc++.a`
 #
-WITH_LTO = 1
+WITH_LTO = 0
 
 CXX ?= g++
 CC  ?= gcc
