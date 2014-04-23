@@ -7,16 +7,12 @@
 CXX ?= g++
 CC  ?= gcc
 
-CXXFLAGS =-std=gnu++0x -mtune=core2 -O3 -g0 -fomit-frame-pointer -W -Wall -Wextra -fbounds-check
-CFLAGS =-std=gnu99 -mtune=core2 -O3 -g0 -fomit-frame-pointer -W -Wall -Wextra -fbounds-check
-
-# CXXFLAGS=-W -Wall -Wextra -mtune=generic -O0 -g3 -gdwarf-2 -fno-omit-frame-pointer -std=gnu++0x -static-libstdc++
-# CFLAGS=-W -Wall -Wextra -mtune=generic -O0 -g3 -gdwarf-2 -fno-omit-frame-pointer -std=gnu99 -static
-#CXXFLAGS=-DDEBUG -W -Wall -Wextra -Wshadow -std=gnu99 -O0 -g3 -ggdb3 -gdwarf-2 -fno-omit-frame-pointer
+CXXFLAGS =-std=gnu++0x -mtune=core2 -Ofast -g0 -fomit-frame-pointer -W -Wextra
+CFLAGS =-std=gnu99 -mtune=core2 -Ofast -g0 -fomit-frame-pointer -W -Wall -Wextra
 
 LINK ?= g++
 LDFLAGS := -lrt
-LIBS :=-static-libstdc++ -L.
+LIBS :=-L. -static-libstdc++
 
 EXEC = ctorrent
 

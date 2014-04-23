@@ -270,7 +270,8 @@ int PeerList::IntervalCheck(fd_set * rfdp, fd_set * wfdp) {
 
         if (m_opt_interval && m_opt_interval <= now - m_opt_timestamp) {
             m_opt_timestamp = 0;
-            if (m_defer_count > m_up_opt_count &&
+
+            if ((time_t) m_defer_count > m_up_opt_count &&
                     m_max_unchoke > MIN_UNCHOKES
                     && cfg_max_bandwidth_up) {
                 m_max_unchoke--;
@@ -516,26 +517,33 @@ skip_continue:
 }
 
 void PeerList::SetUnchokeIntervals() {
+
     time_t old_unchoke_int = m_unchoke_interval, old_opt_int =
             m_opt_interval;
 
     // Unchoke peers long enough to have a chance at getting some data.
     if (BandWidthLimitUp() && BTCONTENT.Seeding()) {
-        int optx = (int) (1 / (1 - (double) MIN_UNCHOKE_INTERVAL *
-                cfg_max_bandwidth_up /
-                cfg_req_slice_size));
+
+        ssize_t optx = (int) (1 / (1 - (double) MIN_UNCHOKE_INTERVAL *
+                cfg_max_bandwidth_up / cfg_req_slice_size));
+
         if (optx < 0)
             optx = 0;
+
         if (optx < MIN_OPT_CYCLE) {
             optx = MIN_OPT_CYCLE;
+
             double interval = cfg_req_slice_size /
                     (cfg_max_bandwidth_up * MIN_OPT_CYCLE /
                     (double) (MIN_OPT_CYCLE - 1));
+
             m_unchoke_interval = (size_t) interval;
             if (interval - (int) interval > 0)
                 m_unchoke_interval++;
+
             if (m_unchoke_interval < MIN_UNCHOKE_INTERVAL)
                 m_unchoke_interval = MIN_UNCHOKE_INTERVAL;
+
         } else {
             // Allow each peer at least 60 seconds unchoked.
             m_unchoke_interval = MIN_UNCHOKE_INTERVAL;
@@ -549,8 +557,8 @@ void PeerList::SetUnchokeIntervals() {
                 if (maxopt > MIN_OPT_CYCLE && optx > maxopt)
                     optx = maxopt;
             }
-            if (optx > m_max_unchoke + 2)
-                optx = m_max_unchoke + 2;
+            if (optx > (ssize_t) m_max_unchoke + 2)
+                optx = (ssize_t) m_max_unchoke + 2;
         }
         m_opt_interval = optx * m_unchoke_interval;
     } else if (BandWidthLimitUp() && !BTCONTENT.Seeding()) {
@@ -872,7 +880,8 @@ void PeerList::CancelOneRequest(size_t idx) {
     PEERNODE *p;
     PSLICE ps;
     btPeer *peer = (btPeer *) 0;
-    int count, max = 0, dupcount = 0, pending = 0;
+    int count, max = 0;
+    size_t dupcount = 0, pending = 0;
 
     if (PENDINGQUEUE.Exist(idx)) {
         pending = 1;
@@ -1696,7 +1705,7 @@ int PeerList::IsIdle() {
             Self.LastSizeRecv() /
             (double) cfg_max_bandwidth_down))))
             || 0 == Self.RateDL() || ((0 == cfg_max_bandwidth_down
-            || (slow = (Self.RateDL() < cfg_max_bandwidth_down / 2)))
+            || (slow = (Self.RateDL() < (size_t) cfg_max_bandwidth_down / 2)))
             && BandWidthLimitDown(Self.LateDL(), (int) Self.RateDL() * 2))
             || (!slow && BandWidthLimitDown(Self.LateDL())))
             && !(dlate && m_f_dlate) && ((cfg_max_bandwidth_up > 0 &&
@@ -1704,7 +1713,7 @@ int PeerList::IsIdle() {
             Self.LastSizeSent() / (double) cfg_max_bandwidth_up))))
             || 0 == Self.RateUL() || (slow = 0) || // re-initialization
             ((0 == cfg_max_bandwidth_up ||
-            (slow = (Self.RateUL() < cfg_max_bandwidth_up / 2)))
+            (slow = (Self.RateUL() < (size_t) cfg_max_bandwidth_up / 2)))
             && BandWidthLimitUp(Self.LateUL(), (int) Self.RateUL() * 2))
             || (!slow && BandWidthLimitUp(Self.LateUL())))
             ) {

@@ -102,10 +102,11 @@ int Http_url_analyse(const char *url, char *host, int *port, char *path) {
 }
 
 size_t Http_split(char *b, size_t n, char **pd, size_t * dlen) {
-    char *p;
+
+    char *p = NULL;
     size_t addtion, hlen;
 
-    hlen = 0;
+    hlen = 0u;
 
     if (n < 16)
         return 0;
@@ -116,10 +117,14 @@ size_t Http_split(char *b, size_t n, char **pd, size_t * dlen) {
         //*pd = b;
         //*dlen = n;
     } else {
-        if (p = strnstr(b, "\r\n\r\n", n))
+        p = strnstr(b, "\r\n\r\n", n);
+        if (p != NULL)
             addtion = 4;
-        else if (p = strnstr(b, "\n\n", n))
-            addtion = 2;
+        else {
+            p = strnstr(b, "\n\n", n);
+            if (p != NULL)
+                addtion = 2;
+        }
 
         if (p) {
             hlen = p - b;

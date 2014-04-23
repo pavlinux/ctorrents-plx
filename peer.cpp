@@ -547,7 +547,7 @@ int btPeer::MsgDeliver() {
 
                 if (m_state.local_choked) {
                     if (m_last_timestamp - m_unchoke_timestamp >
-                            (m_latency ? (m_latency * 2) : 60)) {
+                            (time_t) (m_latency ? (m_latency * 2) : 60)) {
                         if (PeerError(1, "choked request") < 0)
                             return -1;
                         if (stream.Send_State(M_CHOKE) < 0)
@@ -637,7 +637,7 @@ int btPeer::MsgDeliver() {
                 if (reponse_q.Remove(idx, off, len) < 0) {
                     if (m_state.local_choked &&
                             m_last_timestamp - m_unchoke_timestamp >
-                            (m_latency ? (m_latency * 2) : 60)) {
+                            ((time_t) (m_latency ? (m_latency * 2) : 60))) {
                         if (PeerError(1, "Bad cancel") < 0)
                             return -1;
                     }
@@ -695,7 +695,7 @@ int btPeer::ReponseSlice() {
         if (0 != unchoked && rate != 0) { // not div by zero
             if (cfg_max_bandwidth_up < unchoked
                     || cfg_max_bandwidth_up <= rate) {
-                if (rate < unchoked || rate < (unchoked * len) / 3600)
+                if (rate < unchoked || rate < (unchoked * (ssize_t) len) / 3600)
                     m_next_send_time = now;
                 else
                     m_next_send_time =
@@ -714,10 +714,8 @@ int btPeer::ReponseSlice() {
 
     } else
         m_next_send_time = now + len /
-            ((currentrate < cfg_max_bandwidth_up
-            || 0 ==
-            cfg_max_bandwidth_up) ? currentrate :
-            cfg_max_bandwidth_up);
+            (((ssize_t) currentrate < cfg_max_bandwidth_up ||
+            0 == cfg_max_bandwidth_up) ? currentrate : cfg_max_bandwidth_up);
 
     m_prefetch_time = (time_t) 0;
 
@@ -1010,7 +1008,7 @@ int btPeer::PieceDeliver(size_t mlen) {
     // If the slice is outstanding and was cancelled from this peer, accept.
     if (!f_requested && BTCONTENT.pBMultPeer->IsSet(idx) &&
             m_last_timestamp - m_cancel_time <=
-            (m_latency ? (m_latency * 2) : 60) && (WORLD.HasSlice(idx, off, len)
+            (time_t) (m_latency ? (m_latency * 2) : 60) && (WORLD.HasSlice(idx, off, len)
             || PENDINGQUEUE.HasSlice(idx,
             off,
             len))) {
@@ -1057,13 +1055,16 @@ int btPeer::PieceDeliver(size_t mlen) {
         }
     } else { // not requested--not saved
         if (m_last_timestamp - m_cancel_time >
-                (m_latency ? (m_latency * 2) : 60)) {
-            char msg[40];
+                (time_t) (m_latency ? (m_latency * 2) : 60)) {
+
+            char msg[40] = {'\0'};
             BTCONTENT.CountUnwantedBlock();
             sprintf(msg, "Unrequested piece %d/%d/%d", (int) idx,
                     (int) off, (int) len);
+
             if (PeerError(1, msg) < 0)
                 return -1;
+
             ResetDLTimer(); // set peer rate=0 so we don't favor for upload
             f_count = f_want = 0;
         } else {
@@ -1559,7 +1560,7 @@ int btPeer::HealthCheck() {
             size_t allowance =
                     !m_latency ? 150 : ((m_latency < 60) ? 60 :
                     m_latency);
-            if (m_receive_time < now - 2 * allowance) {
+            if (m_receive_time < (time_t) (now - 2 * allowance)) {
                 // if a repeat occurrence, get rid of the peer
                 if (m_bad_health
                         || PeerError(2, "unresponsive") < 0)
@@ -1573,7 +1574,7 @@ int btPeer::HealthCheck() {
                 int retval = CancelRequest();
                 PutPending();
                 return (retval < 0) ? -1 : 0;
-            } else if (m_receive_time < now - allowance) {
+            } else if (m_receive_time < (time_t) (now - allowance)) {
                 CONSOLE.
                         Debug("%p unresponsive; sending keepalive",
                         this);
@@ -1677,13 +1678,13 @@ void btPeer::Prefetch(time_t deadline) {
         // Don't prefetch if it will expire from cache before being sent.
         if (predict < deadline &&
                 (0 == (rd = Self.RateDL()) ||
-                predict <= now + cfg_cache_size * 1024 * 1024 / rd)) {
+                predict <= (time_t) (now + cfg_cache_size * 1024 * 1024 / rd))) {
 
             // This allows re-prefetch if it might have expired from the cache.
             ru = Self.RateUL();
             if (!m_prefetch_time
                     || (0 == rd && 0 == ru)
-                    || now - m_prefetch_time > (time_t) BTCONTENT.CacheSize() / (rd + ru)) {
+                    || now - m_prefetch_time > (time_t) (BTCONTENT.CacheSize() / (rd + ru))) {
                 BTCONTENT.ReadSlice(NULL, idx, off, len);
                 m_prefetch_time = now;
             }

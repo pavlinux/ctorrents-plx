@@ -1166,7 +1166,8 @@ void Console::StatusLine1(char buffer[], size_t length) {
     char timeleft[20] = {'\0'};
     size_t rate;
     if (!BTCONTENT.Seeding() || BTCONTENT.FlushFailed()) { // downloading
-        if (rate = Self.RateDL()) {
+        rate = Self.RateDL();
+        if (rate != 0) {
             // don't overflow remain
             if (BTCONTENT.GetLeftBytes() < (uint64_t) rate << 22)
                 remain = BTCONTENT.GetLeftBytes() / rate / 60;
@@ -1179,20 +1180,21 @@ void Console::StatusLine1(char buffer[], size_t length) {
                 cfg_seed_hours * 60 - (now -
                 BTCONTENT.GetSeedTime()) /
             60;
-        else if (rate = Self.RateUL()) {
-            // don't overflow remain
-            if (cfg_seed_ratio *
-                    (Self.TotalDL() ? Self.TotalDL() : BTCONTENT.
-                    GetTotalFilesLength()) - Self.TotalUL() <
-                    (uint64_t) rate << 22)
-                remain =
-                    (long) (cfg_seed_ratio *
-                    (Self.TotalDL() ? Self.
-                    TotalDL() : BTCONTENT.
-                    GetTotalFilesLength()) -
-                    Self.TotalUL()) / rate / 60;
-            else
-                remain = 99999;
+        else {
+            rate = Self.RateUL();
+            if (rate != 0) {
+                // don't overflow remain
+                if (cfg_seed_ratio *
+                        (Self.TotalDL() ? Self.TotalDL() :
+                        BTCONTENT.GetTotalFilesLength()) -
+                        Self.TotalUL() < (uint64_t) rate << 22)
+
+                    remain = (long) (cfg_seed_ratio * (Self.TotalDL() ?
+                        Self.TotalDL() : BTCONTENT.GetTotalFilesLength()) -
+                        Self.TotalUL()) / rate / 60;
+                else
+                    remain = 99999;
+            }
         }
     }
     if (remain >= 0) {
