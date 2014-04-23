@@ -3,16 +3,46 @@
 #
 # If not linked try:   ln -sf `g++ -print-file-name=libstdc++.a`
 #
+WITH_LTO = 1
 
 CXX ?= g++
 CC  ?= gcc
 
-CXXFLAGS =-std=gnu++0x -mtune=core2 -Ofast -g0 -fomit-frame-pointer -W -Wextra
-CFLAGS =-std=gnu99 -mtune=core2 -Ofast -g0 -fomit-frame-pointer -W -Wall -Wextra
+FLAGS :=-mtune=core2 -Ofast -g0 -msse -msse2 -msse3 -W -Wextra
+CXXFLAGS :=-std=gnu++0x ${FLAGS}
+CFLAGS :=-std=gnu99 ${FLAGS}
 
 LINK ?= g++
-LDFLAGS := -lrt
-LIBS :=-L. -static-libstdc++
+LDFLAGS := -lrt -Wl,-O1,-hashvals,--hash-style=both
+LIBS :=-L. -static-libstdc++ -static-libgcc
+
+CPUS = $(shell grep processor /proc/cpuinfo | wc -l)
+MAKEFLAGS += -j${CPUS}
+
+ifeq ($(shell $(CC) -v 2>&1 | grep -c "clang version"), 1)
+    CC := clang
+    export WITH_LTO = 0
+else
+    CC := gcc
+endif
+
+# Link Time Optimization
+ifeq ($(WITH_LTO), 1)
+
+    LTO_CFLAGS := -flto -fno-toplevel-reorder -flto=${CPUS}
+    LTO_FINAL_CFLAGS := ${LTO_CFLAGS} -fwhole-program
+    LTO_FINAL_CFLAGS += -freg-struct-return
+    LTO_FINAL_CFLAGS += -fuse-linker-plugin
+    LTO_FINAL_CFLAGS += -fno-omit-frame-pointer
+    LTO_FINAL_CFLAGS += -fno-delete-null-pointer-checks
+    LTO_FINAL_CFLAGS += -fno-strict-aliasing
+    LTO_FINAL_CFLAGS += -fno-strict-overflow
+
+    CXXFLAGS  += ${LTO_CFLAGS}
+    CFLAGS  += ${LTO_CFLAGS}
+    LDFLAGS += ${LTO_FINAL_CFLAGS}
+endif
+
 
 EXEC = ctorrent
 
@@ -29,13 +59,12 @@ endif
 
 VERSION = 0.0.8
 
-CPUS = $(shell grep processor /proc/cpuinfo | wc -l)
-MAKEFLAGS += j${CPUS}
+
 
 .SUFFIXES: .o .cpp .c
 
 .cpp.o:
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -c -o $@ $<
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
 .c.o:
 	$(CC) $(CFLAGS) -c -o $@ $<
 
