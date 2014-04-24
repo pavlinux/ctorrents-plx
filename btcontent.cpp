@@ -1653,7 +1653,6 @@ void btContent::CompletionCommand() {
         cmdstr = arg_completion_exit;
     if (arg_verbose)
         CONSOLE.Debug("Executing: %s", cmdstr);
-#ifdef HAVE_WORKING_FORK
     if (cfg_cache_size) { // maybe free some cache before forking
         CacheEval();
         if (m_cache_size < m_cache_used && !m_flush_failed)
@@ -1673,15 +1672,12 @@ void btContent::CompletionCommand() {
                 delete p;
             }
         }
-#endif
         if (system(cmdstr) < 0)
-            CONSOLE.Warning(2,
-                "warn, failure running completion command:  %s",
+            CONSOLE.Warning(2, "warn, failure running completion command:  %s",
                 strerror(errno));
-#ifdef HAVE_WORKING_FORK
         exit(EXIT_SUCCESS);
     }
-#endif
+
 
     if (cmdstr != arg_completion_exit)
         delete[]cmdstr;
@@ -1746,6 +1742,7 @@ void btContent::CheckFilter() {
 
 void btContent::SetFilter() {
     // Set up filter list
+
     char *list = NULL, *tok, *dash, *plus;
     size_t start, end;
     BitField tmpFilter, *pfilter = NULL;
@@ -1760,6 +1757,7 @@ void btContent::SetFilter() {
     if (arg_file_to_download) {
         pBMasterFilter->SetAll();
         list = new char[strlen(arg_file_to_download) + 1];
+        memset((void *) list, '\0', strlen(arg_file_to_download) + 1);
         if (!list) {
             CONSOLE.Warning(1, "error, failed to allocate memory for filter");
             return;
@@ -1782,12 +1780,12 @@ void btContent::SetFilter() {
 
             if (node->name != NULL && (strlen(node->name) < strlen(tok))) {
                 node->name = (char *) realloc((void *) node->name, strlen(tok) + 1);
+                memset(node->name, 0, strlen(tok) + 1);
                 if (!node->name) {
                     CONSOLE.Warning(1, "error, failed to reallocate memory for filter");
                     delete[]list;
                     return;
                 }
-                memset(node->name, 0, strlen(tok) + 1);
                 strcpy(node->name, tok);
             }
             pfilter = &(node->bitfield);
