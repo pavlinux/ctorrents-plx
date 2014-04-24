@@ -301,8 +301,13 @@ int btFiles::_btf_ftruncate(int fd, int64_t length) {
             len += wlen;
         }
 del:
-        memset((void *) c, 0, 256 * 1024);
+        memset((void *) c, 0x00, 256 * 1024);
+        memset((void *) c, 0xaa, 256 * 1024);
+        memset((void *) c, 0x55, 256 * 1024);
+        memset((void *) c, 0xff, 256 * 1024);
+        memset((void *) c, 0x00, 256 * 1024);
         delete[]c;
+        c = NULL;
         return r; // CID 28202
     }
     // ftruncate() not allowed on [v]fat under linux
@@ -352,11 +357,11 @@ int btFiles::_btf_recurses_directory(const char *cur_path, BTFILE * *plastnode) 
             continue;
 
         if (cur_path) {
-            if (MAXPATHLEN <
-                    snprintf(fn, MAXPATHLEN, "%s%c%s", cur_path,
+            if (MAXPATHLEN < snprintf(fn, MAXPATHLEN, "%s%c%s", cur_path,
                     PATH_SP, dirp->d_name)) {
                 CONSOLE.Warning(1, "error, pathname too long");
                 errno = ENAMETOOLONG;
+                closedir(dp);
                 return -1;
             }
         } else {
@@ -373,14 +378,13 @@ int btFiles::_btf_recurses_directory(const char *cur_path, BTFILE * *plastnode) 
         if (S_IFREG & sb.st_mode) {
 
             pbf = _new_bfnode();
-
             if (!pbf) {
                 errno = ENOMEM;
+                closedir(dp);
                 return -1;
             }
 
             pbf->bf_filename = new char[strlen(fn) + 1];
-
             if (!pbf->bf_filename) {
                 closedir(dp);
                 errno = ENOMEM;
@@ -405,9 +409,7 @@ int btFiles::_btf_recurses_directory(const char *cur_path, BTFILE * *plastnode) 
                 return -1;
             }
         } else {
-            CONSOLE.Warning(1,
-                    "error, \"%s\" is not a directory or regular file.",
-                    fn);
+            CONSOLE.Warning(1, "error, \"%s\" is not a directory or regular file.", fn);
             closedir(dp);
             return -1;
         }
@@ -617,8 +619,10 @@ int btFiles::BuildFromMI(const char *metabuf, const size_t metabuf_len,
             m_total_files_length += t;
 
             r = decode_query(p, dl, "path", (const char **) 0, &n, (int64_t *) 0, QUERY_POS);
-            if (!r)
+            if (!r) {
+                delete[]pbf;
                 return -1;
+            }
 
             if (!decode_list2path(p + r, n, path)) {
                 delete[]pbf;

@@ -102,7 +102,8 @@ int btTracker::_s2sin(char *h, int p, struct sockaddr_in *psin) {
 }
 
 int btTracker::_UpdatePeerList(char *buf, size_t bufsiz) {
-    char tmphost[MAXHOSTNAMELEN];
+
+    char tmphost[MAXHOSTNAMELEN] = {'\0'};
     const char *ps;
     size_t i, pos, tmpport;
     size_t cnt = 0;
@@ -210,21 +211,21 @@ int btTracker::_UpdatePeerList(char *buf, size_t bufsiz) {
             pos = decode_dict(buf, bufsiz, (char *) 0);
             if (!pos)
                 break;
-            if (!decode_query
-                    (buf, pos, "ip", &ps, &i, (int64_t *) 0, QUERY_STR)
-                    || MAXHOSTNAMELEN < i)
+
+            if (!decode_query(buf, pos, "ip", &ps, &i, (int64_t *) 0, QUERY_STR))
                 continue;
+            if (i > MAXHOSTNAMELEN)
+                continue;
+
             memcpy(tmphost, ps, i);
             tmphost[i] = '\0';
 
-            if (!decode_query
-                    (buf, pos, "port", (const char **) 0, &tmpport,
+            if (!decode_query(buf, pos, "port", (const char **) 0, &tmpport,
                     (int64_t *) 0, QUERY_INT))
                 continue;
 
-            if (!decode_query
-                    (buf, pos, "peer id", &ps, &i, (int64_t *) 0,
-                    QUERY_STR) && i != 20)
+            if (!decode_query(buf, pos, "peer id", &ps, &i, (int64_t *) 0, QUERY_STR) &&
+                    i != 20)
                 continue;
 
             if (_IPsin(tmphost, tmpport, &addr) < 0) {
@@ -248,6 +249,7 @@ int btTracker::_UpdatePeerList(char *buf, size_t bufsiz) {
     if (arg_verbose)
         CONSOLE.Debug("new peers=%d; next check in %d sec",
             (int) cnt, (int) m_interval);
+
     return 0;
 }
 
@@ -350,6 +352,7 @@ int btTracker::CheckReponse() {
     if (!pdata) {
         CONSOLE.Warning(2,
                 "warn, peers list received from tracker is empty.");
+
         return 0;
     }
     return _UpdatePeerList(pdata, dlen);
@@ -409,6 +412,7 @@ int btTracker::Initial() {
 
 next_step:
     if (BuildBaseRequest() < 0)
+
         return -1;
 
     return 0;
@@ -469,6 +473,7 @@ int btTracker::BuildBaseRequest() {
     }
 
     if (opt) {
+
         delete[]opt;
         opt = (char *) 0;
     }
@@ -531,6 +536,7 @@ int btTracker::Connect() {
             m_status = T_READY;
         else {
             CLOSE_SOCKET(m_sock);
+
             return -1;
         }
     }
@@ -604,6 +610,7 @@ int btTracker::SendRequest() {
         m_report_time = now;
         m_report_dl = m_totaldl;
         m_report_ul = m_totalul;
+
         if (arg_verbose)
             CONSOLE.
                 Debug
@@ -647,6 +654,7 @@ int btTracker::IntervalCheck(fd_set *rfdp, fd_set *wfdp) {
         FD_SET(m_sock, wfdp);
     } else if (INVALID_SOCKET != m_sock) {
         FD_SET(m_sock, rfdp);
+
         if (m_request_buffer.Count())
             FD_SET(m_sock, wfdp);
     }
@@ -727,6 +735,7 @@ int btTracker::SocketReady(fd_set * rfdp, fd_set * wfdp, int *nfds,
         }
     } else { // failsafe
         Reset(15);
+
         return -1;
     }
     return 0;
@@ -736,6 +745,7 @@ void btTracker::Restart() {
     m_f_stoped = m_f_restart = 0;
 
     if (T_FINISHED == m_status) {
+
         m_status = T_FREE;
         m_f_started = 0;
         m_interval = 15;
@@ -747,12 +757,14 @@ void btTracker::SetStoped() {
         m_f_stoped = 1;
         m_status = T_FINISHED;
     } else {
+
         Reset(15);
         m_f_stoped = 1;
     }
 }
 
 void btTracker::RestartTracker() {
+
     SetStoped(); // finish the tracker
     // Now we need to wait until the tracker updates (T_FINISHED == m_status),
     // then Tracker.Restart().
@@ -761,6 +773,7 @@ void btTracker::RestartTracker() {
 
 size_t btTracker::GetPeersCount() const {
     // includes seeds, so must always be >= 1 (myself!)
+
     return (m_peers_count > m_seeds_count) ? m_peers_count :
             (GetSeedsCount() + (BTCONTENT.IsFull() ? 0 : 1));
 }
