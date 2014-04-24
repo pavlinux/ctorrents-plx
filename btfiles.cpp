@@ -296,7 +296,7 @@ int btFiles::_btf_ftruncate(int fd, int64_t length) {
 
             r = write(fd, c, wlen);
             if (r < 0)
-                goto del;
+                goto del; // CID 28183
 
             len += wlen;
         }
@@ -313,10 +313,10 @@ del:
     // ftruncate() not allowed on [v]fat under linux
     int retval = ftruncate(fd, length);
     if (retval < 0) {
-        char c = (char) 0;
+        char chr = (char) 0;
         if (lseek(fd, length - 1, SEEK_SET) < 0)
             return -1;
-        return write(fd, &c, 1);
+        return write(fd, &chr, 1); // write '\0' 
     } else
         return retval;
 

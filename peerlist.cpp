@@ -1026,7 +1026,9 @@ int PeerList::Initial_ListenPort() {
 
     if (cfg_listen_port) {
         socklen_t opt = 1;
-        (void) setsockopt(m_listen_sock, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof (opt));
+        if (!setsockopt(m_listen_sock, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof (opt))) {
+            CONSOLE.Warning(2, "warn, couldn't set REUSEADDR option on socket");
+        }
         errno = 0;
         lis_addr.sin_port = htons(cfg_listen_port);
 
@@ -1045,8 +1047,7 @@ int PeerList::Initial_ListenPort() {
     if (!r && (!cfg_listen_port || cfg_listen_port > 1025)) {
         r = -1;
         if (cfg_listen_port) {
-            cfg_min_listen_port = cfg_listen_port -
-                    (cfg_max_listen_port - cfg_min_listen_port);
+            cfg_min_listen_port = cfg_listen_port - (cfg_max_listen_port - cfg_min_listen_port);
             if (cfg_min_listen_port < 1025)
                 cfg_min_listen_port = 1025;
             cfg_max_listen_port = cfg_listen_port;
