@@ -1,5 +1,4 @@
-
-#include <sys/types.h>
+#include <unistd.h>
 #include "btconfig.h"
 
 #define NULLCHR ((char *)0)
