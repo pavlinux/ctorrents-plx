@@ -112,7 +112,7 @@ int btTracker::_s2sin(char *h, int p, struct sockaddr_in *psin) {
 
 int btTracker::_UpdatePeerList(char *buf, size_t bufsiz) {
 
-    char tmphost[MAXHOSTNAMELEN] = {'\0'};
+    char tmphost[MAXHOSTNAMELEN + 1];
     const char *ps;
     size_t i, pos, tmpport;
     size_t cnt = 0;
@@ -223,24 +223,23 @@ int btTracker::_UpdatePeerList(char *buf, size_t bufsiz) {
 
             if (!decode_query(buf, pos, "ip", &ps, &i, (int64_t *) 0, QUERY_STR))
                 continue;
-            if (i > MAXHOSTNAMELEN)
+            if (i <= MAXHOSTNAMELEN) {
+                memset(tmphost, '\0', MAXHOSTNAMELEN + 1);
+                memcpy(tmphost, ps, i);
+                tmphost[i] = '\0';
+            } else
                 continue;
-
-            memcpy(tmphost, ps, i);
-            tmphost[i] = '\0';
 
             if (!decode_query(buf, pos, "port", (const char **) 0, &tmpport,
                     (int64_t *) 0, QUERY_INT))
                 continue;
 
-            if (!decode_query(buf, pos, "peer id", &ps, &i, (int64_t *) 0, QUERY_STR) &&
-                    i != 20)
+            if (!decode_query(buf, pos, "peer id", &ps, &i, (int64_t *) 0,
+                    QUERY_STR) && i != 20)
                 continue;
 
             if (_IPsin(tmphost, tmpport, &addr) < 0) {
-                CONSOLE.Warning(3,
-                        "warn, detected invalid ip address %s.",
-                        tmphost);
+                CONSOLE.Warning(3, "warn, detected invalid ip address %s.", tmphost);
                 continue;
             }
 

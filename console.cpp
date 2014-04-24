@@ -1359,6 +1359,7 @@ void Console::Warning(int sev, const char *message, ...) {
 }
 
 void Console::Debug(const char *message, ...) {
+
     static char buffer[80];
     if (!arg_verbose)
         return;
