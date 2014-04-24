@@ -1029,7 +1029,6 @@ int PeerList::Initial_ListenPort() {
         if (!setsockopt(m_listen_sock, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof (opt))) {
             CONSOLE.Warning(2, "warn, couldn't set REUSEADDR option on socket");
         }
-        errno = 0;
         lis_addr.sin_port = htons(cfg_listen_port);
 
         if (bind(m_listen_sock, (struct sockaddr *) &lis_addr,
@@ -1037,8 +1036,10 @@ int PeerList::Initial_ListenPort() {
             r = 1;
         else {
             opt = 0;
-            (void) setsockopt(m_listen_sock, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof (opt));
-            errno = 0;
+            if (!setsockopt(m_listen_sock, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof (opt))) {
+                CONSOLE.Warning(2, "warn, couldn't set REUSEADDR option on socket");
+            }
+
             CONSOLE.Warning(2, "warn, couldn't bind on specified port %d:  %s",
                     cfg_listen_port, strerror(errno));
         }
@@ -1086,8 +1087,8 @@ int PeerList::Initial_ListenPort() {
         return -1;
     }
 
-    snprintf(m_listen, sizeof (m_listen), "%s:%d",
-            inet_ntoa(lis_addr.sin_addr), ntohs(lis_addr.sin_port));
+    snprintf(m_listen, sizeof (m_listen), "%s:%d", inet_ntoa(lis_addr.sin_addr),
+            ntohs(lis_addr.sin_port));
     CONSOLE.Print("Listening on %s", m_listen);
 
     return 0;
