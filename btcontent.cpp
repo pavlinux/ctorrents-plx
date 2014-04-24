@@ -1383,18 +1383,24 @@ char *btContent::_file2mem(const char *fname, size_t * psiz) {
     }
 
     if (sb.st_size > MAX_METAINFO_FILESIZ) {
-        CONSOLE.Warning(1, "error, \"%s\" is really a metainfo file???",
-                fname);
+        CONSOLE.Warning(1, "error, \"%s\" is really a metainfo file???", fname);
+        if (fp != NULL)
+            fclose(fp);
         return (char *) 0;
     }
 
     b = new char[sb.st_size];
-    if (!b)
+    if (!b) {
+        if (fp != NULL)
+            fclose(fp);
         return (char *) 0;
+    }
 
     if (fread(b, sb.st_size, 1, fp) != 1) {
         if (ferror(fp)) {
             delete[]b;
+            if (fp != NULL)
+                fclose(fp);
             return (char *) 0;
         }
     }
@@ -1743,7 +1749,13 @@ void btContent::SetFilter() {
     char *list = NULL, *tok, *dash, *plus;
     size_t start, end;
     BitField tmpFilter, *pfilter = NULL;
-    BFNODE *node = m_filters, *pnode = (BFNODE *) 0;
+    BFNODE *pnode = (BFNODE *) 0;
+
+    if (m_filters == NULL) {
+        CONSOLE.Warning(1, "filters is null");
+        return;
+    }
+    BFNODE *node = m_filters;
 
     if (arg_file_to_download) {
         pBMasterFilter->SetAll();
@@ -1754,59 +1766,55 @@ void btContent::SetFilter() {
         }
         strncpy(list, arg_file_to_download, strlen(arg_file_to_download));
 
-        tok = strtok(list, ", ");
-        while (tok) {
-            if (node != NULL) {
-                node = new BFNODE;
-                if (!node) {
-                    CONSOLE.Warning(1, "error, failed to allocate memory for filter");
+        do {
+            node = new BFNODE;
+            if (!node) {
+                CONSOLE.Warning(1, "error, failed to allocate memory for filter");
+                delete[]list;
+                return;
+            }
+            if (pnode)
+                pnode->next = node;
+            else
+                m_filters = node;
+
+            tok = strtok(list, ", ");
+
+            if (node->name != NULL && (strlen(node->name) < strlen(tok))) {
+                node->name = (char *) realloc((void *) node->name, strlen(tok) + 1);
+                if (!node->name) {
+                    CONSOLE.Warning(1, "error, failed to reallocate memory for filter");
                     delete[]list;
                     return;
                 }
-                if (pnode)
-                    pnode->next = node;
-                else
-                    m_filters = node;
-
-                if (node->name != NULL && (strlen(node->name) < strlen(tok))) {
-                    node->name = (char *) realloc((void *) node->name, strlen(tok) + 1);
-                    if (!node->name) {
-                        CONSOLE.Warning(1, "error, failed to reallocate memory for filter");
-                        delete[]list;
-                        return;
-                    }
-                    memset(node->name, 0, strlen(tok) + 1);
-                    strcpy(node->name, tok);
-                }
-                pfilter = &(node->bitfield);
-                if (strstr(tok, "...") || index(tok, '*')) {
-                    pfilter->Clear();
-                    pBMasterFilter->Clear();
-                    pnode = node;
-                    node = node->next;
-                    break;
-                }
+                memset(node->name, 0, strlen(tok) + 1);
+                strcpy(node->name, tok);
             }
+            pfilter = &(node->bitfield);
+            if (strstr(tok, "...") || index(tok, '*')) {
+                pfilter->Clear();
+                pBMasterFilter->Clear();
+                pnode = node;
+                node = node->next;
+                break;
+            }
+
             pfilter->SetAll();
             do {
                 start = atoi(tok);
-                m_btfiles.SetFilter((int) start, &tmpFilter,
-                        m_piece_length);
+                m_btfiles.SetFilter((int) start, &tmpFilter, m_piece_length);
                 pfilter->And(tmpFilter);
 
                 plus = index(tok, '+');
+                if ((dash = index(tok, '-')) && (!plus || dash < plus)) {
 
-                if ((dash = index(tok, '-'))
-                        && (!plus || dash < plus)) {
                     end = atoi(dash + 1);
+
                     while (++start <= end) {
-                        m_btfiles.SetFilter((int) start,
-                                &tmpFilter,
-                                m_piece_length);
+                        m_btfiles.SetFilter((int) start, &tmpFilter, m_piece_length);
                         pfilter->And(tmpFilter);
                     }
                 }
-
                 tok = plus ? plus + 1 : plus;
             } while (tok);
 
@@ -1814,8 +1822,10 @@ void btContent::SetFilter() {
             tok = strtok(NULL, ", ");
             pnode = node;
             node = node->next;
-        }
+        } while (tok);
+
         delete[]list;
+
     } else // no arg_file_to_download
         pBMasterFilter->Clear();
 

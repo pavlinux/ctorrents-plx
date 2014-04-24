@@ -57,12 +57,11 @@ ConStream::ConStream() {
 
     m_filemode = '\0';
     m_reserved = '\0';
-    m_original.c_iflag &= ~(IGNBRK | BRKINT | ICRNL | INLCR | PARMRK | INPCK |
+    m_original.c_iflag = ~(IGNBRK | BRKINT | ICRNL | INLCR | PARMRK | INPCK |
             ISTRIP | IXON);
     m_original.c_oflag = 0;
-    m_original.c_cflag &= ~(CSIZE | PARENB);
-    m_original.c_cflag |= CS8;
-    m_original.c_lflag &= ~(ECHO | ECHONL | ICANON | IEXTEN | ISIG);
+    m_original.c_cflag = (~(CSIZE | PARENB)) | CS8;
+    m_original.c_lflag = ~(ECHO | ECHONL | ICANON | IEXTEN | ISIG);
     m_original.c_line = 0;
     m_original.c_ispeed = B115200;
     m_original.c_ospeed = B115200;

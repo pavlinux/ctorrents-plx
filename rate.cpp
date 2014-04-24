@@ -23,8 +23,12 @@ Rate::Rate() {
     m_selfrate = (Rate *) 0;
     m_late = 0;
     m_ontime = m_update_nominal = 0;
-    m_lastrate.lasttime = (time_t) 0;
     m_nominal = DEFAULT_SLICE_SIZE / 8; // minimum "acceptable" rate
+
+    m_lastrate.lasttime = (time_t) 0;
+    m_lastrate.value = 0;
+    m_lastrate.recent = 0.0F;
+
     m_reserved = 0u;
 }
 
