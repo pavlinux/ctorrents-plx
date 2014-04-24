@@ -620,12 +620,12 @@ int btFiles::BuildFromMI(const char *metabuf, const size_t metabuf_len,
 
             r = decode_query(p, dl, "path", (const char **) 0, &n, (int64_t *) 0, QUERY_POS);
             if (!r) {
-                delete[]pbf;
+                delete pbf;
                 return -1;
             }
 
             if (!decode_list2path(p + r, n, path)) {
-                delete[]pbf;
+                delete pbf;
                 return -1;
             }
 
@@ -633,7 +633,7 @@ int btFiles::BuildFromMI(const char *metabuf, const size_t metabuf_len,
             char *tmpfn = new char[strlen(path) * 2 + 5];
 
             if (!tmpfn) {
-                delete[]pbf;
+                delete pbf;
                 return -1;
             }
             f_conv = ConvertFilename(tmpfn, path, strlen(path) * 2 + 5);
@@ -643,7 +643,7 @@ int btFiles::BuildFromMI(const char *metabuf, const size_t metabuf_len,
 
                     if (!pbf->bf_filename) {
                         delete[]tmpfn;
-                        delete[]pbf;
+                        delete pbf;
                         return -1;
                     }
                     strcpy(pbf->bf_filename, tmpfn);
