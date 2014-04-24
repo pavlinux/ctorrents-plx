@@ -20,7 +20,6 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <ctype.h>
-#include <sys/types.h>
 #include <signal.h>
 
 #include "btconfig.h"

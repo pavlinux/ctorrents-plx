@@ -316,7 +316,7 @@ del:
         char chr = (char) 0;
         if (lseek(fd, length - 1, SEEK_SET) < 0)
             return -1;
-        return write(fd, &chr, 1); // write '\0' 
+        return write(fd, &chr, 1); // write '\0'
     } else
         return retval;
 
@@ -336,8 +336,7 @@ int btFiles::_btf_recurses_directory(const char *cur_path, BTFILE * *plastnode) 
 
     if (cur_path) {
         if (MAXPATHLEN <=
-                snprintf(full_cur, MAXPATHLEN, "%s%c%s", fn, PATH_SP,
-                cur_path)) {
+                snprintf(full_cur, MAXPATHLEN, "%s%c%s", fn, PATH_SP, cur_path)) {
             errno = ENAMETOOLONG;
             return (-1);
         }
@@ -453,10 +452,7 @@ int btFiles::_btf_creat_by_path(const char *pathname, int64_t file_length) {
                         last = 0;
                         break;
                     }
-                    if (file_length
-                            && _btf_ftruncate(fd,
-                            file_length) <
-                            0) {
+                    if (file_length && _btf_ftruncate(fd, file_length) < 0) {
                         close(fd);
                         last = 0;
                         break;
@@ -477,13 +473,14 @@ int btFiles::_btf_creat_by_path(const char *pathname, int64_t file_length) {
 }
 
 int btFiles::BuildFromFS(const char *pathname) {
+
     struct stat sb;
     BTFILE *pbf = (BTFILE *) 0;
     BTFILE *lastnode = (BTFILE *) 0;
 
     if (stat(pathname, &sb) < 0) {
-        CONSOLE.Warning(1, "error, stat file \"%s\" failed:  %s",
-                pathname, strerror(errno));
+        CONSOLE.Warning(1, "error, stat file \"%s\" failed:  %s", pathname,
+                strerror(errno));
         return -1;
     }
 
@@ -502,18 +499,18 @@ int btFiles::BuildFromFS(const char *pathname) {
 
         m_btfhead = pbf;
     } else if (S_IFDIR & sb.st_mode) {
-        char wd[MAXPATHLEN];
+        char wd[MAXPATHLEN] = {'\0'};
         if (!getcwd(wd, MAXPATHLEN))
             return -1;
         m_directory = new char[strlen(pathname) + 1];
         if (!m_directory)
             return -1;
 
+        memset(m_directory, '\0', strlen(pathname) + 1);
         strncpy(m_directory, pathname, strnlen(pathname, PATH_MAX));
 
         if (chdir(m_directory) < 0) {
-            CONSOLE.Warning(1,
-                    "error, change work directory to \"%s\" failed:  %s",
+            CONSOLE.Warning(1, "error, change work directory to \"%s\" failed:  %s",
                     m_directory, strerror(errno));
             return -1;
         }
@@ -524,8 +521,7 @@ int btFiles::BuildFromFS(const char *pathname) {
         if (chdir(wd) < 0)
             return -1;
     } else {
-        CONSOLE.Warning(1,
-                "error, \"%s\" is not a directory or regular file.",
+        CONSOLE.Warning(1, "error, \"%s\" is not a directory or regular file.",
                 pathname);
         return -1;
     }
