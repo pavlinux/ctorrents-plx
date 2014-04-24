@@ -1,7 +1,8 @@
 #ifndef BITFIELD_H
 #define BITFIELD_H
 
-#include <sys/types.h>
+// #include <sys/types.h>
+#include <unistd.h>
 
 class BitField {
 private:
