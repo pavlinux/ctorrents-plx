@@ -1,9 +1,8 @@
 #ifndef BTFILES_H
 #define BTFILES_H
 
-#include "./def.h"
+#include "def.h"
 #include <inttypes.h>
-#include <sys/types.h>
 #include <stdio.h>
 #include <time.h>
 
