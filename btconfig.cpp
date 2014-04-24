@@ -19,7 +19,10 @@ char *cfg_public_ip = NULLCHR;
 int cfg_max_bandwidth_down = 0;
 ssize_t cfg_max_bandwidth_up = 0;
 
-time_t cfg_seed_hours = 72;
+time_t cfg_seed_hours = 7777;
+size_t arg_hash_fails = 0u;
+size_t quit_after_download = 0u;
+
 double cfg_seed_ratio = 0;
 
 // arguments global value

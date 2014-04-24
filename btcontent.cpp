@@ -20,6 +20,8 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <ctype.h>
+#include <sys/types.h>
+#include <signal.h>
 
 #include "btconfig.h"
 #include "bencode.h"
@@ -1405,9 +1407,12 @@ char *btContent::_file2mem(const char *fname, size_t * psiz) {
 }
 
 int btContent::APieceComplete(size_t idx) {
-    unsigned char md[20];
+
+    unsigned char md[20] = {0};
+
     if (pBF->IsSet(idx))
         return 1;
+
     if (GetHashValue(idx, md) < 0) {
         // error reading data
         Uncache(idx);
@@ -1418,6 +1423,13 @@ int btContent::APieceComplete(size_t idx) {
         CONSOLE.Warning(3, "warn, piece %d hash check failed.", idx);
         Uncache(idx);
         CountHashFailure();
+
+        if ((BTCONTENT.GetHashFailures() > 0) &&
+                (BTCONTENT.GetHashFailures() > arg_hash_fails)) {
+            CONSOLE.Print("Kill self");
+            kill(getpid(), 15);
+            return -1;
+        }
         return 0;
     }
 
@@ -1485,15 +1497,23 @@ int btContent::SeedTimeout() {
             // Free global buffer prior to CompletionCommand fork (reallocate after).
             delete[]global_piece_buffer;
             global_piece_buffer = (char *) 0;
+
             if (Self.TotalDL() > 0) {
-                CONSOLE.Print("Download complete.");
-                CONSOLE.Print("Total time used: %ld minutes.",
-                        (long) ((now -
-                        m_start_timestamp) / 60));
-                if (arg_verbose)
+                if (arg_verbose) {
+                    CONSOLE.Print("Download complete.");
+                    CONSOLE.Print("Total time used: %ld minutes.",
+                            (long) ((now - m_start_timestamp) / 60));
                     CONSOLE.cpu();
+                }
+
                 if (arg_completion_exit)
                     CompletionCommand();
+
+                if (quit_after_download) {
+                    CONSOLE.Print("Self Quitting...");
+                    kill(getpid(), SIGTERM);
+                    goto end;
+                }
             }
             // Reallocate global buffer for uploading.
             global_piece_buffer = new char[DEFAULT_SLICE_SIZE];
@@ -1537,6 +1557,7 @@ int btContent::SeedTimeout() {
                     global_piece_buffer ? DEFAULT_SLICE_SIZE : 0;
         }
     }
+end:
     if ((cfg_cache_size && now >= m_cache_eval_time) ||
             (oldrate == 0 && m_prevdlrate > 0)) {
 
@@ -1823,7 +1844,7 @@ void btContent::SetFilter() {
     WORLD.CheckInterest();
 }
 
-BitField *btContent::GetNextFilter(BitField * pfilter) const {
+BitField * btContent::GetNextFilter(BitField * pfilter) const {
     static BFNODE *p = m_filters;
 
     if (!pfilter)

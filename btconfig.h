@@ -4,6 +4,7 @@
 #include <time.h>
 
 extern size_t cfg_req_slice_size;
+extern size_t quit_after_download;
 
 #define MAX_METAINFO_FILESIZ	(4*1024*1024)
 #define DEFAULT_SLICE_SIZE (16*1024u)
@@ -33,6 +34,7 @@ extern double cfg_seed_ratio;
 
 extern int cfg_max_bandwidth_down;
 extern ssize_t cfg_max_bandwidth_up;
+extern size_t arg_hash_fails;
 
 // arguments global value
 extern char *arg_metainfo_file;

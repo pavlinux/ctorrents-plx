@@ -146,7 +146,7 @@ int param_check(int argc, char **argv) {
     if (0 == strncmp(argv[1], "-t", 2))
         opts = "tc:l:ps:u:";
     else
-        opts = "aA:b:cC:dD:e:E:fi:I:M:m:n:P:p:s:S:Tu:U:vxX:z:hH";
+        opts = "aA:b:cC:dD:e:E:F:fi:I:M:m:n:P:p:Qs:S:Tu:U:vxX:z:hH";
 
     while ((c = getopt(argc, argv, opts)) != -1)
         switch (c) {
@@ -212,13 +212,13 @@ int param_check(int argc, char **argv) {
             case 'C': // Max cache size
                 cfg_cache_size = atoi(optarg);
                 break;
-
+            case 'F': // arg_hash_fails
+                arg_hash_fails = atoi(optarg);
+                break;
             case 'M': // Max peers
                 cfg_max_peers = atoi(optarg);
                 if (cfg_max_peers > 1000 || cfg_max_peers < 20) {
-                    CONSOLE.Warning(1,
-                            "-%c argument must be between 20 and 1000",
-                            c);
+                    CONSOLE.Warning(1, "-%c argument must be between 20 and 1000", c);
                     return -1;
                 }
                 break;
@@ -358,6 +358,10 @@ int param_check(int argc, char **argv) {
                 strcpy(arg_completion_exit, optarg);
                 break;
 
+            case 'Q':
+                quit_after_download = 1;
+                break;
+
             case 'v': // verbose output
                 arg_verbose = 1;
                 break;
@@ -454,6 +458,8 @@ void usage() {
             "Download slice/block size, unit KB (default 16, max 128)");
     fprintf(stderr, "%-15s %s\n", "-n file_list",
             "Specify file number(s) to download");
+    fprintf(stderr, "%-15s %s\n", "-F", "Fail hash counter");
+    fprintf(stderr, "%-15s %s\n", "-Q", "Quit after dowdload");
     fprintf(stderr, "%-15s %s\n", "-D rate", "Max bandwidth down (unit KB/s)");
     fprintf(stderr, "%-15s %s\n", "-U rate", "Max bandwidth up (unit KB/s)");
     fprintf(stderr, "%-15s %s%s\")\n", "-P peer_id",
