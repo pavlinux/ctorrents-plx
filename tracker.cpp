@@ -26,6 +26,7 @@
 btTracker Tracker;
 
 btTracker::btTracker() {
+
     memset(m_host, 0, MAXHOSTNAMELEN);
     memset(m_path, 0, MAXPATHLEN);
     memset(m_trackerid, 0, PEER_ID_LEN + 1);
@@ -34,6 +35,14 @@ btTracker::btTracker() {
     m_port = 80;
     m_status = T_FREE;
     m_f_started = m_f_stoped = m_f_completed = m_f_restart = 0;
+
+    m_sin.sin_family = AF_INET;
+    m_sin.sin_port = 80;
+    m_sin.sin_addr.s_addr = INADDR_ANY;
+    m_f_boguspeercnt = 0;
+    m_reserved = 0;
+    m_default_interval = 15;
+    m_ok_click = 0;
 
     m_interval = 15;
     m_peers_count = m_seeds_count = 0;

@@ -156,7 +156,6 @@ int param_check(int argc, char **argv) {
 
             case 'b':
                 arg_bitfield_file = new char[strlen(optarg) + 1];
-
                 if (!arg_bitfield_file)
                     return -1;
 
