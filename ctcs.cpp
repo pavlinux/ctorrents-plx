@@ -27,6 +27,7 @@
 Ctcs CTCS;
 
 Ctcs::Ctcs() {
+
     memset(m_host, 0, MAXHOSTNAMELEN);
 
     m_sock = INVALID_SOCKET;
@@ -38,9 +39,6 @@ Ctcs::Ctcs() {
     m_last_timestamp = m_sent_ctstatus_time = m_statustime = (time_t) 0;
     m_sent_ctstatus = 0;
     m_sent_ctbw = 0;
-    m_sin.sin_family = AF_INET;
-    m_sin.sin_port = (in_port_t) 0;
-    m_sin.sin_addr.s_addr = INADDR_ANY;
 }
 
 Ctcs::~Ctcs() {
@@ -351,13 +349,15 @@ int Ctcs::Send_Config() {
         snprintf(desc, MAXPATHLEN, "Current peers: %d",
                 (int) (WORLD.GetPeersCount()));
         if ((r =
-                SendMessage(ConfigMsg("min_peers", "I", "1-1000", value,
+                SendMessage(ConfigMsg
+                ("min_peers", "I", "1-1000", value,
                 "Min peers [-m]", desc))) < 0)
             return r;
 
         if (!BTCONTENT.IsFull() &&
                 (r = SendMessage(ConfigMsg("file_list", "S", maxlen,
-                arg_file_to_download ? arg_file_to_download : "",
+                arg_file_to_download ?
+                arg_file_to_download : "",
                 "Download files [-n]", ""))) < 0)
             return r;
 
@@ -369,34 +369,46 @@ int Ctcs::Send_Config() {
             return r;
 
         if ((r = SendMessage(ConfigMsg("pause", "B", "0",
-                WORLD.IsPaused() ? "1" : "0", "Pause torrent",
+                WORLD.IsPaused() ? "1" : "0",
+                "Pause torrent",
                 "Stop upload/download"))) < 0)
             return r;
 
         if (!BTCONTENT.IsFull() &&
                 (r = SendMessage(ConfigMsg("user_exit", "S", maxlen,
-                arg_completion_exit ? arg_completion_exit : "", "Completion command [-X]",
+                arg_completion_exit ?
+                arg_completion_exit : "",
+                "Completion command [-X]",
                 ""))) < 0)
             return r;
 
         if ((r = SendMessage(ConfigMsg("out_normal", "S", maxlen,
-                CONSOLE.GetChannel(O_NORMAL), "Normal/status output", ""))) < 0)
+                CONSOLE.GetChannel(O_NORMAL),
+                "Normal/status output",
+                ""))) < 0)
             return r;
         if ((r = SendMessage(ConfigMsg("out_interact", "S", maxlen,
-                CONSOLE.GetChannel(O_INTERACT), "Interactive output", ""))) < 0)
+                CONSOLE.GetChannel(O_INTERACT),
+                "Interactive output", ""))) < 0)
             return r;
         if ((r = SendMessage(ConfigMsg("out_error", "S", maxlen,
-                CONSOLE.GetChannel(O_WARNING), "Error/warning output", ""))) < 0)
+                CONSOLE.GetChannel(O_WARNING),
+                "Error/warning output",
+                ""))) < 0)
             return r;
         if ((r = SendMessage(ConfigMsg("out_debug", "S", maxlen,
-                CONSOLE.GetChannel(O_DEBUG), "Debug/verbose output", ""))) < 0)
+                CONSOLE.GetChannel(O_DEBUG),
+                "Debug/verbose output",
+                ""))) < 0)
             return r;
-        if ((r = SendMessage(ConfigMsg("input", "S", maxlen, CONSOLE.GetChannel(O_INPUT),
+        if ((r = SendMessage(ConfigMsg("input", "S", maxlen,
+                CONSOLE.GetChannel(O_INPUT),
                 "Console input", ""))) < 0)
             return r;
 
         if ((r = SendMessage(ConfigMsg("ctcs_server", "S", maxlen,
-                arg_ctcs, "CTCS server", ""))) < 0)
+                arg_ctcs, "CTCS server",
+                ""))) < 0)
             return r;
 
         sprintf(message, "CTCONFIGDONE");
@@ -442,7 +454,6 @@ char *Ctcs::ConfigMsg(const char *name, const char *type, const char *range,
 }
 
 int Ctcs::Set_Config(const char *origmsg) {
-
     char *msgbuf = new char[strlen(origmsg) + 1];
 
     if (!msgbuf) {
@@ -454,7 +465,7 @@ int Ctcs::Set_Config(const char *origmsg) {
 
     if (m_protocol >= 3) {
         char *name, *valstr;
-        if (!(name = strtok(index(msgbuf, ' '), " ")) ||
+        if (!(name = strtok(strchr(msgbuf, ' '), " ")) ||
                 strlen(name) >= strlen(origmsg) - (name - msgbuf))
             goto err;
         valstr = name + strlen(name);
@@ -468,22 +479,22 @@ int Ctcs::Set_Config(const char *origmsg) {
                 CONSOLE.Debug("Verbose output off");
             arg_verbose = arg;
         } else if (0 == strcmp(name, "seed_time")) {
-
             double value = strtod(valstr, NULL);
             if (value < 0)
                 goto err;
-
-            time_t arg = (time_t) value + ((value - (int) value) ? 1 : 0);
-            arg += BTCONTENT.GetSeedTime() ? ((now - BTCONTENT.GetSeedTime()) / 3600) : 0;
-
+            time_t arg =
+                    (time_t) value + ((value - (int) value) ? 1 : 0);
+            arg +=
+                    BTCONTENT.
+                    GetSeedTime() ? ((now -
+                    BTCONTENT.GetSeedTime()) /
+                    3600) : 0;
             if (arg > 0 || 0 == BTCONTENT.GetSeedTime()
                     || cfg_seed_ratio >
                     (double) Self.TotalUL() /
                     (Self.TotalDL() ? Self.TotalDL() : BTCONTENT.
                     GetTotalFilesLength()))
-
                 cfg_seed_hours = arg;
-
         } else if (0 == strcmp(name, "seed_ratio")) {
             double arg = atof(valstr);
             if (arg < 0)
@@ -562,12 +573,13 @@ int Ctcs::Set_Config(const char *origmsg) {
         } else if (0 == strcmp(name, "input")) {
             CONSOLE.ChangeChannel(O_INPUT, valstr);
         } else if (0 == strcmp(name, "ctcs_server")) {
-            if (!index(valstr, ':') || *valstr == ':' ||
-                    atoi(index(valstr, ':') + 1) <= 0)
+            if (!strchr(valstr, ':') || *valstr == ':' ||
+                    atoi(strchr(valstr, ':') + 1) <= 0)
                 goto err;
             char *arg = new char[strlen(valstr) + 1];
             if (!arg)
-                CONSOLE.Warning(1, "error, failed to allocate memory for option");
+                CONSOLE.Warning(1,
+                    "error, failed to allocate memory for option");
             else {
                 strcpy(arg, valstr);
                 delete[]arg_ctcs;
@@ -576,43 +588,33 @@ int Ctcs::Set_Config(const char *origmsg) {
                 CTCS.Reset(1);
             }
         } else
-            CONSOLE.Warning(2, "Unknown config option %s from CTCS", name);
+            CONSOLE.Warning(2, "Unknown config option %s from CTCS",
+                name);
     } else { // m_protocol <= 2
         if (msgbuf[9] != '.') {
-
             int arg = atoi(msgbuf + 9);
-
             if (arg_verbose && !arg)
                 CONSOLE.Debug("Verbose output off");
-
             arg_verbose = arg;
         }
         if (msgbuf[11] != '.')
             cfg_seed_hours = atoi(msgbuf + 11);
-
-        if (!(msgbuf = index(msgbuf + 11, ' ')))
+        if (!(msgbuf = strchr(msgbuf + 11, ' ')))
             goto err;
-
         if (*++msgbuf != '.')
             cfg_seed_ratio = atof(msgbuf);
-
-        if (!(msgbuf = index(msgbuf, ' ')))
+        if (!(msgbuf = strchr(msgbuf, ' ')))
             goto err;
-
         if (*++msgbuf != '.')
             cfg_max_peers = atoi(msgbuf);
-
-        if (!(msgbuf = index(msgbuf, ' ')))
+        if (!(msgbuf = strchr(msgbuf, ' ')))
             goto err;
-
         if (*++msgbuf != '.')
             cfg_min_peers = atoi(msgbuf);
-
-        if (!(msgbuf = index(msgbuf, ' ')))
+        if (!(msgbuf = strchr(msgbuf, ' ')))
             goto err;
-
         if (*++msgbuf != '.') {
-            char *p = index(msgbuf, ' ');
+            char *p = strchr(msgbuf, ' ');
             if (!p)
                 goto err;
             if (arg_file_to_download)
@@ -630,7 +632,7 @@ int Ctcs::Set_Config(const char *origmsg) {
             BTCONTENT.SetFilter();
         }
         if (m_protocol >= 2) {
-            if (!(msgbuf = index(msgbuf, ' ')))
+            if (!(msgbuf = strchr(msgbuf, ' ')))
                 goto err;
             if (*++msgbuf != '.') {
                 cfg_cache_size = atoi(msgbuf);
@@ -638,12 +640,12 @@ int Ctcs::Set_Config(const char *origmsg) {
             }
         }
         if (m_protocol == 1) {
-            if (!(msgbuf = index(msgbuf, ' ')))
+            if (!(msgbuf = strchr(msgbuf, ' ')))
                 goto err;
             ++msgbuf;
             // old cfg_exit_zero_peers option
         }
-        if (!(msgbuf = index(msgbuf, ' ')))
+        if (!(msgbuf = strchr(msgbuf, ' ')))
             goto err;
         if (*++msgbuf != '.') {
             if (atoi(msgbuf)) {
@@ -701,26 +703,22 @@ int Ctcs::Send_Detail() {
             if (BTCONTENT.GetFilter()) {
                 fileFilter.Invert();
                 allFilter.SetAll();
-                pfilter = NULL;
+                pfilter = (BitField *) 0;
 
-                do {
-                    pfilter = BTCONTENT.GetNextFilter(pfilter);
-                    if (pfilter == NULL)
-                        break;
+                while (pfilter =
+                        BTCONTENT.GetNextFilter(pfilter)) {
                     priority++;
                     allFilter.And(*pfilter); // cumulation of filters
                     tmpFilter = allFilter;
                     tmpFilter.Invert(); // what's included by the filters...
                     tmpFilter.And(fileFilter); // ...that's also in this file
-
-                    if (tmpFilter.Count() >= fileFilter.Count())
+                    if (tmpFilter.Count() >=
+                            fileFilter.Count())
                         break;
-                } while (pfilter != NULL);
-
+                }
                 if (!pfilter)
                     priority = 0;
             }
-
             snprintf(message, CTCS_BUFSIZE,
                     "CTFILE %d %d %d %d %d %d %llu %s", (int) n,
                     priority, current,
@@ -795,11 +793,11 @@ int Ctcs::Initial() {
     strncpy(m_host, arg_ctcs, MAXHOSTNAMELEN - 1);
     m_host[MAXHOSTNAMELEN - 1] = '\0';
 
-    s = index(m_host, ':');
+    s = strchr(m_host, ':');
     if (s != NULL)
         *s = '\0';
-    m_port = atoi(s = (index(arg_ctcs, ':') + 1));
-    if (index(s, ':')) {
+    m_port = atoi(s = (strchr(arg_ctcs, ':') + 1));
+    if (strchr(s, ':')) {
         CONSOLE.Input("Enter CTCS password: ", m_pass, CTCS_PASS_SIZE);
     } else
         *m_pass = '\0';

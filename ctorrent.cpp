@@ -1,8 +1,12 @@
-#include "def.h"
+#include "./def.h"
 #include <sys/types.h>
 
+#ifdef WINDOWS
+#include <windows.h>
+#else
 #include <unistd.h>
 #include <signal.h>
+#endif
 
 #include <sys/time.h>
 #include <time.h>
@@ -18,25 +22,33 @@
 #include "ctcs.h"
 #include "console.h"
 
-#include "config.h"
-#include "sigint.h"
+#include "./config.h"
 
 #ifndef HAVE_RANDOM
 #include "compat.h"
 #endif
 
+#ifndef WINDOWS
+#include "sigint.h"
+#endif
+
 void usage();
 int param_check(int argc, char **argv);
 
-void Random_init() {
+#ifdef WINDOWS
 
+int APIENTRY WinMain(HINSTANCE hInstance,
+        HINSTANCE hPrzevInstance, LPSTR lpCmdLine, int nCmdShow) {
+}
+
+#else
+
+void Random_init() {
     unsigned long seed;
 #ifdef HAVE_GETTIMEOFDAY
-
     struct timeval tv;
-    gettimeofday(&tv, (struct timezone *) NULL);
+    gettimeofday(&tv, (struct timezone *) 0);
     seed = tv.tv_usec + tv.tv_sec + getpid();
-
 #else
     seed = (unsigned long) time((time_t *) 0);
 #endif
@@ -44,34 +56,26 @@ void Random_init() {
 }
 
 int main(int argc, char **argv) {
-
-    try {
-        if (argc < 2) {
-            throw argc;
-        }
-    } catch (int) {
-        usage();
-        exit(1);
-    }
-
     char *s;
 
     Random_init();
-
     arg_user_agent = new char[MAX_PF_LEN + 1];
-    memmove(arg_user_agent, PEER_PFX, MAX_PF_LEN);
+    strcpy(arg_user_agent, PEER_PFX);
 
-    cfg_user_agent = new char[strlen(PACKAGE_NAME) + strlen(PACKAGE_VERSION) + 2];
-
+    cfg_user_agent =
+            new char[strlen(PACKAGE_NAME) + strlen(PACKAGE_VERSION) + 2];
+#ifndef WINDOWS
     if (!cfg_user_agent)
         return -1;
-
+#endif
     sprintf(cfg_user_agent, "%s/%s", PACKAGE_NAME, PACKAGE_VERSION);
-
-    while (s = index(cfg_user_agent, ' '))
+    while (s = strchr(cfg_user_agent, ' '))
         *s = '-';
 
-    if (param_check(argc, argv) < 0)
+    if (argc < 2) {
+        usage();
+        exit(1);
+    } else if (param_check(argc, argv) < 0)
         exit(1);
 
     if (arg_flg_make_torrent) {
@@ -138,6 +142,8 @@ int main(int argc, char **argv) {
     exit(0);
 }
 
+#endif
+
 int param_check(int argc, char **argv) {
 
     int c, l;
@@ -156,6 +162,7 @@ int param_check(int argc, char **argv) {
 
             case 'b':
                 arg_bitfield_file = new char[strlen(optarg) + 1];
+
                 if (!arg_bitfield_file)
                     return -1;
 
@@ -212,13 +219,17 @@ int param_check(int argc, char **argv) {
             case 'C': // Max cache size
                 cfg_cache_size = atoi(optarg);
                 break;
-            case 'F': // arg_hash_fails
-                arg_hash_fails = atoi(optarg);
-                break;
+
+	    case 'F': // arg_hash_fails 
+		arg_hash_fails = atoi(optarg);
+		break;
+
             case 'M': // Max peers
                 cfg_max_peers = atoi(optarg);
                 if (cfg_max_peers > 1000 || cfg_max_peers < 20) {
-                    CONSOLE.Warning(1, "-%c argument must be between 20 and 1000", c);
+                    CONSOLE.Warning(1,
+                            "-%c argument must be between 20 and 1000",
+                            c);
                     return -1;
                 }
                 break;
@@ -336,11 +347,11 @@ int param_check(int argc, char **argv) {
                 if (arg_ctcs)
                     return -1; // specified twice
                 arg_ctcs = new char[strlen(optarg) + 1];
-
+#ifndef WINDOWS
                 if (!arg_ctcs)
                     return -1;
-
-                if (!index(optarg, ':')) {
+#endif
+                if (!strchr(optarg, ':')) {
                     CONSOLE.Warning(1,
                             "-%c argument requires a port number",
                             c);
@@ -355,12 +366,21 @@ int param_check(int argc, char **argv) {
                 arg_completion_exit = new char[strlen(optarg) + 1];
                 if (!arg_completion_exit)
                     return -1;
+#ifndef HAVE_SYSTEM
+                CONSOLE.Warning(1,
+                        "-X is not supported on your system");
+                return -1;
+#endif
+#ifndef HAVE_WORKING_FORK
+                CONSOLE.Warning(2,
+                        "No working fork function; be sure the -X command is brief!");
+#endif
                 strcpy(arg_completion_exit, optarg);
                 break;
-
-            case 'Q':
-                quit_after_download = 1;
-                break;
+	   
+	    case 'Q': 
+		quit_after_download = 1;
+		break;
 
             case 'v': // verbose output
                 arg_verbose = 1;
@@ -412,80 +432,72 @@ int param_check(int argc, char **argv) {
     return 0;
 }
 
-/*
-void usage() {
-    printf("Usage\n");
-};
- */
+void usage()
+{
+  CONSOLE.ChangeChannel(O_INPUT, "off", 0);
 
-void usage() {
-    CONSOLE.ChangeChannel(O_INPUT, "off", 0);
-    fprintf(stderr, "%s   Original code Copyright: YuHong(992126018601033)\n",
-            PACKAGE_STRING);
-    fprintf(stderr, "WARNING: THERE IS NO WARRANTY FOR CTorrent. USE AT YOUR OWN RISK!!!\n");
-    fprintf(stderr, "\nGeneral Options:\n");
-    fprintf(stderr, "%-15s %s\n", "-h/-H", "Show this message");
-    fprintf(stderr, "%-15s %s\n", "-x",
-            "Decode metainfo (torrent) file only, don't download");
-    fprintf(stderr, "%-15s %s\n", "-c", "Check pieces only, don't download");
-    fprintf(stderr, "%-15s %s\n", "-v", "Verbose output (for debugging)");
+  fprintf(stderr,"\nGeneral Options:\n");
+  fprintf(stderr, "%-15s %s\n", "-h/-H", "Show this message");
+  fprintf(stderr, "%-15s %s\n", "-x",
+    "Decode metainfo (torrent) file only, don't download");
+  fprintf(stderr, "%-15s %s\n", "-c", "Check pieces only, don't download");
+  fprintf(stderr, "%-15s %s\n", "-v", "Verbose output (for debugging)");
 
-    fprintf(stderr, "\nDownload Options:\n");
-    fprintf(stderr, "%-15s %s\n", "-e int",
-            "Exit while seed <int> hours later (default 72 hours)");
-    fprintf(stderr, "%-15s %s\n", "-E num",
-            "Exit after seeding to <num> ratio (UL:DL)");
-    fprintf(stderr, "%-15s %s\n", "-i ip",
-            "Listen for connections on specific IP address (default all/any)");
-    fprintf(stderr, "%-15s %s\n", "-p port",
-            "Listen port (default 2706 -> 2106)");
-    fprintf(stderr, "%-15s %s\n", "-I ip",
-            "Specify public/external IP address for peer connections");
-    fprintf(stderr, "%-15s %s\n", "-u num or URL",
-            "Use an alternate announce (tracker) URL");
-    fprintf(stderr, "%-15s %s\n", "-s filename",
-            "Download (\"save as\") to a different file or directory");
-    fprintf(stderr, "%-15s %s\n", "-C cache_size",
-            "Cache size, unit MB (default 16MB)");
-    fprintf(stderr, "%-15s %s\n", "-f",
-            "Force saved bitfield or seed mode (skip initial hash check)");
-    fprintf(stderr, "%-15s %s\n", "-b filename",
-            "Specify bitfield save file (default is torrent+\".bf\")");
-    fprintf(stderr, "%-15s %s\n", "-M max_peers",
-            "Max peers count (default 100)");
-    fprintf(stderr, "%-15s %s\n", "-m min_peers", "Min peers count (default 1)");
-    fprintf(stderr, "%-15s %s\n", "-z slice_size",
-            "Download slice/block size, unit KB (default 16, max 128)");
-    fprintf(stderr, "%-15s %s\n", "-n file_list",
-            "Specify file number(s) to download");
-    fprintf(stderr, "%-15s %s\n", "-F", "Fail hash counter");
-    fprintf(stderr, "%-15s %s\n", "-Q", "Quit after dowdload");
-    fprintf(stderr, "%-15s %s\n", "-D rate", "Max bandwidth down (unit KB/s)");
-    fprintf(stderr, "%-15s %s\n", "-U rate", "Max bandwidth up (unit KB/s)");
-    fprintf(stderr, "%-15s %s%s\")\n", "-P peer_id",
-            "Set Peer ID prefix (default \"", PEER_PFX);
-    fprintf(stderr, "%-15s %s%s\")\n", "-A user_agent",
-            "Set User-Agent header (default \"", cfg_user_agent);
-    fprintf(stderr, "%-15s %s\n", "-S host:port",
-            "Use CTCS server at host:port");
-    fprintf(stderr, "%-15s %s\n", "-a", "Preallocate files on disk");
-    fprintf(stderr, "%-15s %s\n", "-T",
-            "Convert foreign filenames to printable text");
-    fprintf(stderr, "%-15s %s\n", "-X command",
-            "Run command upon download completion (\"user exit\")");
-    fprintf(stderr, "%-15s %s\n", "-d", "Daemon mode (fork to background)");
-    fprintf(stderr, "%-15s %s\n", "-dd", "Daemon mode with I/O redirection");
+  fprintf(stderr,"\nDownload Options:\n");
+  fprintf(stderr, "%-15s %s\n", "-e int",
+    "Exit while seed <int> hours later (default 72 hours)");
+  fprintf(stderr, "%-15s %s\n", "-E num",
+    "Exit after seeding to <num> ratio (UL:DL)");
+  fprintf(stderr, "%-15s %s\n", "-i ip",
+    "Listen for connections on specific IP address (default all/any)");
+  fprintf(stderr, "%-15s %s\n", "-p port",
+    "Listen port (default 2706 -> 2106)");
+  fprintf(stderr, "%-15s %s\n", "-I ip",
+    "Specify public/external IP address for peer connections");
+  fprintf(stderr, "%-15s %s\n", "-u num or URL",
+    "Use an alternate announce (tracker) URL");
+  fprintf(stderr, "%-15s %s\n", "-s filename",
+    "Download (\"save as\") to a different file or directory");
+  fprintf(stderr, "%-15s %s\n", "-C cache_size",
+    "Cache size, unit MB (default 16MB)");
+  fprintf(stderr, "%-15s %s\n", "-f",
+    "Force saved bitfield or seed mode (skip initial hash check)");
+  fprintf(stderr, "%-15s %s\n", "-b filename",
+    "Specify bitfield save file (default is torrent+\".bf\")");
+  fprintf(stderr, "%-15s %s\n", "-M max_peers",
+    "Max peers count (default 100)");
+  fprintf(stderr, "%-15s %s\n", "-m min_peers", "Min peers count (default 1)");
+  fprintf(stderr, "%-15s %s\n", "-z slice_size",
+    "Download slice/block size, unit KB (default 16, max 128)");
+  fprintf(stderr, "%-15s %s\n", "-n file_list",
+    "Specify file number(s) to download");
+  fprintf(stderr, "%-15s %s\n", "-Q", "Quit after dowdload");
+  fprintf(stderr, "%-15s %s\n", "-D rate", "Max bandwidth down (unit KB/s)");
+  fprintf(stderr, "%-15s %s\n", "-U rate", "Max bandwidth up (unit KB/s)");
+  fprintf(stderr, "%-15s %s%s\")\n", "-P peer_id",
+    "Set Peer ID prefix (default \"", PEER_PFX);
+  fprintf(stderr, "%-15s %s%s\")\n", "-A user_agent",
+    "Set User-Agent header (default \"", cfg_user_agent);
+  fprintf(stderr, "%-15s %s\n", "-S host:port",
+    "Use CTCS server at host:port");
+  fprintf(stderr, "%-15s %s\n", "-a", "Preallocate files on disk");
+  fprintf(stderr, "%-15s %s\n", "-T",
+    "Convert foreign filenames to printable text");
+  fprintf(stderr, "%-15s %s\n", "-X command",
+    "Run command upon download completion (\"user exit\")");
+  fprintf(stderr, "%-15s %s\n", "-d", "Daemon mode (fork to background)");
+  fprintf(stderr, "%-15s %s\n", "-dd", "Daemon mode with I/O redirection");
 
-    fprintf(stderr, "\nMake metainfo (torrent) file options:\n");
-    fprintf(stderr, "%-15s %s\n", "-t", "Create a new torrent file");
-    fprintf(stderr, "%-15s %s\n", "-u URL", "Tracker's URL");
-    fprintf(stderr, "%-15s %s\n", "-l piece_len",
-            "Piece length (default 262144)");
-    fprintf(stderr, "%-15s %s\n", "-s filename", "Specify metainfo file name");
-    fprintf(stderr, "%-15s %s\n", "-p", "Private (disable peer exchange)");
-    fprintf(stderr, "%-15s %s\n", "-c comment", "Include a comment/description");
+  fprintf(stderr,"\nMake metainfo (torrent) file options:\n");
+  fprintf(stderr, "%-15s %s\n", "-t", "Create a new torrent file");
+  fprintf(stderr, "%-15s %s\n", "-u URL", "Tracker's URL");
+  fprintf(stderr, "%-15s %s\n", "-l piece_len",
+    "Piece length (default 262144)");
+  fprintf(stderr, "%-15s %s\n", "-s filename", "Specify metainfo file name");
+  fprintf(stderr, "%-15s %s\n", "-p", "Private (disable peer exchange)");
+  fprintf(stderr, "%-15s %s\n", "-c comment", "Include a comment/description");
 
-    fprintf(stderr, "\nExample:\n");
-    fprintf(stderr, "ctorrent -s new_filename -e 12 -C 32 -p 6881 example.torrent\n\n");
+  fprintf(stderr,"\nExample:\n");
+  fprintf(stderr,"ctorrent -s new_filename -e 12 -C 32 -p 6881 example.torrent\n\n");
 }
 

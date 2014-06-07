@@ -26,7 +26,6 @@
 btTracker Tracker;
 
 btTracker::btTracker() {
-
     memset(m_host, 0, MAXHOSTNAMELEN);
     memset(m_path, 0, MAXPATHLEN);
     memset(m_trackerid, 0, PEER_ID_LEN + 1);
@@ -35,14 +34,6 @@ btTracker::btTracker() {
     m_port = 80;
     m_status = T_FREE;
     m_f_started = m_f_stoped = m_f_completed = m_f_restart = 0;
-
-    m_sin.sin_family = AF_INET;
-    m_sin.sin_port = 80;
-    m_sin.sin_addr.s_addr = INADDR_ANY;
-    m_f_boguspeercnt = 0;
-    m_reserved = 0;
-    m_default_interval = 15;
-    m_ok_click = 0;
 
     m_interval = 15;
     m_peers_count = m_seeds_count = 0;
@@ -111,8 +102,7 @@ int btTracker::_s2sin(char *h, int p, struct sockaddr_in *psin) {
 }
 
 int btTracker::_UpdatePeerList(char *buf, size_t bufsiz) {
-
-    char tmphost[MAXHOSTNAMELEN + 1];
+    char tmphost[MAXHOSTNAMELEN];
     const char *ps;
     size_t i, pos, tmpport;
     size_t cnt = 0;
@@ -220,26 +210,27 @@ int btTracker::_UpdatePeerList(char *buf, size_t bufsiz) {
             pos = decode_dict(buf, bufsiz, (char *) 0);
             if (!pos)
                 break;
-
-            if (!decode_query(buf, pos, "ip", &ps, &i, (int64_t *) 0, QUERY_STR))
+            if (!decode_query
+                    (buf, pos, "ip", &ps, &i, (int64_t *) 0, QUERY_STR)
+                    || MAXHOSTNAMELEN < i)
                 continue;
-            if (i <= MAXHOSTNAMELEN) {
-                memset(tmphost, '\0', MAXHOSTNAMELEN + 1);
-                memcpy(tmphost, ps, i);
-                tmphost[i] = '\0';
-            } else
-                continue;
+            memcpy(tmphost, ps, i);
+            tmphost[i] = '\0';
 
-            if (!decode_query(buf, pos, "port", (const char **) 0, &tmpport,
+            if (!decode_query
+                    (buf, pos, "port", (const char **) 0, &tmpport,
                     (int64_t *) 0, QUERY_INT))
                 continue;
 
-            if (!decode_query(buf, pos, "peer id", &ps, &i, (int64_t *) 0,
+            if (!decode_query
+                    (buf, pos, "peer id", &ps, &i, (int64_t *) 0,
                     QUERY_STR) && i != 20)
                 continue;
 
             if (_IPsin(tmphost, tmpport, &addr) < 0) {
-                CONSOLE.Warning(3, "warn, detected invalid ip address %s.", tmphost);
+                CONSOLE.Warning(3,
+                        "warn, detected invalid ip address %s.",
+                        tmphost);
                 continue;
             }
 
@@ -257,7 +248,6 @@ int btTracker::_UpdatePeerList(char *buf, size_t bufsiz) {
     if (arg_verbose)
         CONSOLE.Debug("new peers=%d; next check in %d sec",
             (int) cnt, (int) m_interval);
-
     return 0;
 }
 
@@ -360,7 +350,6 @@ int btTracker::CheckReponse() {
     if (!pdata) {
         CONSOLE.Warning(2,
                 "warn, peers list received from tracker is empty.");
-
         return 0;
     }
     return _UpdatePeerList(pdata, dlen);
@@ -398,20 +387,19 @@ int btTracker::Initial() {
             goto next_step;
     }
     { // Try to get address corresponding to the hostname.
-        struct hostent *host_ent;
-        char hostname[MAXHOSTNAMELEN] = {'\0'};
+        struct hostent *h;
+        char hostname[MAXHOSTNAMELEN];
 
         if (gethostname(hostname, MAXHOSTNAMELEN) >= 0) {
             //    CONSOLE.Debug("hostname: %s", hostname);
-            host_ent = gethostbyname(hostname);
-            if (host_ent != NULL) {
+            if (h = gethostbyname(hostname)) {
                 //      CONSOLE.Debug("Host name: %s", h->h_name);
                 //      CONSOLE.Debug("Address: %s", inet_ntoa(*((struct in_addr *)h->h_addr)));
                 if (!IsPrivateAddress
-                        (((struct in_addr *) (host_ent->h_addr))->s_addr)
+                        (((struct in_addr *) (h->h_addr))->s_addr)
                         || !cfg_listen_ip) {
-
-                    memcpy(&addr.sin_addr, host_ent->h_addr, sizeof (struct in_addr));
+                    memcpy(&addr.sin_addr, h->h_addr,
+                            sizeof (struct in_addr));
                     Self.SetIp(addr);
                 }
             }
@@ -420,42 +408,41 @@ int btTracker::Initial() {
 
 next_step:
     if (BuildBaseRequest() < 0)
-
         return -1;
 
     return 0;
 }
 
 int btTracker::IsPrivateAddress(uint32_t addr) {
-
-    return (addr & htonl(0xff000000)) == htonl(0x0a000000) || // 10.x.x.x/8
+    
+    return  (addr & htonl(0xff000000)) == htonl(0x0a000000) || // 10.x.x.x/8
             (addr & htonl(0xfff00000)) == htonl(0xac100000) || // 172.16.x.x/12
             (addr & htonl(0xffff0000)) == htonl(0xc0a80000) || // 192.168.x.x/16
-            (addr & htonl(0xff000000)) == htonl(0x7f000000); // 127.x.x.x/8
+            (addr & htonl(0xff000000)) == htonl(0x7f000000);   // 127.x.x.x/8
 }
 
 int btTracker::BuildBaseRequest() {
-
+    
     const char *format;
     char *opt = (char *) 0;
     char tmppath[MAXPATHLEN];
     char ih_buf[20 * 3 + 1];
     char pi_buf[20 * 3 + 1];
     struct sockaddr_in addr;
-
+    
     strcpy(tmppath, m_path);
-
-    if (index(m_path, '?'))
+    
+    if (strchr(m_path, '?'))
         format = REQ_URL_P1A_FMT;
     else
         format = REQ_URL_P1_FMT;
-
+    
     if (cfg_public_ip) {
         opt = new char[5 + strlen(cfg_public_ip)];
         strcpy(opt, "&ip=");
         strcat(opt, cfg_public_ip);
     } else {
-
+        
         Self.GetAddress(&addr);
         if (!IsPrivateAddress(addr.sin_addr.s_addr)) {
             opt = new char[20];
@@ -481,7 +468,6 @@ int btTracker::BuildBaseRequest() {
     }
 
     if (opt) {
-
         delete[]opt;
         opt = (char *) 0;
     }
@@ -544,7 +530,6 @@ int btTracker::Connect() {
             m_status = T_READY;
         else {
             CLOSE_SOCKET(m_sock);
-
             return -1;
         }
     }
@@ -592,17 +577,17 @@ int btTracker::SendRequest() {
     }
     // if we have a tracker hostname (not just an IP), send a Host: header
     if (_IPsin(m_host, m_port, &addr) < 0) {
-        char REQ_HOST[MAXHOSTNAMELEN] = {'\0'};
+        char REQ_HOST[MAXHOSTNAMELEN];
         if (MAXHOSTNAMELEN <
                 snprintf(REQ_HOST, MAXHOSTNAMELEN, "\r\nHost: %s", m_host))
             return -1;
-        strncat(REQ_BUFFER, REQ_HOST, strnlen(REQ_HOST, MAXHOSTNAMELEN));
+        strcat(REQ_BUFFER, REQ_HOST);
     }
 
-    strncat(REQ_BUFFER, "\r\nUser-Agent: ", 14);
-    strncat(REQ_BUFFER, cfg_user_agent, strnlen(cfg_user_agent, 2 * MAXHOSTNAMELEN));
-    strncat(REQ_BUFFER, "\r\n\r\n", 4);
+    strcat(REQ_BUFFER, "\r\nUser-Agent: ");
+    strcat(REQ_BUFFER, cfg_user_agent);
 
+    strcat(REQ_BUFFER, "\r\n\r\n");
     // hc
     //CONSOLE.Warning(0, "SendRequest: %s", REQ_BUFFER);
 
@@ -618,7 +603,6 @@ int btTracker::SendRequest() {
         m_report_time = now;
         m_report_dl = m_totaldl;
         m_report_ul = m_totalul;
-
         if (arg_verbose)
             CONSOLE.
                 Debug
@@ -630,11 +614,8 @@ int btTracker::SendRequest() {
     return 0;
 }
 
-/*
- * tracker communication
- */
-int btTracker::IntervalCheck(fd_set *rfdp, fd_set *wfdp) {
-
+int btTracker::IntervalCheck(fd_set * rfdp, fd_set * wfdp) {
+    /* tracker communication */
     if (T_FREE == m_status) {
         if (INVALID_SOCKET != m_sock) {
             FD_CLR(m_sock, rfdp);
@@ -662,7 +643,6 @@ int btTracker::IntervalCheck(fd_set *rfdp, fd_set *wfdp) {
         FD_SET(m_sock, wfdp);
     } else if (INVALID_SOCKET != m_sock) {
         FD_SET(m_sock, rfdp);
-
         if (m_request_buffer.Count())
             FD_SET(m_sock, wfdp);
     }
@@ -743,7 +723,6 @@ int btTracker::SocketReady(fd_set * rfdp, fd_set * wfdp, int *nfds,
         }
     } else { // failsafe
         Reset(15);
-
         return -1;
     }
     return 0;
@@ -753,7 +732,6 @@ void btTracker::Restart() {
     m_f_stoped = m_f_restart = 0;
 
     if (T_FINISHED == m_status) {
-
         m_status = T_FREE;
         m_f_started = 0;
         m_interval = 15;
@@ -765,14 +743,12 @@ void btTracker::SetStoped() {
         m_f_stoped = 1;
         m_status = T_FINISHED;
     } else {
-
         Reset(15);
         m_f_stoped = 1;
     }
 }
 
 void btTracker::RestartTracker() {
-
     SetStoped(); // finish the tracker
     // Now we need to wait until the tracker updates (T_FINISHED == m_status),
     // then Tracker.Restart().
@@ -781,7 +757,6 @@ void btTracker::RestartTracker() {
 
 size_t btTracker::GetPeersCount() const {
     // includes seeds, so must always be >= 1 (myself!)
-
     return (m_peers_count > m_seeds_count) ? m_peers_count :
             (GetSeedsCount() + (BTCONTENT.IsFull() ? 0 : 1));
 }

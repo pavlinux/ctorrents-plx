@@ -8,7 +8,11 @@
 #include <sys/param.h>
 #include <sys/stat.h>
 
-const unsigned char BIT_HEX[] = {0x80, 0x40, 0x20, 0x10, 0x08, 0x04, 0x02, 0x01};
+#ifndef HAVE_RANDOM
+        #include "compat.h"
+#endif
+
+const unsigned char BIT_HEX[] ={0x80, 0x40, 0x20, 0x10, 0x08, 0x04, 0x02, 0x01};
 
 #define _isset(idx)		(b[(idx) / 8 ] & BIT_HEX[(idx) % 8])
 #define _isempty() 		(nset == 0)
@@ -20,17 +24,16 @@ size_t BitField::nbytes = 0;
 size_t BitField::nbits = 0;
 
 BitField::BitField() {
-
     b = new unsigned char[nbytes];
     if (!b)
         throw 9;
 
-    memset((void *) b, 0, nbytes);
+    memset(b, 0, nbytes);
     nset = 0;
 }
 
 BitField::BitField(size_t npcs) {
-
+    
     nbits = npcs;
     nbytes = nbits / 8;
     if (nbits % 8)
@@ -41,7 +44,7 @@ BitField::BitField(size_t npcs) {
     if (!b)
         throw 9;
 
-    memset((void *) b, 0, nbytes);
+    memset((void *)b, 0, nbytes);
     nset = 0;
 }
 
@@ -62,13 +65,13 @@ BitField::BitField(const BitField & bf) {
 }
 
 void BitField::operator=(const BitField & bf) {
-
+    
     nset = bf.nset;
-
+    
     if (_isfull_sp(bf)) {
         if (b) {
             delete[]b;
-            b = (unsigned char *) 0;
+            b = (unsigned char *)0;
         }
     } else {
         if (!b) {
@@ -101,7 +104,7 @@ inline void BitField::_setall(unsigned char *buf) {
 }
 
 inline void BitField::_recalc() {
-
+    // ���¼��� nset ��ֵ
     static unsigned char BITS[256] = {0xff};
     size_t i;
 
@@ -247,7 +250,6 @@ void BitField::Except(const BitField & bf) {
 }
 
 void BitField::And(const BitField & bf) {
-
     size_t i;
 
     if (!_isfull_sp(bf) && !_isempty()) {
@@ -302,7 +304,7 @@ void BitField::SetReferBuffer(char *buf) {
 }
 
 void BitField::WriteToBuffer(char *buf) {
-
+    
     if (_isfull())
         _setall((unsigned char *) buf);
     else
@@ -316,7 +318,7 @@ int BitField::SetReferFile(const char *fname) {
 
     if (stat(fname, &sb) < 0)
         return -1;
-    if (sb.st_size != (off_t) nbytes)
+    if (sb.st_size != (off_t)nbytes)
         return -1;
 
     fp = fopen(fname, "r");
@@ -324,7 +326,7 @@ int BitField::SetReferFile(const char *fname) {
         return -1;
 
     bitbuf = new char[nbytes];
-
+    
 #ifndef WINDOWS
     if (!bitbuf)
         goto fclose_err;

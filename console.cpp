@@ -47,25 +47,12 @@ static int g_console_ready = 0;
 // ConStream class functions
 
 ConStream::ConStream() {
-
     m_stream = (FILE *) 0;
     m_name = (char *) 0;
     m_restore = 0;
     m_newline = 1;
     m_suspend = 0;
     m_inputmode = K_LINES;
-
-    m_filemode = '\0';
-    m_reserved = '\0';
-    m_original.c_iflag = ~(IGNBRK | BRKINT | ICRNL | INLCR | PARMRK | INPCK |
-            ISTRIP | IXON);
-    m_original.c_oflag = 0;
-    m_original.c_cflag = (~(CSIZE | PARENB)) | CS8;
-    m_original.c_lflag = ~(ECHO | ECHONL | ICANON | IEXTEN | ISIG);
-    m_original.c_line = 0;
-    m_original.c_ispeed = B115200;
-    m_original.c_ospeed = B115200;
-
 }
 
 ConStream::~ConStream() {
@@ -88,12 +75,12 @@ void ConStream::Close() {
 }
 
 void ConStream::Associate(FILE * stream, const char *name, int mode) {
-
+    
     m_stream = stream;
     m_filemode = mode;
-
+    
     m_name = new char[strlen(name) + 1];
-
+            
     if (m_name != NULL)
         strcpy(m_name, name);
     else
@@ -340,8 +327,6 @@ Console::Console() {
     m_streams[O_INPUT]->SetInputMode(K_CHARS);
     m_conmode = K_CHARS;
 
-    m_reserved = 0; //FIXME: A scalar field is not initialized by the constructor.
-
     if (this == &CONSOLE)
         g_console_ready = 1;
 }
@@ -351,8 +336,7 @@ Console::~Console() {
         g_console_ready = 0;
 }
 
-int Console::IntervalCheck(fd_set * rfdp, fd_set *wfdp __attribute__((unused))) {
-
+int Console::IntervalCheck(fd_set * rfdp, fd_set * wfdp __attribute__((unused))) {
     Status(0);
 
     if (m_oldfd >= 0) {
@@ -383,8 +367,7 @@ void Console::User(fd_set * rfdp, fd_set * wfdp __attribute__((unused)),
         if (K_LINES == m_streams[O_INPUT]->GetInputMode()) { // command parameter
             SyncNewlines(O_INPUT);
             if (m_streams[O_INPUT]->Input(param, sizeof (param))) {
-                s = index(param, '\n');
-                if (s != NULL)
+                if (s = strchr(param, '\n'))
                     *s = '\0';
                 if ('0' == pending) {
                     if (OperatorMenu(param))
@@ -396,58 +379,97 @@ void Console::User(fd_set * rfdp, fd_set * wfdp __attribute__((unused)),
                         switch (pending) {
                             case 'n': // get1file
                                 if (arg_file_to_download)
-                                    delete[]arg_file_to_download;
-
-                                arg_file_to_download = new char[strlen(param) + 1];
+                                    delete
+                                    []arg_file_to_download;
+                                arg_file_to_download =
+                                        new
+                                        char[strlen(param) +
+                                        1];
                                 if (!arg_file_to_download)
-                                    Warning(1, "error, failed to allocate memory for option");
+                                    Warning(1,
+                                        "error, failed to allocate memory for option");
                                 else
-                                    strcpy(arg_file_to_download, param);
-
+                                    strcpy
+                                        (arg_file_to_download,
+                                        param);
                                 BTCONTENT.SetFilter();
                                 break;
                             case 'S': // CTCS server
-                                if (!index(param, ':'))
-                                    Interact("Invalid input");
+                                if (!strchr(param, ':'))
+                                    Interact
+                                        ("Invalid input");
                                 else {
                                     if (arg_ctcs)
-                                        delete[]arg_ctcs;
-                                    if (0 == strcmp(":", param)) {
+                                        delete
+                                        []arg_ctcs;
+                                    if (0 ==
+                                            strcmp(":",
+                                            param)) {
                                         if (arg_ctcs)
-                                            CTCS.Reset(1);
-
-                                        arg_ctcs = (char*) NULL;
-
+                                            CTCS.
+                                                Reset
+                                                (1);
+                                        arg_ctcs
+                                                =
+                                                (char
+                                                *)
+                                                0;
                                     } else {
-                                        arg_ctcs = new char[strlen(param) + 1];
+                                        arg_ctcs
+                                                =
+                                                new
+                                                char
+                                                [strlen
+                                                (param)
+                                                +
+                                                1];
                                         if (!arg_ctcs)
-                                            Warning(1, "error, failed to allocate memory for option");
+                                            Warning
+                                                (1,
+                                                "error, failed to allocate memory for option");
                                         else {
-                                            strcpy(arg_ctcs, param);
-                                            CTCS.Initial();
-                                            CTCS.Reset(1);
+                                            strcpy
+                                                    (arg_ctcs,
+                                                    param);
+                                            CTCS.
+                                                    Initial
+                                                    ();
+                                            CTCS.
+                                                    Reset
+                                                    (1);
                                         }
                                     }
                                 }
                                 break;
                             case 'X': // completion command (user exit)
                                 if (arg_completion_exit)
-                                    delete[]arg_completion_exit;
-                                arg_completion_exit = new char[strlen(param) + 1];
+                                    delete
+                                    []arg_completion_exit;
+                                arg_completion_exit =
+                                        new
+                                        char[strlen(param) +
+                                        1];
                                 if (!arg_completion_exit)
-                                    Warning(1, "error, failed to allocate memory for option");
+                                    Warning(1,
+                                        "error, failed to allocate memory for option");
                                 else
-                                    strcpy(arg_completion_exit, param);
+                                    strcpy
+                                        (arg_completion_exit,
+                                        param);
                                 break;
                             case 'Q': // quit
                                 if ('y' == *param
                                         || 'Y' == *param) {
-                                    Tracker.ClearRestart();
-                                    Tracker.SetStoped();
+                                    Tracker.
+                                            ClearRestart
+                                            ();
+                                    Tracker.
+                                            SetStoped();
                                 }
                                 break;
                             default:
-                                Interact("Input mode error");
+                                Interact
+                                        ("Input mode error");
                         }
                 }
             } else {
@@ -516,11 +538,8 @@ void Console::User(fd_set * rfdp, fd_set * wfdp __attribute__((unused)),
                 case 'd': // download bw limit
                 case 'u': // upload bw limit
                     if (arg_ctcs)
-                        Interact("Note, changes may be overridden by CTCS.");
-                    inc = 1;
-                    count = 0;
-                    Interact_n("");
-                    break;
+                        Interact
+                            ("Note, changes may be overridden by CTCS.");
                 case 'e': // seed time
                 case 'E': // seed ratio
                 case 'm': // min peers
@@ -571,7 +590,8 @@ void Console::User(fd_set * rfdp, fd_set * wfdp __attribute__((unused)),
                         Interact
                                 ("Enter a command to run upon download completion.");
                         if (arg_completion_exit)
-                            Interact("Currently: %s", arg_completion_exit);
+                            Interact("Currently: %s",
+                                arg_completion_exit);
                         Interact_n(">");
                     }
                     break;
@@ -916,18 +936,23 @@ int Console::ChangeChannel(int channel, const char *param, int notify) {
             }
         }
         if (!dest) {
-            dest = new ConStream;
-            if (dest) {
-
-                if (0 == strcmp(param, m_streams[channel]->GetName())) {
+            FILE *stream;
+            if (dest = new ConStream) {
+                if (0 ==
+                        strcmp(param,
+                        m_streams[channel]->GetName())) {
                     delete m_streams[channel];
                     m_streams[channel] = &m_off;
                 }
-                FILE *stream = fopen(param, (channel == O_INPUT) ? "r" : "a");
-                if (stream != NULL)
-                    dest->Associate(stream, param, (channel == O_INPUT) ? 0 : 1);
+                if (stream =
+                        fopen(param,
+                        (channel == O_INPUT) ? "r" : "a"))
+                    dest->Associate(stream, param,
+                        (channel ==
+                        O_INPUT) ? 0 : 1);
                 else {
-                    Interact("Error opening file: %s", strerror(errno));
+                    Interact("Error opening file: %s",
+                            strerror(errno));
                     delete dest;
                     dest = (ConStream *) 0;
                 }
@@ -956,16 +981,20 @@ int Console::ChangeChannel(int channel, const char *param, int notify) {
         if (notify && (!arg_daemon || !m_streams[channel]->IsTTY())) {
             switch (channel) {
                 case O_NORMAL:
-                    Print("Output channel is now %s", dest->GetName());
+                    Print("Output channel is now %s",
+                            dest->GetName());
                     break;
                 case O_DEBUG:
-                    Debug("Debug channel is now %s", dest->GetName());
+                    Debug("Debug channel is now %s",
+                            dest->GetName());
                     break;
                 case O_INTERACT:
-                    Interact("Interactive output channel is now %s", dest->GetName());
+                    Interact("Interactive output channel is now %s",
+                            dest->GetName());
                     break;
                 case O_INPUT:
-                    Interact("Input channel is now %s", dest->GetName());
+                    Interact("Input channel is now %s",
+                            dest->GetName());
                     break;
                 default:
                     break;
@@ -983,7 +1012,7 @@ int Console::ChangeChannel(int channel, const char *param, int notify) {
 
 void Console::ShowFiles() {
     BitField tmpFilter;
-    size_t n = 0u;
+    int n = 0;
 
     Interact("Files in this torrent:");
     while (++n <= BTCONTENT.GetNFiles()) {
@@ -1135,15 +1164,17 @@ void Console::StatusLine1(char buffer[], size_t length) {
 
         all = BTCONTENT.GetNPieces() - BTCONTENT.GetFilter()->Count();
 
-        rate = Self.RateDL();
-        if (rate) {
-            premain = (all - have) * BTCONTENT.GetPieceLength() / rate / 60;
+        if (rate = Self.RateDL()) {
+            premain =
+                    (all -
+                    have) * BTCONTENT.GetPieceLength() / rate / 60;
             if (premain < 60000) // 1000 hours
                 snprintf(ptime, sizeof (ptime), " %d:%2.2d",
                     (int) (premain / 60),
                     (int) (premain % 60));
         }
-        sprintf(partial, "P:%d/%d%%%s ", 100 * have / all, 100 * avail / all, ptime);
+        sprintf(partial, "P:%d/%d%%%s ",
+                100 * have / all, 100 * avail / all, ptime);
     }
 
     char checked[14] = "";
@@ -1153,11 +1184,11 @@ void Console::StatusLine1(char buffer[], size_t length) {
                 BTCONTENT.GetNPieces());
     }
 
-    char complete[8] = {'\0'};
+    char complete[8];
     if (BTCONTENT.IsFull())
-        snprintf(complete, 8, "seeding");
+        sprintf(complete, "seeding");
     else if (BTCONTENT.Seeding())
-        snprintf(complete, 8, "seed%zu%%",
+        sprintf(complete, "seed%zu%%",
             100 * BTCONTENT.pBF->Count() / BTCONTENT.GetNPieces());
     else {
         int have, avail, all;
@@ -1171,16 +1202,15 @@ void Console::StatusLine1(char buffer[], size_t length) {
 
         all =
                 BTCONTENT.GetNPieces() - BTCONTENT.pBMasterFilter->Count();
-        snprintf(complete, 8, "%d/%d%%", 100 * have / all,
+        sprintf(complete, "%d/%d%%", 100 * have / all,
                 100 * avail / all);
     }
 
     long remain = -1;
-    char timeleft[20] = {'\0'};
+    char timeleft[20];
     size_t rate;
     if (!BTCONTENT.Seeding() || BTCONTENT.FlushFailed()) { // downloading
-        rate = Self.RateDL();
-        if (rate != 0) {
+        if (rate = Self.RateDL()) {
             // don't overflow remain
             if (BTCONTENT.GetLeftBytes() < (uint64_t) rate << 22)
                 remain = BTCONTENT.GetLeftBytes() / rate / 60;
@@ -1193,21 +1223,20 @@ void Console::StatusLine1(char buffer[], size_t length) {
                 cfg_seed_hours * 60 - (now -
                 BTCONTENT.GetSeedTime()) /
             60;
-        else {
-            rate = Self.RateUL();
-            if (rate != 0) {
-                // don't overflow remain
-                if (cfg_seed_ratio *
-                        (Self.TotalDL() ? Self.TotalDL() :
-                        BTCONTENT.GetTotalFilesLength()) -
-                        Self.TotalUL() < (uint64_t) rate << 22)
-
-                    remain = (long) (cfg_seed_ratio * (Self.TotalDL() ?
-                        Self.TotalDL() : BTCONTENT.GetTotalFilesLength()) -
-                        Self.TotalUL()) / rate / 60;
-                else
-                    remain = 99999;
-            }
+        else if (rate = Self.RateUL()) {
+            // don't overflow remain
+            if (cfg_seed_ratio *
+                    (Self.TotalDL() ? Self.TotalDL() : BTCONTENT.
+                    GetTotalFilesLength()) - Self.TotalUL() <
+                    (uint64_t) rate << 22)
+                remain =
+                    (long) (cfg_seed_ratio *
+                    (Self.TotalDL() ? Self.
+                    TotalDL() : BTCONTENT.
+                    GetTotalFilesLength()) -
+                    Self.TotalUL()) / rate / 60;
+            else
+                remain = 99999;
         }
     }
     if (remain >= 0) {
@@ -1359,7 +1388,6 @@ void Console::Warning(int sev, const char *message, ...) {
 }
 
 void Console::Debug(const char *message, ...) {
-
     static char buffer[80];
     if (!arg_verbose)
         return;
@@ -1450,7 +1478,6 @@ void Console::Debug_n(const char *message, ...) {
 }
 
 void Console::Interact(const char *message, ...) {
-
     va_list ap;
 
     va_start(ap, message);
@@ -1557,9 +1584,7 @@ RETSIGTYPE Console::Signal(int sig_no) {
 }
 
 void Console::Daemonize() {
-
 #ifdef HAVE_WORKING_FORK
-
     size_t orig_cache_size = 0;
     pid_t r;
     int nullfd = -1;
@@ -1610,25 +1635,17 @@ restorecache:
         cfg_cache_size = orig_cache_size;
         BTCONTENT.CacheConfigure();
     }
-    if (nullfd > -1)
-        close(nullfd);
 #endif
 }
 
 int Console::OpenNull(int nullfd, ConStream * stream, int sfd) {
-
     if (stream->IsTTY() || arg_daemon == 1) {
-
         int mfd = stream->Fileno();
-
         if (mfd < 0)
             mfd = sfd;
-
         stream->Close();
-
         if (nullfd < 0)
             nullfd = open("/dev/null", O_RDWR);
-
         if (nullfd >= 0 && nullfd != mfd)
             dup2(nullfd, mfd);
     }
