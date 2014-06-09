@@ -387,12 +387,13 @@ int btTracker::Initial() {
             goto next_step;
     }
     { // Try to get address corresponding to the hostname.
-        struct hostent *h;
-        char hostname[MAXHOSTNAMELEN];
+        struct hostent *h = NULL;
+        char hostname[MAXHOSTNAMELEN] = {0};
 
         if (gethostname(hostname, MAXHOSTNAMELEN) >= 0) {
             //    CONSOLE.Debug("hostname: %s", hostname);
-            if (h = gethostbyname(hostname)) {
+            h = gethostbyname(hostname);
+            if (h) {
                 //      CONSOLE.Debug("Host name: %s", h->h_name);
                 //      CONSOLE.Debug("Address: %s", inet_ntoa(*((struct in_addr *)h->h_addr)));
                 if (!IsPrivateAddress
@@ -414,35 +415,35 @@ next_step:
 }
 
 int btTracker::IsPrivateAddress(uint32_t addr) {
-    
-    return  (addr & htonl(0xff000000)) == htonl(0x0a000000) || // 10.x.x.x/8
+
+    return (addr & htonl(0xff000000)) == htonl(0x0a000000) || // 10.x.x.x/8
             (addr & htonl(0xfff00000)) == htonl(0xac100000) || // 172.16.x.x/12
             (addr & htonl(0xffff0000)) == htonl(0xc0a80000) || // 192.168.x.x/16
-            (addr & htonl(0xff000000)) == htonl(0x7f000000);   // 127.x.x.x/8
+            (addr & htonl(0xff000000)) == htonl(0x7f000000); // 127.x.x.x/8
 }
 
 int btTracker::BuildBaseRequest() {
-    
+
     const char *format;
     char *opt = (char *) 0;
     char tmppath[MAXPATHLEN];
     char ih_buf[20 * 3 + 1];
     char pi_buf[20 * 3 + 1];
     struct sockaddr_in addr;
-    
+
     strcpy(tmppath, m_path);
-    
+
     if (strchr(m_path, '?'))
         format = REQ_URL_P1A_FMT;
     else
         format = REQ_URL_P1_FMT;
-    
+
     if (cfg_public_ip) {
         opt = new char[5 + strlen(cfg_public_ip)];
         strcpy(opt, "&ip=");
         strcat(opt, cfg_public_ip);
     } else {
-        
+
         Self.GetAddress(&addr);
         if (!IsPrivateAddress(addr.sin_addr.s_addr)) {
             opt = new char[20];

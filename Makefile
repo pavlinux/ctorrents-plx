@@ -8,14 +8,14 @@ WITH_LTO = 0
 CXX ?= g++
 CC  ?= gcc
 
-# FLAGS :=-mtune=core2 -Ofast -g0 -msse -msse2 -msse3 -W -Wextra
-FLAGS :=-mtune=generic -O0 -g3 -ggdb3 -gdwarf-4 -fno-omit-frame-pointer  -mno-mmx -mno-3dnow
+FLAGS :=-mtune=core2 -Ofast -g0 -msse -msse2 -msse3 -W -Wextra -Wall 
+#FLAGS :=-m64 -mtune=generic -O0 -g3 -ggdb3 -gdwarf-4 -fno-omit-frame-pointer -mno-mmx -mno-3dnow
 CXXFLAGS :=-std=gnu++0x ${FLAGS}
 CFLAGS :=-std=gnu99 ${FLAGS}
 
 LINK ?= g++
 LDFLAGS := -lrt -lssl -Wl,-O1,-hashvals,--hash-style=both
-# LIBS :=-L. -static-libstdc++ -static-libgcc
+LIBS :=-L. -static-libstdc++ -static-libgcc -Wl,-Bstatic -lssl -Wl,-Bstatic -lcrypto
 
 CPUS = $(shell grep processor /proc/cpuinfo | wc -l)
 MAKEFLAGS += -j${CPUS}
