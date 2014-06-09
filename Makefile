@@ -9,12 +9,12 @@ CXX ?= g++
 CC  ?= gcc
 
 # FLAGS :=-mtune=core2 -Ofast -g0 -msse -msse2 -msse3 -W -Wextra
-FLAGS :=-mtune=generic -O0 -g3 -ggdb3 -gdwarf-4 -fno-omit-frame-pointer  -mno-mmx -mno-3dnow  
+FLAGS :=-mtune=generic -O0 -g3 -ggdb3 -gdwarf-4 -fno-omit-frame-pointer  -mno-mmx -mno-3dnow
 CXXFLAGS :=-std=gnu++0x ${FLAGS}
 CFLAGS :=-std=gnu99 ${FLAGS}
 
 LINK ?= g++
-LDFLAGS := -lrt -Wl,-O1,-hashvals,--hash-style=both
+LDFLAGS := -lrt -lssl -Wl,-O1,-hashvals,--hash-style=both
 # LIBS :=-L. -static-libstdc++ -static-libgcc
 
 CPUS = $(shell grep processor /proc/cpuinfo | wc -l)

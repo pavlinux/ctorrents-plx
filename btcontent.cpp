@@ -1,6 +1,8 @@
 #include "btcontent.h"
 
 #include <unistd.h>
+#include <error.h>
+#include <errno.h>
 #include <sys/param.h>
 
 #if defined(USE_STANDALONE_SHA1)
@@ -49,20 +51,20 @@
 btContent BTCONTENT;
 
 static void Sha1(char *ptr, size_t len, unsigned char *dm) {
+
 #if defined(USE_STANDALONE_SHA1)
+
     SHA1_CTX context;
+
     SHA1Init(&context);
     SHA1Update(&context, (unsigned char *) ptr, len);
     SHA1Final(dm, &context);
-#else
-#ifdef WINDOWS
-    ;
+
 #else
     SHA_CTX context;
     SHA1_Init(&context);
     SHA1_Update(&context, (unsigned char *) ptr, len);
     SHA1_Final(dm, &context);
-#endif
 #endif
 }
 
@@ -1399,6 +1401,7 @@ int btContent::APieceComplete(size_t idx) {
 
     if (GetHashValue(idx, md) < 0) {
         // error reading data
+        CONSOLE.Print("ERROR: GetHashValue ");
         Uncache(idx);
         return -1;
     }
@@ -1408,12 +1411,12 @@ int btContent::APieceComplete(size_t idx) {
         Uncache(idx);
         CountHashFailure();
 
-	if ((BTCONTENT.GetHashFailures() > 0 ) && 
-	    (BTCONTENT.GetHashFailures() > arg_hash_fails )) {
-		CONSOLE.Print("Kill 15 self");
-		kill(getpid(), 15);
-		return -1;
-	}
+        if ((BTCONTENT.GetHashFailures() > 0) &&
+                (BTCONTENT.GetHashFailures() > arg_hash_fails)) {
+            CONSOLE.Print("Kill 15 self");
+            kill(getpid(), 15);
+            return -1;
+        }
         return 0;
     }
 
@@ -1449,14 +1452,24 @@ int btContent::APieceComplete(size_t idx) {
 }
 
 int btContent::GetHashValue(size_t idx, unsigned char *md) {
+
     if (global_buffer_size < m_piece_length) {
+
         delete[]global_piece_buffer;
+
         global_piece_buffer = new char[m_piece_length];
+
         global_buffer_size = global_piece_buffer ? m_piece_length : 0;
     }
-    if (ReadPiece(global_piece_buffer, idx) < 0)
+
+    errno = 0;
+    if (ReadPiece(global_piece_buffer, idx) < 0) {
+        CONSOLE.Print("ERROR: ReadPiece() idx = %d", idx);
         return -1;
+    }
+
     Sha1(global_piece_buffer, GetPieceLength(idx), md);
+
     return 0;
 }
 
@@ -1487,25 +1500,25 @@ int btContent::SeedTimeout() {
             if (Self.TotalDL() > 0) {
 
                 if (arg_verbose) {
-	                CONSOLE.Print("Download complete.");
-        	        CONSOLE.Print("Total time used: %ld minutes.", (long)((now - m_start_timestamp) / 60l));
-                	CONSOLE.cpu();
-		}
-	    
-	    }
+                    CONSOLE.Print("Download complete.");
+                    CONSOLE.Print("Total time used: %ld minutes.", (long) ((now - m_start_timestamp) / 60l));
+                    CONSOLE.cpu();
+                }
 
-	    if (arg_completion_exit)
-                	CompletionCommand();
+            }
 
-	    if (quit_after_download) {
-	                CONSOLE.Print("Self Quitting...");
-			kill(getpid(), SIGTERM);
-			goto end;
-	    }
+            if (arg_completion_exit)
+                CompletionCommand();
+
+            if (quit_after_download) {
+                CONSOLE.Print("Self Quitting...");
+                kill(getpid(), SIGTERM);
+                goto end;
+            }
 
             // Reallocate global buffer for uploading.
             global_piece_buffer = new char[DEFAULT_SLICE_SIZE];
-            global_buffer_size =  global_piece_buffer ? DEFAULT_SLICE_SIZE : 0;
+            global_buffer_size = global_piece_buffer ? DEFAULT_SLICE_SIZE : 0;
 
             if (arg_ctcs)
                 CTCS.Send_Status();
@@ -1523,15 +1536,15 @@ int btContent::SeedTimeout() {
         dl = (Self.TotalDL() > 0) ? Self.TotalDL() : GetTotalFilesLength();
 
         if ((cfg_seed_ratio == 0 && cfg_seed_hours == 0) ||
-            (cfg_seed_hours >  0 && (now - m_seed_timestamp) >= (cfg_seed_hours *60*60)) ||
- 	    (cfg_seed_ratio >  0 && cfg_seed_ratio <= (double) Self.TotalUL() / dl)) {
+                (cfg_seed_hours > 0 && (now - m_seed_timestamp) >= (cfg_seed_hours * 60 * 60)) ||
+                (cfg_seed_ratio > 0 && cfg_seed_ratio <= (double) Self.TotalUL() / dl)) {
 
             if (m_flush_failed) {
                 if (!WORLD.IsPaused()) {
                     CONSOLE.Warning(1, "Seeding completed but cache flush failed; pausing...");
                     WORLD.Pause();
                 }
-            } else 
+            } else
                 return 1;
         }
     } else {

@@ -20,7 +20,7 @@
 /* #undef HAVE_CTIME_R_3 */
 
 /* Define to 1 if you have the <dirent.h> header file, and it defines `DIR'.
-   */
+ */
 #define HAVE_DIRENT_H 1
 
 /* Define to 1 if you have the <fcntl.h> header file. */
@@ -81,7 +81,7 @@
 #define HAVE_NETINET_IN_H 1
 
 /* Define to 1 if you have the <openssl/sha.h> header file. */
-/* #undef HAVE_OPENSSL_SHA_H */
+#define HAVE_OPENSSL_SHA_H 1
 
 /* Define to 1 if you have the `random' function. */
 #define HAVE_RANDOM 1
@@ -142,14 +142,14 @@
 #define HAVE_SYSTEM 1
 
 /* Define to 1 if you have the <sys/dir.h> header file, and it defines `DIR'.
-   */
+ */
 /* #undef HAVE_SYS_DIR_H */
 
 /* Define to 1 if you have the <sys/ioctl.h> header file. */
 #define HAVE_SYS_IOCTL_H 1
 
 /* Define to 1 if you have the <sys/ndir.h> header file, and it defines `DIR'.
-   */
+ */
 /* #undef HAVE_SYS_NDIR_H */
 
 /* Define to 1 if you have the <sys/param.h> header file. */
@@ -229,7 +229,7 @@
 /* #undef USE_SGTTY */
 
 /* Define to 1 to use Steve Reid's public-domain SHA-1 code. */
-#define USE_STANDALONE_SHA1 1
+#undef USE_STANDALONE_SHA1
 
 /* Define to use termio for terminal control. */
 /* #undef USE_TERMIO */
