@@ -102,17 +102,19 @@ int btTracker::_s2sin(char *h, int p, struct sockaddr_in *psin) {
 }
 
 int btTracker::_UpdatePeerList(char *buf, size_t bufsiz) {
-    char tmphost[MAXHOSTNAMELEN];
+
+    char tmphost[MAXHOSTNAMELEN + 1] = {'\0'};
+    char warnmsg[1024] = {'\0'};
+    char failreason[1024] = {'\0'};
+
     const char *ps;
     size_t i, pos, tmpport;
     size_t cnt = 0;
 
     struct sockaddr_in addr;
 
-    if (decode_query
-            (buf, bufsiz, "failure reason", &ps, &i, (int64_t *) 0,
-            QUERY_STR)) {
-        char failreason[1024];
+    if (decode_query(buf, bufsiz, "failure reason", &ps, &i, (int64_t *) 0, QUERY_STR)) {
+
         if (i < 1024) {
             memcpy(failreason, ps, i);
             failreason[i] = '\0';
@@ -127,7 +129,7 @@ int btTracker::_UpdatePeerList(char *buf, size_t bufsiz) {
     if (decode_query
             (buf, bufsiz, "warning message", &ps, &i, (int64_t *) 0,
             QUERY_STR)) {
-        char warnmsg[1024];
+
         if (i < 1024) {
             memcpy(warnmsg, ps, i);
             warnmsg[i] = '\0';
@@ -161,11 +163,9 @@ int btTracker::_UpdatePeerList(char *buf, size_t bufsiz) {
     if (m_default_interval != (time_t) i)
         m_default_interval = (time_t) i;
 
-    if (decode_query(buf, bufsiz, "complete", (const char **) 0, &i,
-            (int64_t *) 0, QUERY_INT))
+    if (decode_query(buf, bufsiz, "complete", (const char **) 0, &i, (int64_t *) 0, QUERY_INT))
         m_seeds_count = i;
-    if (decode_query(buf, bufsiz, "incomplete", (const char **) 0, &i,
-            (int64_t *) 0, QUERY_INT))
+    if (decode_query(buf, bufsiz, "incomplete", (const char **) 0, &i, (int64_t *) 0, QUERY_INT))
         m_peers_count = m_seeds_count + i;
     else {
         if (arg_verbose && 0 == m_seeds_count)
@@ -173,8 +173,7 @@ int btTracker::_UpdatePeerList(char *buf, size_t bufsiz) {
         m_peers_count = m_seeds_count;
     }
 
-    pos = decode_query(buf, bufsiz, "peers", (const char **) 0, (size_t *) 0,
-            (int64_t *) 0, QUERY_POS);
+    pos = decode_query(buf, bufsiz, "peers", (const char **) 0, (size_t *) 0, (int64_t *) 0, QUERY_POS);
 
     if (!pos) {
         return -1;
@@ -191,14 +190,15 @@ int btTracker::_UpdatePeerList(char *buf, size_t bufsiz) {
     if (*ps != 'l') { // binary peers section if not 'l'
         addr.sin_family = AF_INET;
         i = 0;
+
         while (*ps != ':')
             i = i * 10 + (*ps++ -'0');
+
         i /= 6;
         ps++;
         while (i-- > 0) {
             memcpy(&addr.sin_addr, ps, sizeof (struct in_addr));
-            memcpy(&addr.sin_port, ps + sizeof (struct in_addr),
-                    sizeof (unsigned short));
+            memcpy(&addr.sin_port, ps + sizeof (struct in_addr), sizeof (unsigned short));
             if (!Self.IpEquiv(addr)) {
                 cnt++;
                 IPQUEUE.Add(&addr);
@@ -228,9 +228,7 @@ int btTracker::_UpdatePeerList(char *buf, size_t bufsiz) {
                 continue;
 
             if (_IPsin(tmphost, tmpport, &addr) < 0) {
-                CONSOLE.Warning(3,
-                        "warn, detected invalid ip address %s.",
-                        tmphost);
+                CONSOLE.Warning(3, "warn, detected invalid ip address %s.", tmphost);
                 continue;
             }
 

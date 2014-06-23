@@ -69,9 +69,9 @@ size_t buf_long(const char *b, size_t len, char beginchar, char endchar,
 size_t buf_int(const char *b, size_t len, char beginchar, char endchar, size_t * pi) {
 
     size_t r;
-    int64_t pl;
 
     if (pi) {
+        int64_t pl = 0xdeadbeef; // :)
         r = buf_long(b, len, beginchar, endchar, &pl);
         *pi = (size_t) pl;
     } else {

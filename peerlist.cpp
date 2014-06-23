@@ -230,9 +230,10 @@ err:
 }
 
 int PeerList::IntervalCheck(fd_set * rfdp, fd_set * wfdp) {
+
     int f_keepalive_check = 0;
     int f_unchoke_check = 0;
-    btPeer **UNCHOKER;
+    btPeer **UNCHOKER = NULL;
 
     // No pause check here--stay ready by continuing to acquire peers.
     if (!Tracker.IsQuitting()) {
@@ -350,8 +351,7 @@ int PeerList::IntervalCheck(fd_set * rfdp, fd_set * wfdp) {
         }
     }
 
-    return FillFDSet(rfdp, wfdp, f_keepalive_check, f_unchoke_check,
-            UNCHOKER);
+    return FillFDSet(rfdp, wfdp, f_keepalive_check, f_unchoke_check, UNCHOKER);
 }
 
 int PeerList::FillFDSet(fd_set * rfdp, fd_set * wfdp, int f_keepalive_check,
