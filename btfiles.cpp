@@ -291,11 +291,15 @@ int btFiles::_btf_ftruncate(int fd, int64_t length) {
                 wlen = 256 * 1024;
             if (0 == i % 100)
                 CONSOLE.Interact_n(".");
-            if ((r = write(fd, ch, wlen)) < 0)
+            if ((r = write(fd, ch, wlen)) < 0) {
+                delete[]ch;
+                ch = NULL;
                 return r;
+            }
             len += wlen;
         }
         delete[]ch;
+        ch = NULL;
         return r;
     }
     // ftruncate() not allowed on [v]fat under linux
