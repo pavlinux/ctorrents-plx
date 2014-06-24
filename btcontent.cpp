@@ -50,14 +50,14 @@
 
 btContent BTCONTENT;
 
-static void Sha1(char *ptr, size_t len, unsigned char *dm) {
+static void Sha1(char *ptr, size_t len, u_int8_t *dm) {
 
 #if defined(USE_STANDALONE_SHA1)
 
     SHA1_CTX context;
 
     SHA1Init(&context);
-    SHA1Update(&context, (unsigned char *) ptr, len);
+    SHA1Update(&context, (u_int8_t *) ptr, len);
     SHA1Final(dm, &context);
 
 #else

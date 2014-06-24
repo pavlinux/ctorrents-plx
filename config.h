@@ -1,6 +1,4 @@
-/* config.h.  Generated from config.h.in by configure.  */
-/* config.h.in.  Generated from configure.ac by autoheader.  */
-
+#define VERBOSE 1
 /* Define to 1 if `TIOCGWINSZ' requires <sys/ioctl.h>. */
 #define GWINSZ_IN_SYS_IOCTL 1
 
@@ -51,7 +49,7 @@
 #define HAVE_INTTYPES_H 1
 
 /* Define to 1 if you have the <ioctl.h> header file. */
-/* #undef HAVE_IOCTL_H */
+#define HAVE_IOCTL_H 1
 
 /* Define to 1 if you have the <limits.h> header file. */
 #define HAVE_LIMITS_H 1
@@ -81,7 +79,7 @@
 #define HAVE_NETINET_IN_H 1
 
 /* Define to 1 if you have the <openssl/sha.h> header file. */
-#define HAVE_OPENSSL_SHA_H 1
+#define HAVE_OPENSSL_SHA_H 0
 
 /* Define to 1 if you have the `random' function. */
 #define HAVE_RANDOM 1
@@ -202,19 +200,19 @@
 #define PACKAGE "ctorrent"
 
 /* Define to the address where bug reports for this package should be sent. */
-#define PACKAGE_BUGREPORT "http://sourceforge.net/projects/dtorrent/ or dholmes@ct.boxmail.com"
+#define PACKAGE_BUGREPORT ""
 
 /* Define to the full name of this package. */
 #define PACKAGE_NAME "Enhanced CTorrent"
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "Enhanced CTorrent dnh3.3.2"
+#define PACKAGE_STRING "ECTorrent plx"
 
 /* Define to the one symbol short name of this package. */
 #define PACKAGE_TARNAME "ctorrent"
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "dnh3.3.2"
+#define PACKAGE_VERSION "plx"
 
 /* Define as the return type of signal handlers (`int' or `void'). */
 #define RETSIGTYPE void
@@ -229,7 +227,7 @@
 /* #undef USE_SGTTY */
 
 /* Define to 1 to use Steve Reid's public-domain SHA-1 code. */
-#undef USE_STANDALONE_SHA1
+#define USE_STANDALONE_SHA1 1
 
 /* Define to use termio for terminal control. */
 /* #undef USE_TERMIO */
@@ -238,7 +236,7 @@
 #define USE_TERMIOS 1
 
 /* Version number of package */
-#define VERSION "dnh3.3.2"
+#define VERSION "plx 0.0.1"
 
 /* Define to 1 if your processor stores words with the most significant byte
    first (like Motorola and SPARC, unlike Intel and VAX). */

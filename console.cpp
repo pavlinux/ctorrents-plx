@@ -11,11 +11,7 @@
 #include <fcntl.h>		// open()
 #include <time.h>		// clock()
 
-#if defined(HAVE_IOCTL_H)
-#include <ioctl.h>		// ioctl()
-#elif defined(HAVE_SYS_IOCTL_H)
 #include <sys/ioctl.h>
-#endif
 
 #include "btconfig.h"
 #include "ctcs.h"
@@ -75,12 +71,12 @@ void ConStream::Close() {
 }
 
 void ConStream::Associate(FILE * stream, const char *name, int mode) {
-    
+
     m_stream = stream;
     m_filemode = mode;
-    
+
     m_name = new char[strlen(name) + 1];
-            
+
     if (m_name != NULL)
         strcpy(m_name, name);
     else

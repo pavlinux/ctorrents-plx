@@ -4,7 +4,7 @@ By Steve Reid <sreid@sea-to-sky.net>
 100% Public Domain
 
 -----------------
-Modified 7/98 
+Modified 7/98
 By James H. Brown <jbrown@burgoyne.com>
 Still 100% Public Domain
 
@@ -26,7 +26,7 @@ Since the file IO in main() reads 16K at a time, any file 8K or larger would
 be guaranteed to generate the wrong hash (e.g. Test Vector #3, a million
 "a"s).
 
-I also changed the declaration of variables i & j in SHA1Update to 
+I also changed the declaration of variables i & j in SHA1Update to
 unsigned long from unsigned int for the same reason.
 
 These changes should make no difference to any 32 bit implementations since
@@ -53,10 +53,10 @@ Still 100% public domain
 Modified 4/01
 By Saul Kravitz <Saul.Kravitz@celera.com>
 Still 100% PD
-Modified to run on Compaq Alpha hardware.  
+Modified to run on Compaq Alpha hardware.
 
 
-*/
+ */
 
 /*
 Test Vectors (from FIPS PUB 180-1)
@@ -66,7 +66,7 @@ Test Vectors (from FIPS PUB 180-1)
   84983E44 1C3BD26E BAAE4AA1 F95129E5 E54670F1
 A million repetitions of "a"
   34AA973C D4C4DAA4 F61EEB2B DBAD2731 6534016F
-*/
+ */
 
 #include "config.h"
 
@@ -99,36 +99,38 @@ A million repetitions of "a"
     ^block->l[(i+2)&15]^block->l[i&15],1))
 
 /* (R0+R1), R2, R3, R4 are the different operations used in SHA1 */
-#define R0(v,w,x,y,z,i) z+=((w&(x^y))^y)+blk0(i)+0x5A827999+rol(v,5);w=rol(w,30);
-#define R1(v,w,x,y,z,i) z+=((w&(x^y))^y)+blk(i)+0x5A827999+rol(v,5);w=rol(w,30);
-#define R2(v,w,x,y,z,i) z+=(w^x^y)+blk(i)+0x6ED9EBA1+rol(v,5);w=rol(w,30);
-#define R3(v,w,x,y,z,i) z+=(((w|x)&y)|(w&x))+blk(i)+0x8F1BBCDC+rol(v,5);w=rol(w,30);
-#define R4(v,w,x,y,z,i) z+=(w^x^y)+blk(i)+0xCA62C1D6+rol(v,5);w=rol(w,30);
+#define R0(v,w,x,y,z,i) z+= ((w & (x^y))^y)       + blk0(i) + 0x5A827999 + rol(v,5); w = rol(w,30);
+#define R1(v,w,x,y,z,i) z+= ((w & (x^y))^y)       + blk(i)  + 0x5A827999 + rol(v,5); w = rol(w,30);
+#define R2(v,w,x,y,z,i) z+= (w^x^y)               + blk(i)  + 0x6ED9EBA1 + rol(v,5); w = rol(w,30);
+#define R3(v,w,x,y,z,i) z+= (((w|x) & y)|(w & x)) + blk(i)  + 0x8F1BBCDC + rol(v,5); w = rol(w,30);
+#define R4(v,w,x,y,z,i) z+= (w^x^y)               + blk(i)  + 0xCA62C1D6 + rol(v,5); w = rol(w,30);
 
 #ifdef VERBOSE			/* SAK */
+
 void SHAPrintContext(SHA1_CTX * context, char *msg)
 {
 	printf("%s (%d,%d) %x %x %x %x %x\n",
-	       msg,
-	       context->count[0], context->count[1],
-	       context->state[0],
-	       context->state[1],
-	       context->state[2], context->state[3], context->state[4]);
+		msg,
+		context->count[0], context->count[1],
+		context->state[0],
+		context->state[1],
+		context->state[2], context->state[3], context->state[4]);
 }
 #endif
 
 /* Hash a single 512-bit block. This is the core of the algorithm. */
 
-void SHA1Transform(uint32_t state[5], unsigned char buffer[64])
+void SHA1Transform(u_int32_t state[5], u_int8_t buffer[64])
 {
-	uint32_t a, b, c, d, e;
+	volatile u_int32_t a, b, c, d, e;
+
 	typedef union {
-		unsigned char c[64];
-		uint32_t l[16];
+		u_int8_t c[64];
+		u_int32_t l[16];
 	} CHAR64LONG16;
 	CHAR64LONG16 *block;
 #ifdef SHA1HANDSOFF
-	static unsigned char workspace[64];
+	u_int8_t workspace[64];
 	block = (CHAR64LONG16 *) workspace;
 	memcpy(block, buffer, 64);
 #else
@@ -221,6 +223,7 @@ void SHA1Transform(uint32_t state[5], unsigned char buffer[64])
 	R4(d, e, a, b, c, 77);
 	R4(c, d, e, a, b, 78);
 	R4(b, c, d, e, a, 79);
+
 	/* Add the working vars back into context.state[] */
 	state[0] += a;
 	state[1] += b;
@@ -236,20 +239,21 @@ void SHA1Transform(uint32_t state[5], unsigned char buffer[64])
 void SHA1Init(SHA1_CTX * context)
 {
 	/* SHA1 initialization constants */
-	context->state[0] = 0x67452301;
-	context->state[1] = 0xEFCDAB89;
-	context->state[2] = 0x98BADCFE;
-	context->state[3] = 0x10325476;
-	context->state[4] = 0xC3D2E1F0;
-	context->count[0] = context->count[1] = 0;
+	context->state[0] = 0x67452301u;
+	context->state[1] = 0xefcdab89u;
+	context->state[2] = 0x98badcfeu;
+	context->state[3] = 0x10325476u;
+	context->state[4] = 0xc3d2e1f0u;
+	context->count[0] = 0u;
+	context->count[1] = 0u;
 }
 
 /* Run your data through this. */
 
-void SHA1Update(SHA1_CTX * context, unsigned char *data, uint32_t len)
-{				/*
+void SHA1Update(SHA1_CTX * context, u_int8_t *data, u_int32_t len)
+{ /*
 				   JHB */
-	register uint32_t i, j;	/* JHB */
+	register u_int32_t i, j; /* JHB */
 
 #ifdef VERBOSE
 	SHAPrintContext(context, "before");
@@ -275,33 +279,35 @@ void SHA1Update(SHA1_CTX * context, unsigned char *data, uint32_t len)
 
 /* Add padding and return the message digest. */
 
-void SHA1Final(unsigned char digest[20], SHA1_CTX * context)
+void SHA1Final(u_int8_t digest[20], SHA1_CTX * context)
 {
-	register uint32_t i;	/* JHB */
-	unsigned char finalcount[8];
+	register uint32_t i; /* JHB */
+	unsigned char finalcount[8] = {'\0'};
 
 	for (i = 0; i < 8; i++) {
 		finalcount[i] =
-		    (unsigned char)((context->count[(i >= 4 ? 0 : 1)]
-				     >> ((3 - (i & 3)) * 8)) & 255);	/* Endian independent */
+			(unsigned char) ((context->count[(i >= 4 ? 0 : 1)]
+			>> ((3 - (i & 3)) * 8)) & 255); /* Endian independent */
 	}
-	SHA1Update(context, (unsigned char *)"\200", 1);
+	SHA1Update(context, (unsigned char *) "\200", 1);
+
 	while ((context->count[0] & 504) != 448) {
-		SHA1Update(context, (unsigned char *)"\0", 1);
+		SHA1Update(context, (unsigned char *) "\0", 1);
 	}
 
-	SHA1Update(context, finalcount, 8);	/* Should cause a SHA1Transform() */
+	SHA1Update(context, finalcount, 8); /* Should cause a SHA1Transform() */
 
-	for (i = 0; i < 20; i++) {
+	for (i = 0u; i < 20; i++) {
 		digest[i] = (unsigned char)
-		    ((context->state[i >> 2] >> ((3 - (i & 3)) * 8)) & 255);
+			((context->state[i >> 2] >> ((3 - (i & 3)) * 8)) & 255);
 	}
 	/* Wipe variables */
-	i = 0;			/* JHB */
+	i = 0; /* JHB */
 	memset(context->buffer, 0, 64);
 	memset(context->state, 0, 20);
 	memset(context->count, 0, 8);
-	memset(finalcount, 0, 8);	/* SWR */
+	memset(finalcount, 0, 8); /* SWR */
+
 #ifdef SHA1HANDSOFF		/* make SHA1Transform overwrite it's own static vars */
 	SHA1Transform(context->state, context->buffer);
 #endif
