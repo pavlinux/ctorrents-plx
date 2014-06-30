@@ -1,4 +1,4 @@
-#define VERBOSE 1
+#undef VERBOSE
 /* Define to 1 if `TIOCGWINSZ' requires <sys/ioctl.h>. */
 #define GWINSZ_IN_SYS_IOCTL 1
 
