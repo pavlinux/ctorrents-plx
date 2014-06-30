@@ -22,7 +22,7 @@
 #include "ctcs.h"
 #include "console.h"
 
-#include "./config.h"
+#include "config.h"
 
 #ifndef HAVE_RANDOM
 #include "compat.h"
@@ -43,12 +43,29 @@ int APIENTRY WinMain(HINSTANCE hInstance,
 
 #else
 
+#include "sha1.h"
+
 void Random_init() {
+
     unsigned long seed;
 #ifdef HAVE_GETTIMEOFDAY
     struct timeval tv;
-    gettimeofday(&tv, (struct timezone *) 0);
-    seed = tv.tv_usec + tv.tv_sec + getpid();
+    gettimeofday(&tv, (__timezone_ptr_t) 0);
+    seed = tv.tv_usec + (tv.tv_sec * getpid());
+
+    u_int32_t state[5];
+    u_int8_t buffer[64];
+
+    state[0] = 0x67452301;
+    state[1] = (0xefcdab89 ^ seed);
+    state[2] = (0x98badcfe - seed);
+    state[3] = (0x10325476 + seed);
+    state[4] = 0xc3d2e1f0 - state[3];
+
+    snprintf((char *) &buffer, 64, "%zu", seed);
+    SHA1Transform(state, buffer);
+    seed = (state[0] + state[4] - state[2]) + state[3];
+
 #else
     seed = (unsigned long) time((time_t *) 0);
 #endif
@@ -69,6 +86,7 @@ int main(int argc, char **argv) {
         return -1;
 
     sprintf(cfg_user_agent, "%s/%s", PACKAGE_NAME, PACKAGE_VERSION);
+
     while (s = strchr(cfg_user_agent, ' '))
         *s = '-';
 
