@@ -15,7 +15,7 @@ ifeq ($(shell getconf LONG_BIT), 32)
     ARCH_FLAGS=-m32
 endif
 
-FLAGS := ${ARCH_FLAGS} -mtune=nocona -Os -g0 -msse -W -Wextra -Wall
+FLAGS := ${ARCH_FLAGS} -mtune=nocona -O1 -g0 -msse -W -Wextra -Wall
 #FLAGS := ${ARCH_FLAGS} -mtune=generic -O0 -g3 -ggdb3 -gdwarf-4 -fno-omit-frame-pointer -mno-mmx -mno-3dnow
 CXXFLAGS :=-std=gnu++0x ${FLAGS}
 CFLAGS :=-std=gnu99 ${FLAGS}
