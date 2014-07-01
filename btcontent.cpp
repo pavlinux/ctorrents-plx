@@ -1351,38 +1351,37 @@ int btContent::CheckNextPiece() {
 }
 
 char *btContent::_file2mem(const char *fname, size_t * psiz) {
-    char *b = (char *) 0;
+
+    char *b = NULL;
     struct stat sb;
     FILE *fp;
+
     fp = fopen(fname, "r");
     if (!fp) {
-        CONSOLE.Warning(1, "error, open \"%s\" failed:  %s", fname,
-                strerror(errno));
-        return (char *) 0;
+        CONSOLE.Warning(1, "error, open \"%s\" failed:  %s", fname, strerror(errno));
+        return NULL;
     }
-
     if (stat(fname, &sb) < 0) {
-        CONSOLE.Warning(1, "error, stat \"%s\" failed:  %s", fname,
-                strerror(errno));
-        return (char *) 0;
+        CONSOLE.Warning(1, "error, stat \"%s\" failed:  %s", fname, strerror(errno));
+        fclose(fp);
+        return NULL;
     }
-
     if (sb.st_size > MAX_METAINFO_FILESIZ) {
-        CONSOLE.Warning(1, "error, \"%s\" is really a metainfo file???",
-                fname);
-        return (char *) 0;
+        CONSOLE.Warning(1, "error, \"%s\" is really a metainfo file???", fname);
+        fclose(fp);
+        return NULL;
     }
-
     b = new char[sb.st_size];
-#ifndef WINDOWS
-    if (!b)
-        return (char *) 0;
-#endif
+    if (!b) {
+        fclose(fp);
+        return NULL;
+    }
 
     if (fread(b, sb.st_size, 1, fp) != 1) {
         if (ferror(fp)) {
             delete[]b;
-            return (char *) 0;
+            fclose(fp);
+            return NULL;
         }
     }
     fclose(fp);
