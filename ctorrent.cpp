@@ -73,6 +73,7 @@ void Random_init() {
 }
 
 int main(int argc, char **argv) {
+
     char *s;
 
     Random_init();
@@ -89,8 +90,10 @@ int main(int argc, char **argv) {
 
     do {
         s = strchr(cfg_user_agent, ' ');
+        if (s != NULL)
+            *s = '-';
     } while (s);
-    *s = '-';
+
 
     if (argc < 2) {
         usage();
