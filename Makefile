@@ -9,20 +9,20 @@ CXX ?= g++
 CC  ?= gcc
 
 ifeq ($(shell getconf LONG_BIT), 64)
-    ARCH_FLAGS=-m64
+    ARCH_FLAGS=-m64 -msse -msse2 -msse3
 endif
 ifeq ($(shell getconf LONG_BIT), 32)
     ARCH_FLAGS=-m32
 endif
 
-FLAGS := ${ARCH_FLAGS} -mtune=nocona -Os -g0 -msse -W -Wextra -Wall
+FLAGS := ${ARCH_FLAGS} -mtune=nocona -Os -g0 -W -Wextra -Wall -pipe
 #FLAGS := ${ARCH_FLAGS} -mtune=generic -O0 -g3 -ggdb3 -gdwarf-4 -fno-omit-frame-pointer -mno-mmx -mno-3dnow
 CXXFLAGS :=-std=gnu++0x ${FLAGS}
 CFLAGS :=-std=gnu99 ${FLAGS}
 
 LINK ?= g++
-LDFLAGS := ${ARCH_FLAGS} -lrt -Wl,-O1,-hashvals,--hash-style=both
-LIBS :=-L. -static-libstdc++ -static-libgcc -s
+LDFLAGS := ${ARCH_FLAGS} -lrt -Wl,-O1,-hashvals,--hash-style=both -pipe
+LIBS :=-L. -static-libstdc++ -static-libgcc
 # -Wl,-Bstatic -lssl -Wl,-Bstatic -lcrypto
 
 CPUS = $(shell grep processor /proc/cpuinfo | wc -l)
