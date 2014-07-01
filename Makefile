@@ -3,6 +3,8 @@
 #
 # If not linked try:   ln -sf `g++ -print-file-name=libstdc++.a`
 #
+
+# With link time optimization binary too fat (avg. +50k)
 WITH_LTO = 0
 
 CXX ?= g++
