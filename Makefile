@@ -15,13 +15,13 @@ ifeq ($(shell getconf LONG_BIT), 32)
     ARCH_FLAGS=-m32
 endif
 
-FLAGS := ${ARCH_FLAGS} -mtune=nocona -O1 -g0 -msse -W -Wextra -Wall
+FLAGS := ${ARCH_FLAGS} -mtune=nocona -Os -g0 -msse -W -Wextra -Wall
 #FLAGS := ${ARCH_FLAGS} -mtune=generic -O0 -g3 -ggdb3 -gdwarf-4 -fno-omit-frame-pointer -mno-mmx -mno-3dnow
 CXXFLAGS :=-std=gnu++0x ${FLAGS}
 CFLAGS :=-std=gnu99 ${FLAGS}
 
 LINK ?= g++
-LDFLAGS := ${ARCH_FLAGS} -lrt -Wl,-Os,-hashvals,--hash-style=both
+LDFLAGS := ${ARCH_FLAGS} -lrt -Wl,-O1,-hashvals,--hash-style=both
 LIBS :=-L. -static-libstdc++ -static-libgcc -s
 # -Wl,-Bstatic -lssl -Wl,-Bstatic -lcrypto
 
