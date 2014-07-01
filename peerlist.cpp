@@ -1026,18 +1026,21 @@ int PeerList::Initial_ListenPort() {
 
     if (cfg_listen_port) {
         int opt = 1;
-        setsockopt(m_listen_sock, SOL_SOCKET, SO_REUSEADDR, &opt,
-                sizeof (opt));
+
+        if (setsockopt(m_listen_sock, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof (opt)) < 0)
+            CONSOLE.Warning(2, "Set socket option SO_REUSEADD falied");
+
         lis_addr.sin_port = htons(cfg_listen_port);
+
         if (bind(m_listen_sock, (struct sockaddr *) &lis_addr,
                 sizeof (struct sockaddr_in)) == 0)
             r = 1;
         else {
             opt = 0;
-            setsockopt(m_listen_sock, SOL_SOCKET, SO_REUSEADDR,
-                    &opt, sizeof (opt));
-            CONSOLE.Warning(2,
-                    "warn, couldn't bind on specified port %d:  %s",
+            if (setsockopt(m_listen_sock, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof (opt)) < 0)
+                CONSOLE.Warning(2, "Set socket option SO_REUSEADD falied");
+
+            CONSOLE.Warning(2, "warn, couldn't bind on specified port %d:  %s",
                     cfg_listen_port, strerror(errno));
         }
     }
