@@ -121,6 +121,9 @@ void SHAPrintContext(SHA1_CTX * context, char *msg)
 }
 #endif
 
+#ifdef HAVE_SSE2
+
+#endif
 /* Hash a single 512-bit block. This is the core of the algorithm. */
 
 void SHA1Transform(u_int32_t state[5], u_int8_t buffer[64])

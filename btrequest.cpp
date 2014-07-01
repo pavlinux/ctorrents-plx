@@ -223,20 +223,22 @@ size_t RequestQueue::Qsize() const {
 
 size_t RequestQueue::Qlen(size_t piece) const {
 
-    size_t cnt = 0;
+    size_t cnt;
     PSLICE n = rq_head;
     PSLICE u = (PSLICE) 0;
     size_t idx;
 
     for (; n && n->index != piece; n = n->next);
 
-    if (n)
+    cnt = 0;
+    if (n) {
         idx = n->index;
 
-    for (; n; u = n, n = u->next) {
-        if (n->index != idx)
-            break;
-        cnt++;
+        for (; n; u = n, n = u->next) {
+            if (n->index != idx)
+                break;
+            cnt++;
+        }
     }
 
     return cnt;

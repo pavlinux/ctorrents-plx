@@ -48,27 +48,22 @@ int APIENTRY WinMain(HINSTANCE hInstance,
 void Random_init() {
 
     unsigned long seed;
-#ifdef HAVE_GETTIMEOFDAY
-    struct timeval tv;
-    gettimeofday(&tv, (__timezone_ptr_t) 0);
-    seed = tv.tv_usec + (tv.tv_sec * getpid());
-
     u_int32_t state[5];
-    u_int8_t buffer[64] = {0u};
+    u_int8_t buffer[64];
+    struct timeval tv;
 
-    state[0] = 0x67452301;
-    state[1] = (0xefcdab89 ^ seed);
-    state[2] = (0x98badcfe - seed);
-    state[3] = (0x10325476 + seed);
-    state[4] = 0xc3d2e1f0 - state[3];
-
-    snprintf((char *) &buffer, 64, "%zu", seed);
+    gettimeofday(&tv, (__timezone_ptr_t) 0);
+    seed = (unsigned long) (tv.tv_usec + (tv.tv_sec * getpid()));
+    snprintf((char *) &buffer, 64, "%lu", seed);
+    seed = 0;
+    state[0] = (0x67452301u);
+    state[1] = (0xefcdab89u);
+    state[2] = (0x98badcfeu);
+    state[3] = (0x10325476u);
+    state[4] = (0xc3d2e1f0u);
     SHA1Transform(state, buffer);
-    seed = (state[0] + state[4] - state[2]) + state[3];
 
-#else
-    seed = (unsigned long) time((time_t *) 0);
-#endif
+    seed = (unsigned long) ((state[0] ^ state[3]) ^ (state[1] ^ state[4]));
     srandom(seed);
 }
 
