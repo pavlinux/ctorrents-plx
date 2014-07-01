@@ -68,6 +68,9 @@ A million repetitions of "a"
   34AA973C D4C4DAA4 F61EEB2B DBAD2731 6534016F
  */
 
+#pragma GCC push_options
+#pragma GCC optimize ("Ofast")
+
 #include "config.h"
 
 /* #define SHA1HANDSOFF * Copies data before messing with it. */
@@ -246,6 +249,7 @@ void SHA1Init(SHA1_CTX * context)
 	context->state[4] = 0xc3d2e1f0u;
 	context->count[0] = 0u;
 	context->count[1] = 0u;
+	memset(context->buffer, 0, 64);
 }
 
 /* Run your data through this. */
@@ -312,3 +316,5 @@ void SHA1Final(u_int8_t digest[20], SHA1_CTX * context)
 	SHA1Transform(context->state, context->buffer);
 #endif
 }
+
+#pragma GCC pop_options

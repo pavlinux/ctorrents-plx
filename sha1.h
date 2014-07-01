@@ -23,7 +23,7 @@ extern "C" {
         u_int32_t state[5];
         u_int32_t count[2];
         u_int8_t buffer[64];
-    } SHA1_CTX;
+    } __attribute__((aligned(4))) SHA1_CTX;
 
     void SHA1Transform(u_int32_t [5], u_int8_t [64]);
     void SHA1Init(SHA1_CTX*);

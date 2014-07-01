@@ -54,7 +54,7 @@ void Random_init() {
     seed = tv.tv_usec + (tv.tv_sec * getpid());
 
     u_int32_t state[5];
-    u_int8_t buffer[64];
+    u_int8_t buffer[64] = {0u};
 
     state[0] = 0x67452301;
     state[1] = (0xefcdab89 ^ seed);
@@ -87,8 +87,10 @@ int main(int argc, char **argv) {
 
     sprintf(cfg_user_agent, "%s/%s", PACKAGE_NAME, PACKAGE_VERSION);
 
-    while (s = strchr(cfg_user_agent, ' '))
-        *s = '-';
+    do {
+        s = strchr(cfg_user_agent, ' ');
+    } while (s);
+    *s = '-';
 
     if (argc < 2) {
         usage();
