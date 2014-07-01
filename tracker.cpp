@@ -583,10 +583,9 @@ int btTracker::SendRequest() {
         strcat(REQ_BUFFER, REQ_HOST);
     }
 
-    strcat(REQ_BUFFER, "\r\nUser-Agent: ");
-    strcat(REQ_BUFFER, cfg_user_agent);
-
-    strcat(REQ_BUFFER, "\r\n\r\n");
+    strncat(REQ_BUFFER, "\r\nUser-Agent: ", 14);
+    strncat(REQ_BUFFER, cfg_user_agent, strlen(cfg_user_agent));
+    strncat(REQ_BUFFER, "\r\n\r\n", 4);
     // hc
     //CONSOLE.Warning(0, "SendRequest: %s", REQ_BUFFER);
 
