@@ -512,6 +512,7 @@ void Console::User(fd_set * rfdp, fd_set * wfdp __attribute__((unused)),
                             "Completion command", "", "");
                     break;
                 case 'd': // download bw limit
+                    /* coverity[MISSING_BREAK] it's not a bug, it's a feature */
                 case 'u': // upload bw limit
                     if (arg_ctcs)
                         Interact
