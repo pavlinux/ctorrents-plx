@@ -531,44 +531,34 @@ void Console::User(fd_set * rfdp, fd_set * wfdp __attribute__((unused)),
                         Interact
                             ("Download is already complete.");
                     else {
-                        m_streams[O_INPUT]->
-                                SetInputMode(K_LINES);
+                        m_streams[O_INPUT]->SetInputMode(K_LINES);
                         ShowFiles();
                         Interact
                                 ("Enter 0 or * for all files (normal behavior).");
                         if (arg_file_to_download)
-                            Interact_n
-                                ("Get file number/list (currently %s): ",
+                            Interact_n("Get file number/list (currently %s): ",
                                 arg_file_to_download);
                         else
-                            Interact_n
-                                ("Get file number/list: ");
+                            Interact_n("Get file number/list: ");
                     }
                     break;
                 case 'S': // CTCS server
                     m_streams[O_INPUT]->SetInputMode(K_LINES);
                     Interact_n("");
                     if (arg_ctcs) {
-                        Interact
-                                ("Enter ':' to stop using CTCS.");
-                        Interact_n
-                                ("CTCS server:port (currently %s): ",
-                                arg_ctcs);
+                        Interact("Enter ':' to stop using CTCS.");
+                        Interact_n("CTCS server:port (currently %s): ", arg_ctcs);
                     } else
                         Interact_n("CTCS server:port: ");
                     break;
                 case 'X': // completion command (user exit)
                     if (BTCONTENT.IsFull())
-                        Interact
-                            ("Download is already complete.");
+                        Interact("Download is already complete.");
                     else {
-                        m_streams[O_INPUT]->
-                                SetInputMode(K_LINES);
-                        Interact
-                                ("Enter a command to run upon download completion.");
+                        m_streams[O_INPUT]->SetInputMode(K_LINES);
+                        Interact("Enter a command to run upon download completion.");
                         if (arg_completion_exit)
-                            Interact("Currently: %s",
-                                arg_completion_exit);
+                            Interact("Currently: %s", arg_completion_exit);
                         Interact_n(">");
                     }
                     break;
@@ -686,30 +676,21 @@ void Console::User(fd_set * rfdp, fd_set * wfdp __attribute__((unused)),
                             (int) cfg_max_bandwidth_up);
                     break;
                 case 'e':
-                    InteractU("Seed time: %.1f hours ",
-                            BTCONTENT.
-                            GetSeedTime() ? (cfg_seed_hours -
-                            (now -
-                            BTCONTENT.
-                            GetSeedTime()) /
-                            (double) 3600)
+                    InteractU("Seed time: %.1f hours ", BTCONTENT.GetSeedTime()
+                            ? (cfg_seed_hours - (now - BTCONTENT.GetSeedTime()) / 3600.0F)
                             : (double) cfg_seed_hours);
                     break;
                 case 'E':
-                    InteractU("Seed ratio: %.2f ",
-                            (double) cfg_seed_ratio);
+                    InteractU("Seed ratio: %.2f ", (double) cfg_seed_ratio);
                     break;
                 case 'm':
-                    InteractU("Minimum peers: %d ",
-                            (int) cfg_min_peers);
+                    InteractU("Minimum peers: %d ", (int) cfg_min_peers);
                     break;
                 case 'M':
-                    InteractU("Maximum peers: %d ",
-                            (int) cfg_max_peers);
+                    InteractU("Maximum peers: %d ", (int) cfg_max_peers);
                     break;
                 case 'C':
-                    InteractU("Maximum cache: %d MB ",
-                            (int) cfg_cache_size);
+                    InteractU("Maximum cache: %d MB ", (int) cfg_cache_size);
                     break;
                 default:
                     break;
@@ -1188,10 +1169,8 @@ void Console::StatusLine1(char buffer[], size_t length) {
         }
     } else { //seeding
         if (cfg_seed_hours)
-            remain =
-                cfg_seed_hours * 60 - (now -
-                BTCONTENT.GetSeedTime()) /
-            60;
+            remain = cfg_seed_hours * 60 - (now - BTCONTENT.GetSeedTime()) / 60;
+
         else if (rate = Self.RateUL()) {
             // don't overflow remain
             if (cfg_seed_ratio *

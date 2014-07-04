@@ -58,6 +58,10 @@ PeerList::PeerList() {
     m_upload_count = m_up_opt_count = 0;
     m_prev_limit_up = cfg_max_bandwidth_up;
     m_dup_req_pieces = 0;
+    m_ul_limited = 0;
+    m_f_limitd = 0;
+    m_f_limitu = 0;
+    m_reserved = 0;
 }
 
 PeerList::~PeerList() {
