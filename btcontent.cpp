@@ -463,30 +463,32 @@ int btContent::InitialFromMI(const char *metainfo_fname, const char *saveas) {
     m_left_bytes = m_btfiles.GetTotalLength();
 
     if (arg_flg_check_only) {
-        struct stat sb;
-        if (stat(arg_bitfield_file, &sb) == 0) {
-            if (remove(arg_bitfield_file) < 0) {
-                CONSOLE.Warning(2,
-                        "warn, couldn't delete bit field file \"%s\":  %s",
-                        arg_bitfield_file,
-                        strerror(errno));
+        if (access(arg_bitfield_file, R_OK | W_OK) == 0) {
+            struct stat sb;
+            if (stat(arg_bitfield_file, &sb) == 0) {
+                if (remove(arg_bitfield_file) < 0) {
+                    CONSOLE.Warning(2,
+                            "warn, couldn't delete bit field file \"%s\":  %s",
+                            arg_bitfield_file,
+                            strerror(errno));
+                }
             }
-        }
-        if (r) {
-            if (CheckExist() < 0)
-                ERR_RETURN();
-            if (!pBF->IsEmpty())
-                m_btfiles.PrintOut(); // show file completion
-        }
-        CONSOLE.Print("Already/Total: %d/%d (%d%%)",
-                (int) (pBF->Count()), (int) m_npieces,
-                (int) (100 * pBF->Count() / m_npieces));
-        if (!arg_flg_force_seed_mode) {
-            SaveBitfield();
-            if (arg_completion_exit)
-                CompletionCommand();
-            exit(0);
-        }
+            if (r) {
+                if (CheckExist() < 0)
+                    ERR_RETURN();
+                if (!pBF->IsEmpty())
+                    m_btfiles.PrintOut(); // show file completion
+            }
+            CONSOLE.Print("Already/Total: %d/%d (%d%%)",
+                    (int) (pBF->Count()), (int) m_npieces,
+                    (int) (100 * pBF->Count() / m_npieces));
+            if (!arg_flg_force_seed_mode) {
+                SaveBitfield();
+                if (arg_completion_exit)
+                    CompletionCommand();
+                exit(0);
+            }
+        } // access arg_bitfield_file
     } else if (r) { // files exist already
         if (pBRefer->SetReferFile(arg_bitfield_file) < 0) {
             if (!arg_flg_force_seed_mode) {
