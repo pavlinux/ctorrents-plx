@@ -61,10 +61,11 @@ void Random_init() {
     state[2] = (0x98badcfeu);
     state[3] = (0x10325476u);
     state[4] = (0xc3d2e1f0u);
+
     SHA1Transform(state, buffer);
 
     seed = (unsigned long) ((state[0] ^ state[3]) ^ (state[1] ^ state[4]));
-    srandom(seed);
+    srand48(seed);
 }
 
 int main(int argc, char **argv) {
@@ -74,18 +75,20 @@ int main(int argc, char **argv) {
             throw argc;
         }
     } catch (int) {
-        usage();
+        //usage();
         exit(1);
     }
 
     char *s;
 
     Random_init();
-    arg_user_agent = new char[MAX_PF_LEN + 1];
-    strcpy(arg_user_agent, PEER_PFX);
 
-    cfg_user_agent =
-            new char[strlen(PACKAGE_NAME) + strlen(PACKAGE_VERSION) + 2];
+    arg_user_agent = new char[MAX_PF_LEN + 1]; // free'd at end param_check()
+    memmove(arg_user_agent, PEER_PFX, MAX_PF_LEN);
+
+    //strcpy(arg_user_agent, PEER_PFX);
+
+    cfg_user_agent = new char[strlen(PACKAGE_NAME) + strlen(PACKAGE_VERSION) + 2];
 
     if (!cfg_user_agent)
         return -1;
@@ -98,12 +101,11 @@ int main(int argc, char **argv) {
             *s = '-';
     } while (s);
 
-
-    if (argc < 2) {
-        usage();
-        exit(1);
-    } else if (param_check(argc, argv) < 0)
-        exit(1);
+    if (param_check(argc, argv) < 0) {
+        if (arg_user_agent)
+            delete[] arg_user_agent;
+        return -1;
+    }
 
     if (arg_flg_make_torrent) {
         if (!arg_announce) {
@@ -191,7 +193,7 @@ int param_check(int argc, char **argv) {
                 arg_bitfield_file = new char[strlen(optarg) + 1];
 
                 if (!arg_bitfield_file)
-                    return -1;
+                    goto err;
 
                 strcpy(arg_bitfield_file, optarg);
                 break;
@@ -203,7 +205,7 @@ int param_check(int argc, char **argv) {
             case 'I': // set public ip XXXX
                 cfg_public_ip = new char[strlen(optarg) + 1];
                 if (!cfg_public_ip)
-                    return -1;
+                    goto err;
                 strcpy(cfg_public_ip, optarg);
                 break;
 
@@ -216,11 +218,11 @@ int param_check(int argc, char **argv) {
 
             case 's': // Save as FILE/DIR NAME
                 if (arg_save_as)
-                    return -1; // specified twice
+                    goto err; // specified twice
                 arg_save_as = new char[strlen(optarg) + 1];
 
                 if (!arg_save_as)
-                    return -1;
+                    goto err;
 
                 strcpy(arg_save_as, optarg);
                 break;
@@ -237,7 +239,7 @@ int param_check(int argc, char **argv) {
                 if (arg_flg_make_torrent) {
                     arg_comment = new char[strlen(optarg) + 1];
                     if (!arg_comment)
-                        return -1;
+                        goto err;
                     strcpy(arg_comment, optarg);
                 } else
                     arg_flg_check_only = 1;
@@ -257,7 +259,7 @@ int param_check(int argc, char **argv) {
                     CONSOLE.Warning(1,
                             "-%c argument must be between 20 and 1000",
                             c);
-                    return -1;
+                    goto err;
                 }
                 break;
 
@@ -267,7 +269,7 @@ int param_check(int argc, char **argv) {
                     CONSOLE.Warning(1,
                             "-%c argument must be between 1 and 1000",
                             c);
-                    return -1;
+                    goto err;
                 }
                 break;
 
@@ -278,17 +280,17 @@ int param_check(int argc, char **argv) {
                     CONSOLE.Warning(1,
                             "-%c argument must be between 1 and %d",
                             c, cfg_max_slice_size / 1024);
-                    return -1;
+                    goto err;
                 }
                 break;
 
             case 'n': // Which file download
                 if (arg_file_to_download)
-                    return -1; // specified twice
+                    goto err; // specified twice
                 arg_file_to_download = new char[strlen(optarg) + 1];
 
                 if (!arg_file_to_download)
-                    return -1;
+                    goto err;
 
                 strcpy(arg_file_to_download, optarg);
                 break;
@@ -313,7 +315,7 @@ int param_check(int argc, char **argv) {
                     CONSOLE.Warning(1,
                             "-P arg must be %d or less characters",
                             MAX_PF_LEN);
-                    return -1;
+                    goto err;
                 }
                 if (l == 1 && *optarg == '-')
                     *arg_user_agent = (char) 0;
@@ -327,7 +329,7 @@ int param_check(int argc, char **argv) {
                 cfg_user_agent = new char[strlen(optarg) + 1];
 
                 if (!cfg_user_agent)
-                    return -1;
+                    goto err;
 
                 strcpy(cfg_user_agent, optarg);
                 break;
@@ -339,11 +341,11 @@ int param_check(int argc, char **argv) {
                 // BELOW OPTIONS USED FOR CREATE TORRENT.
             case 'u': // Announce URL
                 if (arg_announce)
-                    return -1; // specified twice
+                    goto err; // specified twice
                 arg_announce = new char[strlen(optarg) + 1];
 
                 if (!arg_announce)
-                    return -1;
+                    goto err;
 
                 strcpy(arg_announce, optarg);
                 break;
@@ -360,7 +362,7 @@ int param_check(int argc, char **argv) {
                     CONSOLE.Warning(1,
                             "-%c argument must be between 65536 and %d",
                             c, 4096 * 1024);
-                    return -1;
+                    goto err;
                 }
                 break;
                 // ABOVE OPTIONS USED FOR CREATE TORRENT.
@@ -372,31 +374,32 @@ int param_check(int argc, char **argv) {
 
             case 'S': // CTCS server
                 if (arg_ctcs)
-                    return -1; // specified twice
+                    goto err; // specified twice
                 arg_ctcs = new char[strlen(optarg) + 1];
 
                 if (!arg_ctcs)
-                    return -1;
+                    goto err;
 
                 if (!strchr(optarg, ':')) {
                     CONSOLE.Warning(1,
                             "-%c argument requires a port number",
                             c);
-                    return -1;
+                    goto err;
                 }
                 strcpy(arg_ctcs, optarg);
                 break;
 
             case 'X': // "user exit" on download completion
                 if (arg_completion_exit)
-                    return -1; // specified twice
+                    goto err; // specified twice
                 arg_completion_exit = new char[strlen(optarg) + 1];
                 if (!arg_completion_exit)
-                    return -1;
+                    goto err;
+                ;
 #ifndef HAVE_SYSTEM
                 CONSOLE.Warning(1,
                         "-X is not supported on your system");
-                return -1;
+                goto err;
 #endif
 #ifndef HAVE_WORKING_FORK
                 CONSOLE.Warning(2,
@@ -420,12 +423,12 @@ int param_check(int argc, char **argv) {
             case 'h':
             case 'H': // help
                 usage();
-                return -1;
+                goto err;
 
             default:
                 //unknown option.
                 CONSOLE.Warning(1, "Use -h for help/usage.");
-                return -1;
+                goto err;
         }
 
     argc -= optind;
@@ -438,12 +441,14 @@ int param_check(int argc, char **argv) {
                 "Must specify torrent contents (one file or directory)");
         else
             CONSOLE.Warning(1, "Must specify one torrent file");
-        return -1;
+        goto err;
+        ;
     }
     arg_metainfo_file = new char[strlen(*argv) + 1];
 
     if (!arg_metainfo_file)
-        return -1;
+        goto err;
+    ;
 
     strcpy(arg_metainfo_file, *argv);
 
@@ -451,12 +456,26 @@ int param_check(int argc, char **argv) {
         arg_bitfield_file = new char[strlen(arg_metainfo_file) + 4];
 
         if (!arg_bitfield_file)
-            return -1;
+            goto err;
 
         strcpy(arg_bitfield_file, arg_metainfo_file);
         strcat(arg_bitfield_file, ".bf");
     }
+
     return 0;
+err:
+    if (arg_bitfield_file) delete[] arg_bitfield_file;
+    if (cfg_public_ip) delete[] cfg_public_ip;
+    if (arg_save_as) delete[] arg_save_as;
+    if (arg_comment)delete[] arg_comment;
+    if (arg_file_to_download) delete[] arg_file_to_download;
+    if (cfg_user_agent) delete[]cfg_user_agent;
+    if (arg_announce) delete[] arg_announce;
+    if (arg_ctcs) delete[] arg_ctcs;
+    if (arg_metainfo_file) delete[] arg_metainfo_file;
+    if (arg_completion_exit) delete[] arg_completion_exit;
+
+    return -1;
 }
 
 void usage() {

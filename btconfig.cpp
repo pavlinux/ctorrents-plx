@@ -43,7 +43,7 @@ unsigned char arg_verbose = 0;
 unsigned char arg_allocate = 0;
 unsigned char arg_daemon = 0;
 
-size_t arg_piece_length = 0x40000;	// 262144;
+size_t arg_piece_length = 0x40000; // 262144;
 
 char *arg_announce = NULL;
 char *arg_comment = NULL;

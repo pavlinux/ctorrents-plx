@@ -17,7 +17,7 @@ extern size_t cfg_req_queue_length;
 #define PEER_ID_LEN 20
 #define PEER_PFX "-CD0303-"
 
-extern char *cfg_user_agent;	// HTTP header
+extern char *cfg_user_agent; // HTTP header
 
 extern size_t cfg_cache_size;
 
@@ -42,7 +42,7 @@ extern size_t arg_hash_fails;
 extern char *arg_metainfo_file;
 extern char *arg_bitfield_file;
 extern char *arg_save_as;
-extern char *arg_user_agent;	// BT peer ID, not HTTP header
+extern char *arg_user_agent; // BT peer ID, not HTTP header
 
 extern unsigned char arg_flg_force_seed_mode;
 extern unsigned char arg_flg_check_only;

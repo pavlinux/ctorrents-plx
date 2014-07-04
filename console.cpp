@@ -1305,12 +1305,14 @@ void Console::Update(const char *message, ...) {
    3: no problem
  */
 void Console::Warning(int sev, const char *message, ...) {
+
     va_list ap;
 
     va_start(ap, message);
     if (m_streams[O_WARNING]->Output(message, ap))
         SyncNewlines(O_WARNING);
     va_end(ap);
+
     if (arg_verbose && !m_streams[O_DEBUG]->SameDev(m_streams[O_WARNING])) {
         va_start(ap, message);
         if (m_streams[O_DEBUG]->Output(message, ap))
