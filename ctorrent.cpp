@@ -69,6 +69,15 @@ void Random_init() {
 
 int main(int argc, char **argv) {
 
+    try {
+        if (argc < 2) {
+            throw argc;
+        }
+    } catch (int) {
+        usage();
+        exit(1);
+    }
+
     char *s;
 
     Random_init();
