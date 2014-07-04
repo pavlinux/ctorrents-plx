@@ -107,11 +107,12 @@ int btTracker::_UpdatePeerList(char *buf, size_t bufsiz) {
     char warnmsg[1024] = {'\0'};
     char failreason[1024] = {'\0'};
 
-    const char *ps;
+    const char *ps = NULL;
     size_t i, pos, tmpport;
     size_t cnt = 0;
 
     struct sockaddr_in addr;
+    memset((void *) &addr, 0, sizeof (addr));
 
     if (decode_query(buf, bufsiz, "failure reason", &ps, &i, (int64_t *) 0, QUERY_STR)) {
 
@@ -197,8 +198,10 @@ int btTracker::_UpdatePeerList(char *buf, size_t bufsiz) {
         i /= 6;
         ps++;
         while (i-- > 0) {
+
             memcpy(&addr.sin_addr, ps, sizeof (struct in_addr));
             memcpy(&addr.sin_port, ps + sizeof (struct in_addr), sizeof (unsigned short));
+
             if (!Self.IpEquiv(addr)) {
                 cnt++;
                 IPQUEUE.Add(&addr);
@@ -330,8 +333,7 @@ int btTracker::CheckReponse() {
             CONSOLE.Warning(2,
                     "IF YOU CONTINUE TO GET THIS MESSAGE AND DOWNLOAD DOES NOT BEGIN, PLEASE STOP CTORRENT!");
             if (pdata && dlen) { // write(STDERR_FILENO, pdata, dlen);
-                CONSOLE.Warning(0,
-                        "Tracker reponse data DUMP:");
+                CONSOLE.Warning(0, "Tracker reponse data DUMP:");
                 CONSOLE.Warning(0, "%s", pdata);
                 CONSOLE.Warning(0, "== DUMP OVER==");
             }
@@ -346,8 +348,7 @@ int btTracker::CheckReponse() {
     m_ok_click++;
 
     if (!pdata) {
-        CONSOLE.Warning(2,
-                "warn, peers list received from tracker is empty.");
+        CONSOLE.Warning(2, "warn, peers list received from tracker is empty.");
         return 0;
     }
     return _UpdatePeerList(pdata, dlen);
@@ -649,6 +650,7 @@ int btTracker::IntervalCheck(fd_set * rfdp, fd_set * wfdp) {
 
 int btTracker::SocketReady(fd_set * rfdp, fd_set * wfdp, int *nfds,
         fd_set * rfdnextp, fd_set * wfdnextp) {
+
     if (T_FREE == m_status)
         return 0;
 
@@ -656,6 +658,7 @@ int btTracker::SocketReady(fd_set * rfdp, fd_set * wfdp, int *nfds,
         int error = 0;
         socklen_t n = sizeof (error);
         (*nfds)--;
+
         FD_CLR(m_sock, wfdnextp);
         if (FD_ISSET(m_sock, rfdp)) {
             (*nfds)--;
@@ -663,6 +666,7 @@ int btTracker::SocketReady(fd_set * rfdp, fd_set * wfdp, int *nfds,
         }
         if (getsockopt(m_sock, SOL_SOCKET, SO_ERROR, &error, &n) < 0)
             error = errno;
+
         if (error) {
             if (ECONNREFUSED == error) {
                 if (arg_verbose)
@@ -670,8 +674,7 @@ int btTracker::SocketReady(fd_set * rfdp, fd_set * wfdp, int *nfds,
                         Debug("tracker connection refused");
                 m_connect_refuse_click++;
             } else
-                CONSOLE.Warning(2,
-                    "warn, connect to tracker failed:  %s",
+                CONSOLE.Warning(2, "warn, connect to tracker failed:  %s",
                     strerror(error));
             Reset(15);
             return -1;
