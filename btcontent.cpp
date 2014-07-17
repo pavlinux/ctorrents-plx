@@ -1758,7 +1758,7 @@ void btContent::SetFilter() {
         tok = strtok(list, ", ");
         while (tok) {
             if (!node) {
-                node = calloc(1, sizeof (BFNODE));
+                node = (BFNODE *) calloc(1, sizeof (BFNODE));
                 if (unlikely(node == NULL)) {
                     CONSOLE.Warning(1, "error, failed to allocate memory for filter");
                     return;
