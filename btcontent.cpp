@@ -1758,7 +1758,7 @@ void btContent::SetFilter() {
         tok = strtok(list, ", ");
         while (tok) {
             if (!node) {
-                node = new BFNODE;
+                node = calloc(1, sizeof (BFNODE));
                 if (unlikely(node == NULL)) {
                     CONSOLE.Warning(1, "error, failed to allocate memory for filter");
                     return;
@@ -1770,7 +1770,7 @@ void btContent::SetFilter() {
             }
 
             if (node->name != NULL && strlen(node->name) < strlen(tok)) {
-                delete[]node->name;
+                free(node->name);
                 node->name = NULL;
             }
             if (node->name == NULL) {
