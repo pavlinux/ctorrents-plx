@@ -21,31 +21,19 @@
 #include "tracker.h"
 #include "ctcs.h"
 #include "console.h"
-
+#include "sigint.h"
 #include "config.h"
+#include "sha1.h"
 
 #ifndef HAVE_RANDOM
 #include "compat.h"
 #endif
 
-#ifndef WINDOWS
-#include "sigint.h"
-#endif
-
-void usage();
+void usage(void);
+void Random_init(void);
 int param_check(int argc, char **argv);
 
-#ifdef WINDOWS
-
-int APIENTRY WinMain(HINSTANCE hInstance,
-        HINSTANCE hPrzevInstance, LPSTR lpCmdLine, int nCmdShow) {
-}
-
-#else
-
-#include "sha1.h"
-
-void Random_init() {
+void Random_init(void) {
 
     unsigned long seed;
     u_int32_t state[5];
@@ -83,11 +71,11 @@ int main(int argc, char **argv) {
 
     Random_init();
 
-    arg_user_agent = new char[MAX_PF_LEN + 1]; // free'd at end param_check()
+    arg_user_agent = new char[MAX_PF_LEN + 1](); // free'd at end param_check()
     //memmove(arg_user_agent, PEER_PFX, MAX_PF_LEN);
     strcpy(arg_user_agent, PEER_PFX);
 
-    cfg_user_agent = new char[strlen(PACKAGE_NAME) + strlen(PACKAGE_VERSION) + 2];
+    cfg_user_agent = new char[strlen(PACKAGE_NAME) + strlen(PACKAGE_VERSION) + 2]();
 
     if (!cfg_user_agent)
         return -1;
@@ -110,22 +98,21 @@ int main(int argc, char **argv) {
         if (!arg_announce) {
             CONSOLE.Warning(1,
                     "Please use -u to specify an announce URL!");
-            exit(1);
+            return EXIT_FAILURE;
         }
         if (!arg_save_as) {
             CONSOLE.Warning(1,
                     "Please use -s to specify a metainfo file name!");
-            exit(1);
+            return EXIT_FAILURE;
         }
         if (BTCONTENT.InitialFromFS(arg_metainfo_file, arg_announce,
                 arg_piece_length) < 0 ||
                 BTCONTENT.CreateMetainfoFile(arg_save_as) < 0) {
             CONSOLE.Warning(1, "create metainfo failed.");
-            exit(1);
+            return EXIT_FAILURE;
         }
-        CONSOLE.Print("Create metainfo file %s successful.",
-                arg_save_as);
-        exit(0);
+        CONSOLE.Print("Create metainfo file %s successful.", arg_save_as);
+        return EXIT_SUCCESS;
     }
 
     if (arg_daemon)
@@ -150,12 +137,11 @@ int main(int argc, char **argv) {
 
         if (Tracker.Initial() < 0) {
             CONSOLE.Warning(1, "error, tracker setup failed.");
-            exit(1);
+            return EXIT_FAILURE;
         }
 
         sig_setup(); // setup signal handling
-        CONSOLE.
-                Interact
+        CONSOLE.Interact
                 ("Press 'h' or '?' for help (display/control client options).");
         Downloader();
         if (cfg_cache_size)
@@ -167,10 +153,9 @@ int main(int argc, char **argv) {
 
     if (arg_verbose)
         CONSOLE.cpu();
-    exit(0);
-}
 
-#endif
+    return EXIT_SUCCESS;
+}
 
 int param_check(int argc, char **argv) {
 
@@ -189,9 +174,8 @@ int param_check(int argc, char **argv) {
                 break;
 
             case 'b':
-                arg_bitfield_file = new char[strlen(optarg) + 1];
-
-                if (!arg_bitfield_file)
+                arg_bitfield_file = new char[strlen(optarg) + 1]();
+                if (unlikely(!arg_bitfield_file))
                     goto err;
 
                 strcpy(arg_bitfield_file, optarg);
@@ -202,8 +186,10 @@ int param_check(int argc, char **argv) {
                 break;
 
             case 'I': // set public ip XXXX
-                cfg_public_ip = new char[strlen(optarg) + 1];
-                if (!cfg_public_ip)
+                if (cfg_public_ip)
+                    delete []cfg_public_ip;
+                cfg_public_ip = new char[strlen(optarg) + 1]();
+                if (unlikely(cfg_public_ip == NULL))
                     goto err;
                 strcpy(cfg_public_ip, optarg);
                 break;
@@ -218,9 +204,8 @@ int param_check(int argc, char **argv) {
             case 's': // Save as FILE/DIR NAME
                 if (arg_save_as)
                     goto err; // specified twice
-                arg_save_as = new char[strlen(optarg) + 1];
-
-                if (!arg_save_as)
+                arg_save_as = new char[strlen(optarg) + 1]();
+                if (unlikely(arg_save_as == NULL))
                     goto err;
 
                 strcpy(arg_save_as, optarg);
@@ -236,9 +221,12 @@ int param_check(int argc, char **argv) {
 
             case 'c': // Check exist only
                 if (arg_flg_make_torrent) {
-                    arg_comment = new char[strlen(optarg) + 1];
-                    if (!arg_comment)
+                    if (arg_comment)
+                        delete []arg_comment;
+                    arg_comment = new char[strlen(optarg) + 1]();
+                    if (unlikely(arg_comment == NULL)) {
                         goto err;
+                    }
                     strcpy(arg_comment, optarg);
                 } else
                     arg_flg_check_only = 1;
@@ -255,9 +243,7 @@ int param_check(int argc, char **argv) {
             case 'M': // Max peers
                 cfg_max_peers = atoi(optarg);
                 if (cfg_max_peers > 1000 || cfg_max_peers < 20) {
-                    CONSOLE.Warning(1,
-                            "-%c argument must be between 20 and 1000",
-                            c);
+                    CONSOLE.Warning(1, "-%c argument must be between 20 and 1000", c);
                     goto err;
                 }
                 break;
@@ -265,9 +251,7 @@ int param_check(int argc, char **argv) {
             case 'm': // Min peers
                 cfg_min_peers = atoi(optarg);
                 if (cfg_min_peers > 1000 || cfg_min_peers < 1) {
-                    CONSOLE.Warning(1,
-                            "-%c argument must be between 1 and 1000",
-                            c);
+                    CONSOLE.Warning(1, "-%c argument must be between 1 and 1000", c);
                     goto err;
                 }
                 break;
@@ -286,9 +270,8 @@ int param_check(int argc, char **argv) {
             case 'n': // Which file download
                 if (arg_file_to_download)
                     goto err; // specified twice
-                arg_file_to_download = new char[strlen(optarg) + 1];
-
-                if (!arg_file_to_download)
+                arg_file_to_download = new char[strlen(optarg) + 1]();
+                if (unlikely(arg_file_to_download == NULL))
                     goto err;
 
                 strcpy(arg_file_to_download, optarg);
@@ -299,20 +282,17 @@ int param_check(int argc, char **argv) {
                 break;
 
             case 'D': // download bandwidth limit
-                cfg_max_bandwidth_down =
-                        (int) (strtod(optarg, NULL) * 1024);
+                cfg_max_bandwidth_down = (int) (strtod(optarg, NULL) * 1024);
                 break;
 
             case 'U': // upload bandwidth limit
-                cfg_max_bandwidth_up =
-                        (int) (strtod(optarg, NULL) * 1024);
+                cfg_max_bandwidth_up = (int) (strtod(optarg, NULL) * 1024);
                 break;
 
             case 'P': // peer ID prefix
                 l = strlen(optarg);
                 if (l > MAX_PF_LEN) {
-                    CONSOLE.Warning(1,
-                            "-P arg must be %d or less characters",
+                    CONSOLE.Warning(1, "-P arg must be %d or less characters",
                             MAX_PF_LEN);
                     goto err;
                 }
@@ -325,9 +305,8 @@ int param_check(int argc, char **argv) {
             case 'A': // HTTP user-agent header string
                 if (cfg_user_agent)
                     delete[]cfg_user_agent;
-                cfg_user_agent = new char[strlen(optarg) + 1];
-
-                if (!cfg_user_agent)
+                cfg_user_agent = new char[strlen(optarg) + 1]();
+                if (unlikely(cfg_user_agent == NULL))
                     goto err;
 
                 strcpy(cfg_user_agent, optarg);
@@ -341,7 +320,7 @@ int param_check(int argc, char **argv) {
             case 'u': // Announce URL
                 if (arg_announce)
                     goto err; // specified twice
-                arg_announce = new char[strlen(optarg) + 1];
+                arg_announce = new char[strlen(optarg) + 1]();
 
                 if (!arg_announce)
                     goto err;
@@ -374,7 +353,7 @@ int param_check(int argc, char **argv) {
             case 'S': // CTCS server
                 if (arg_ctcs)
                     goto err; // specified twice
-                arg_ctcs = new char[strlen(optarg) + 1];
+                arg_ctcs = new char[strlen(optarg) + 1]();
 
                 if (!arg_ctcs)
                     goto err;
@@ -391,7 +370,7 @@ int param_check(int argc, char **argv) {
             case 'X': // "user exit" on download completion
                 if (arg_completion_exit)
                     goto err; // specified twice
-                arg_completion_exit = new char[strlen(optarg) + 1];
+                arg_completion_exit = new char[strlen(optarg) + 1]();
                 if (!arg_completion_exit)
                     goto err;
                 ;
@@ -443,7 +422,7 @@ int param_check(int argc, char **argv) {
         goto err;
         ;
     }
-    arg_metainfo_file = new char[strlen(*argv) + 1];
+    arg_metainfo_file = new char[strlen(*argv) + 1]();
 
     if (!arg_metainfo_file)
         goto err;
@@ -452,7 +431,7 @@ int param_check(int argc, char **argv) {
     strcpy(arg_metainfo_file, *argv);
 
     if (!arg_bitfield_file) {
-        arg_bitfield_file = new char[strlen(arg_metainfo_file) + 4];
+        arg_bitfield_file = new char[strlen(arg_metainfo_file) + 4]();
 
         if (!arg_bitfield_file)
             goto err;
@@ -477,7 +456,8 @@ err:
     return -1;
 }
 
-void usage() {
+void usage(void) {
+
     CONSOLE.ChangeChannel(O_INPUT, "off", 0);
 
     fprintf(stderr, "\nGeneral Options:\n");

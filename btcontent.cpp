@@ -584,7 +584,7 @@ int btContent::InitialFromMI(const char *metainfo_fname, const char *saveas) {
 
 btContent::~btContent() {
     if (arg_comment)
-        delete arg_comment;
+        delete arg_comment[];
     if (m_hash_table)
         delete[]m_hash_table;
     if (m_announce)
@@ -1203,20 +1203,15 @@ ssize_t btContent::CacheIO(char *buf, uint64_t off, size_t len, int method) {
         return -1;
 
     pnew = new BTCACHE;
-#ifndef WINDOWS
+
     if (!pnew)
-        return (method
-            && buf) ? m_btfiles.IO(buf, off, len, method) : 0;
-#endif
+        return (method && buf) ? m_btfiles.IO(buf, off, len, method) : 0;
 
     pnew->bc_buf = new char[len];
-#ifndef WINDOWS
     if (!(pnew->bc_buf)) {
         delete pnew;
-        return (method
-                && buf) ? m_btfiles.IO(buf, off, len, method) : 0;
+        return (method && buf) ? m_btfiles.IO(buf, off, len, method) : 0;
     }
-#endif
 
     if (buf)
         memcpy(pnew->bc_buf, buf, len);
@@ -1226,11 +1221,13 @@ ssize_t btContent::CacheIO(char *buf, uint64_t off, size_t len, int method) {
         delete pnew;
         return -1;
     }
+
     pnew->bc_off = off;
     pnew->bc_len = len;
     pnew->bc_f_flush = method;
     m_cache_used += len;
     pnew->age_next = (BTCACHE *) 0;
+
     if (m_cache_newest) {
         pnew->age_prev = m_cache_newest;
         m_cache_newest->age_next = pnew;
@@ -1238,6 +1235,7 @@ ssize_t btContent::CacheIO(char *buf, uint64_t off, size_t len, int method) {
         pnew->age_prev = (BTCACHE *) 0;
         m_cache_oldest = pnew;
     }
+
     m_cache_newest = pnew;
 
     // find insert point: after pp, before p.

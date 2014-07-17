@@ -3,6 +3,11 @@
 
 #include <time.h>
 
+#define barrier() __asm__ __volatile__("nop": : :"memory")
+#define prefetch(x) __builtin_prefetch(x)
+#define likely(y)   __builtin_expect((y),1)
+#define unlikely(z) __builtin_expect((z),0)
+
 extern size_t cfg_req_slice_size;
 extern size_t quit_after_download;
 
