@@ -688,6 +688,9 @@ int btPeer::ReponseSlice() {
         // These are "int" for signed calculations below.
         int rate = (int) (Self.RateUL());
         int unchoked = (int) (WORLD.GetUnchoked()); // can't be 0 here
+        if (unchoked == 0)
+            unchoked = 1;
+
         if (cfg_max_bandwidth_up < unchoked
                 || cfg_max_bandwidth_up <= rate) {
             if (rate < unchoked || rate < (unchoked * len) / 3600)
@@ -700,9 +703,9 @@ int btPeer::ReponseSlice() {
                     (((int) cfg_max_bandwidth_up - rate >
                     (int) cfg_max_bandwidth_up / unchoked) ?
                     (cfg_max_bandwidth_up - rate) :
-                    ((cfg_max_bandwidth_up + unchoked -
-                    1) / unchoked));
+                    ((cfg_max_bandwidth_up + unchoked - 1) / unchoked));
         }
+
     } else
         m_next_send_time = now + len /
             ((currentrate < cfg_max_bandwidth_up
