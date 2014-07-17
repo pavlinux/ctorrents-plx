@@ -584,7 +584,7 @@ int btContent::InitialFromMI(const char *metainfo_fname, const char *saveas) {
 
 btContent::~btContent() {
     if (arg_comment)
-        delete arg_comment[];
+        delete [] arg_comment;
     if (m_hash_table)
         delete[]m_hash_table;
     if (m_announce)
