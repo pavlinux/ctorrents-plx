@@ -1761,6 +1761,8 @@ void btContent::SetFilter() {
                 node = (BFNODE *) calloc(1, sizeof (BFNODE));
                 if (unlikely(node == NULL)) {
                     CONSOLE.Warning(1, "error, failed to allocate memory for filter");
+                    if (list)
+                        delete[]list;
                     return;
                 }
                 if (pnode)
@@ -1769,18 +1771,19 @@ void btContent::SetFilter() {
                     m_filters = node;
             }
 
-            if (node->name != NULL && strlen(node->name) < strlen(tok)) {
+            if (node->name && strlen(node->name) < strlen(tok)) {
                 free(node->name);
                 node->name = NULL;
             }
             if (node->name == NULL) {
                 node->name = (char *) realloc((void *) node->name, strlen(tok) + 1);
-                memset((void *) &node->name, 0, strlen(tok) + 1);
-
-                if (!node) {
+                if (!node->name) {
                     CONSOLE.Warning(1, "error, failed to allocate memory for filter");
+                    if (list)
+                        delete[]list;
                     return;
                 }
+                memset((void *) &node->name, 0, strlen(tok) + 1);
             }
             strcpy(node->name, tok);
 
