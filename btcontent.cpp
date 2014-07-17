@@ -1737,27 +1737,30 @@ void btContent::CheckFilter() {
 
 void btContent::SetFilter() {
     // Set up filter list
-    char *list = (char *) 0, *tok, *dash, *plus;
+    char *tok, *dash, *plus;
+    char *list = NULL;
     size_t start, end;
     BitField tmpFilter, *pfilter;
-    BFNODE *node = m_filters, *pnode = (BFNODE *) 0;
+    BFNODE *node = m_filters;
+    BFNODE *pnode = (BFNODE *) 0;
 
     if (arg_file_to_download) {
+
         pBMasterFilter->SetAll();
-        list = new char[strlen(arg_file_to_download) + 1];
-        if (!list) {
-            CONSOLE.Warning(1,
-                    "error, failed to allocate memory for filter");
+
+        list = new char[strlen(arg_file_to_download) + 1]();
+        if (unlikely(list == NULL)) {
+            CONSOLE.Warning(1, "error, failed to allocate memory for filter");
             return;
         }
-        strcpy(list, arg_file_to_download);
+        strncpy(list, arg_file_to_download, strlen(arg_file_to_download));
+
         tok = strtok(list, ", ");
         while (tok) {
             if (!node) {
                 node = new BFNODE;
-                if (!node) {
-                    CONSOLE.Warning(1,
-                            "error, failed to allocate memory for filter");
+                if (unlikely(node == NULL)) {
+                    CONSOLE.Warning(1, "error, failed to allocate memory for filter");
                     return;
                 }
                 if (pnode)
@@ -1766,15 +1769,16 @@ void btContent::SetFilter() {
                     m_filters = node;
             }
 
-            if (node->name && strlen(node->name) < strlen(tok)) {
+            if (node->name != NULL && strlen(node->name) < strlen(tok)) {
                 delete[]node->name;
-                node->name = (char *) 0;
+                node->name = NULL;
             }
-            if (!node->name) {
-                node->name = new char[strlen(tok) + 1];
+            if (node->name == NULL) {
+                node->name = (char *) realloc((void *) node->name, strlen(tok) + 1);
+                memset((void *) &node->name, 0, strlen(tok) + 1);
+
                 if (!node) {
-                    CONSOLE.Warning(1,
-                            "error, failed to allocate memory for filter");
+                    CONSOLE.Warning(1, "error, failed to allocate memory for filter");
                     return;
                 }
             }
@@ -1788,26 +1792,23 @@ void btContent::SetFilter() {
                 node = node->next;
                 break;
             }
+
             pfilter->SetAll();
+
             do {
                 start = atoi(tok);
-                m_btfiles.SetFilter((int) start, &tmpFilter,
-                        m_piece_length);
+                m_btfiles.SetFilter((int) start, &tmpFilter, m_piece_length);
                 pfilter->And(tmpFilter);
 
                 plus = strchr(tok, '+');
 
-                if ((dash = strchr(tok, '-'))
-                        && (!plus || dash < plus)) {
+                if ((dash = strchr(tok, '-')) && (!plus || dash < plus)) {
                     end = atoi(dash + 1);
                     while (++start <= end) {
-                        m_btfiles.SetFilter((int) start,
-                                &tmpFilter,
-                                m_piece_length);
+                        m_btfiles.SetFilter((int) start, &tmpFilter, m_piece_length);
                         pfilter->And(tmpFilter);
                     }
                 }
-
                 tok = plus ? plus + 1 : plus;
             } while (tok);
 
