@@ -1738,7 +1738,6 @@ void btContent::CheckFilter() {
 void btContent::SetFilter() {
     // Set up filter list
     char *tok, *dash, *plus;
-    char *list = NULL;
     size_t start, end;
     BitField tmpFilter, *pfilter;
     BFNODE *node = m_filters;
@@ -1748,21 +1747,15 @@ void btContent::SetFilter() {
 
         pBMasterFilter->SetAll();
 
-        list = new char[strlen(arg_file_to_download) + 1]();
-        if (unlikely(list == NULL)) {
-            CONSOLE.Warning(1, "error, failed to allocate memory for filter");
-            return;
-        }
+        char list[strlen(arg_file_to_download) + 1] = {'\0'};
         strncpy(list, arg_file_to_download, strlen(arg_file_to_download));
-
         tok = strtok(list, ", ");
+
         while (tok) {
             if (!node) {
                 node = (BFNODE *) calloc(1, sizeof (BFNODE));
                 if (unlikely(node == NULL)) {
                     CONSOLE.Warning(1, "error, failed to allocate memory for filter");
-                    if (list)
-                        delete[]list;
                     return;
                 }
                 if (pnode)
@@ -1779,8 +1772,6 @@ void btContent::SetFilter() {
                 node->name = (char *) realloc((void *) node->name, strlen(tok) + 1);
                 if (!node->name) {
                     CONSOLE.Warning(1, "error, failed to allocate memory for filter");
-                    if (list)
-                        delete[]list;
                     return;
                 }
                 memset((void *) &node->name, 0, strlen(tok) + 1);
@@ -1820,7 +1811,6 @@ void btContent::SetFilter() {
             pnode = node;
             node = node->next;
         }
-        delete[]list;
     } else // no arg_file_to_download
         pBMasterFilter->Clear();
 
