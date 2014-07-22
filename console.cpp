@@ -777,15 +777,12 @@ int Console::OperatorMenu(const char *param) {
             Interact("Torrent: %s", arg_metainfo_file);
             ShowFiles();
             if (arg_file_to_download && !BTCONTENT.Seeding())
-                Interact("Downloading: %s",
-                    arg_file_to_download);
+                Interact("Downloading: %s", arg_file_to_download);
             Interact("");
-            Interact
-                    ("Download rate: %dB/s   Limit: %dB/s   Total: %llu",
+            Interact("Download rate: %dB/s   Limit: %dB/s   Total: %llu",
                     (int) (Self.RateDL()), (int) cfg_max_bandwidth_down,
                     (unsigned long long) (Self.TotalDL()));
-            Interact
-                    ("  Upload rate: %dB/s   Limit: %dB/s   Total: %llu",
+            Interact("  Upload rate: %dB/s   Limit: %dB/s   Total: %llu",
                     (int) (Self.RateUL()), (int) cfg_max_bandwidth_up,
                     (unsigned long long) (Self.TotalUL()));
             time_t t = Tracker.GetReportTime();
