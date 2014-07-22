@@ -1747,8 +1747,10 @@ void btContent::SetFilter() {
 
         pBMasterFilter->SetAll();
 
-        char list[strlen(arg_file_to_download) + 1] = {'\0'};
+        char list[strlen(arg_file_to_download) + 1];
         strncpy(list, arg_file_to_download, strlen(arg_file_to_download));
+        list[sizeof (list)] = 0;
+
         tok = strtok(list, ", ");
 
         while (tok) {
