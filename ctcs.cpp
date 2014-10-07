@@ -470,6 +470,7 @@ char *Ctcs::ConfigMsg(const char *name, const char *type, const char *range,
 int Ctcs::Set_Config(const char *origmsg)
 {
 	char *msgbuf = new char[strlen(origmsg) + 1];
+	char *savemsgbuf = msgbuf; // Fix CID:21180
 
 	if (!msgbuf) {
 		CONSOLE.Warning(1,
@@ -671,12 +672,12 @@ int Ctcs::Set_Config(const char *origmsg)
 		}
 	}
 
-	delete[]msgbuf;
+	delete[]savemsgbuf; // Fix CID:21180
 	return 0;
 
 err:
 	CONSOLE.Warning(2, "Malformed or invalid input from CTCS: %s", origmsg);
-	delete[]msgbuf;
+	delete[]savemsgbuf; // Fix CID:21180
 	return -1;
 }
 
