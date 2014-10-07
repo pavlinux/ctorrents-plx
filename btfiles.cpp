@@ -361,6 +361,7 @@ int btFiles::_btf_recurses_directory(const char *cur_path, BTFILE * *plastnode)
 				PATH_SP, dirp->d_name)) {
 				CONSOLE.Warning(1, "error, pathname too long");
 				errno = ENAMETOOLONG;
+				closedir(dp); // Fix CID:28181
 				return -1;
 			}
 		} else {
@@ -379,6 +380,7 @@ int btFiles::_btf_recurses_directory(const char *cur_path, BTFILE * *plastnode)
 			pbf = _new_bfnode();
 			if (!pbf) {
 				errno = ENOMEM;
+				closedir(dp); // Fix CID:28181
 				return -1;
 			}
 			pbf->bf_filename = new char[strlen(fn) + 1];
