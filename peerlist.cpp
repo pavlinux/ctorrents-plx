@@ -663,10 +663,8 @@ size_t PeerList::What_Can_Duplicate(BitField & bf, const btPeer * proposer,
 	if (slots < m_dup_req_pieces + 2)
 		slots = m_dup_req_pieces + 2;
 	data = new struct qdata[slots];
-#ifndef WINDOWS
 	if (!data)
 		return BTCONTENT.GetNPieces();
-#endif
 
 	// In initial mode, only dup a piece with trade value.
 	// In endgame mode, dup any if there are no pieces with trade value.
@@ -674,8 +672,10 @@ size_t PeerList::What_Can_Duplicate(BitField & bf, const btPeer * proposer,
 	if (bf.IsEmpty()) {
 		if (endgame)
 			bf = proposer->bitfield;
-		else
+		else {
+			delete[]data; // Fix CID:28186
 			return BTCONTENT.GetNPieces();
+		}
 	}
 	// initialize
 	data[0].idx = BTCONTENT.GetNPieces();
