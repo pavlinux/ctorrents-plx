@@ -689,7 +689,7 @@ int Ctcs::Send_Detail()
 	BitField tmpBitField, fileFilter, availbf, tmpavail, allFilter,
 		tmpFilter, *pfilter;
 
-	snprintf(message, CTCS_BUFSIZE, "CTDETAIL %Zu %d %ld %ld",
+	snprintf(message, CTCS_BUFSIZE, "CTDETAIL %zu %d %ld %ld",
 		BTCONTENT.GetTotalFilesLength(),
 		(int) (BTCONTENT.GetPieceLength()), (long) now,
 		(long) (BTCONTENT.GetSeedTime()));
