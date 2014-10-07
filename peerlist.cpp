@@ -155,21 +155,18 @@ int PeerList::NewPeer(struct sockaddr_in addr, SOCKET sk)
 		if (setfd_nonblock(sk) < 0)
 			goto err;
 
-		if (-1 == (r = connect_nonb(sk, (struct sockaddr *) &addr))) {
+		r = connect_nonb(sk, (struct sockaddr *) &addr); // Fix CID:28185
+		if (0 > r) {
 			if (arg_verbose)
-				CONSOLE.
-				Debug
-				("Connect to peer at %s:%hu failed:  %s",
-				inet_ntoa(addr.sin_addr),
+				CONSOLE.Debug("Connect to peer at %s:%hu failed:"
+				" %s", inet_ntoa(addr.sin_addr),
 				ntohs(addr.sin_port), strerror(errno));
 			return -1;
 		}
 
 		peer = new btPeer;
-#ifndef WINDOWS
 		if (!peer)
 			goto err;
-#endif
 
 		peer->SetConnect();
 		peer->SetAddress(addr);
@@ -185,10 +182,8 @@ int PeerList::NewPeer(struct sockaddr_in addr, SOCKET sk)
 			goto err;
 
 		peer = new btPeer;
-#ifndef WINDOWS
 		if (!peer)
 			goto err;
-#endif
 
 		peer->SetAddress(addr);
 		peer->stream.SetSocket(sk);
@@ -200,8 +195,7 @@ int PeerList::NewPeer(struct sockaddr_in addr, SOCKET sk)
 	}
 
 	if (!BTCONTENT.Seeding() &&
-		peer->stream.in_buffer.SetSize(BUF_DEF_SIZ + cfg_req_slice_size) <
-		0)
+		peer->stream.in_buffer.SetSize(BUF_DEF_SIZ + cfg_req_slice_size) < 0)
 		goto err;
 
 	if (P_HANDSHAKE == peer->GetStatus())
@@ -217,10 +211,8 @@ int PeerList::NewPeer(struct sockaddr_in addr, SOCKET sk)
 		delete p->peer;
 	} else {
 		p = new PEERNODE;
-#ifndef WINDOWS
 		if (!p)
 			goto err;
-#endif
 	}
 
 	m_peers_count++;
