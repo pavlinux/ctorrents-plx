@@ -1,12 +1,8 @@
 #include "./def.h"
 #include <sys/types.h>
 
-#ifdef WINDOWS
-#include <windows.h>
-#else
 #include <unistd.h>
 #include <signal.h>
-#endif
 
 #include <sys/time.h>
 #include <time.h>
@@ -36,20 +32,15 @@ int param_check(int argc, char **argv);
 void Random_init(void) {
 
     unsigned long seed;
-    u_int32_t state[5];
+
     u_int8_t buffer[64];
     struct timeval tv;
 
     gettimeofday(&tv, (__timezone_ptr_t) 0);
     seed = (unsigned long) (tv.tv_usec + (tv.tv_sec * getpid()));
     snprintf((char *) &buffer, 64, "%lu", seed);
-    seed = 0;
-    state[0] = (0x67452301u);
-    state[1] = (0xefcdab89u);
-    state[2] = (0x98badcfeu);
-    state[3] = (0x10325476u);
-    state[4] = (0xc3d2e1f0u);
-
+    seed = 0ul;
+    u_int32_t state[5] = {0x67452301u, 0xefcdab89u, 0x98badcfeu, 0x10325476u, 0xc3d2e1f0u};
     SHA1Transform(state, buffer);
 
     seed = (unsigned long) ((state[0] ^ state[3]) ^ (state[1] ^ state[4]));
@@ -74,7 +65,6 @@ int main(int argc, char **argv) {
     arg_user_agent = new char[MAX_PF_LEN + 1](); // free'd at end param_check()
     //memmove(arg_user_agent, PEER_PFX, MAX_PF_LEN);
     strcpy(arg_user_agent, PEER_PFX);
-
     cfg_user_agent = new char[strlen(PACKAGE_NAME) + strlen(PACKAGE_VERSION) + 2]();
 
     if (!cfg_user_agent)
