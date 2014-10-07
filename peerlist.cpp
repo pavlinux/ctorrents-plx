@@ -155,12 +155,10 @@ int PeerList::NewPeer(struct sockaddr_in addr, SOCKET sk)
 		if (setfd_nonblock(sk) < 0)
 			goto err;
 
-		r = connect_nonb(sk, (struct sockaddr *) &addr); // Fix CID:28185
-		if (0 > r) {
+		if (-1 == (r = connect_nonb(sk, (struct sockaddr *) &addr))) {
 			if (arg_verbose)
-				CONSOLE.Debug("Connect to peer at %s:%hu failed:"
-				" %s", inet_ntoa(addr.sin_addr),
-				ntohs(addr.sin_port), strerror(errno));
+				CONSOLE.Debug("Connect to peer at %s:%hu failed: %s",
+				inet_ntoa(addr.sin_addr), ntohs(addr.sin_port), strerror(errno));
 			return -1;
 		}
 
