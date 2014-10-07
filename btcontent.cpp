@@ -98,9 +98,11 @@ int btContent::CreateMetainfoFile(const char *mifn)
 {
 
 	FILE *fp;
+
 	fp = fopen(mifn, "r");
 	if (fp) {
 		CONSOLE.Warning(1, "error, file \"%s\" already exists.", mifn);
+		fclose(fp); // fix CID:28184
 		return -1;
 	} else if (ENOENT != errno) {
 		CONSOLE.Warning(1, "error, couldn't create \"%s\".", mifn);
