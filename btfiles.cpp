@@ -48,11 +48,8 @@ btFiles::~btFiles()
 BTFILE *btFiles::_new_bfnode()
 {
 	BTFILE *pnew = new BTFILE;
-
-#ifndef WINDOWS
 	if (!pnew)
 		return(BTFILE *) 0;
-#endif
 
 	pnew->bf_flag_opened = 0;
 	pnew->bf_flag_readonly = 0;
@@ -379,20 +376,16 @@ int btFiles::_btf_recurses_directory(const char *cur_path, BTFILE * *plastnode)
 		if (S_IFREG & sb.st_mode) {
 
 			pbf = _new_bfnode();
-#ifndef WINDOWS
 			if (!pbf) {
 				errno = ENOMEM;
 				return -1;
 			}
-#endif
 			pbf->bf_filename = new char[strlen(fn) + 1];
-#ifndef WINDOWS
 			if (!pbf->bf_filename) {
 				closedir(dp);
 				errno = ENOMEM;
 				return -1;
 			}
-#endif
 			strcpy(pbf->bf_filename, fn);
 
 			pbf->bf_length = sb.st_size;
@@ -447,13 +440,8 @@ int btFiles::_btf_creat_by_path(const char *pathname, int64_t file_length)
 		if (stat(sp, &sb) < 0) {
 			if (ENOENT == errno) {
 				if (!last) {
-#ifdef WINDOWS
-					if (mkdir(sp) < 0)
-						break;
-#else
 					if (mkdir(sp, 0755) < 0)
 						break;
-#endif
 				} else {
 					if ((fd = creat(sp, 0644)) < 0) {
 						last = 0;
@@ -496,16 +484,14 @@ int btFiles::BuildFromFS(const char *pathname)
 
 	if (S_IFREG & sb.st_mode) {
 		pbf = _new_bfnode();
-#ifndef WINDOWS
 		if (!pbf)
 			return -1;
-#endif
+
 		pbf->bf_length = m_total_files_length = sb.st_size;
 		pbf->bf_filename = new char[strlen(pathname) + 1];
-#ifndef WINDOWS
 		if (!pbf->bf_filename)
 			return -1;
-#endif
+
 		strcpy(pbf->bf_filename, pathname);
 		m_btfhead = pbf;
 	} else if (S_IFDIR & sb.st_mode) {
@@ -513,10 +499,9 @@ int btFiles::BuildFromFS(const char *pathname)
 		if (!getcwd(wd, MAXPATHLEN))
 			return -1;
 		m_directory = new char[strlen(pathname) + 1];
-#ifndef WINDOWS
 		if (!m_directory)
 			return -1;
-#endif
+
 		strcpy(m_directory, pathname);
 
 		if (chdir(m_directory) < 0) {
@@ -570,30 +555,29 @@ int btFiles::BuildFromMI(const char *metabuf, const size_t metabuf_len,
 
 		if (saveas) {
 			m_directory = new char[strlen(saveas) + 1];
-#ifndef WINDOWS
 			if (!m_directory)
 				return -1;
-#endif
+
 			strcpy(m_directory, saveas);
 		} else {
 			int f_conv;
 			char *tmpfn = new char[strlen(path) * 2 + 5];
-#ifndef WINDOWS
+
 			if (!tmpfn)
 				return -1;
-#endif
+
 			if (f_conv =
 				ConvertFilename(tmpfn, path,
 				strlen(path) * 2 + 5)) {
 				if (arg_flg_convert_filenames) {
 					m_directory =
 						new char[strlen(tmpfn) + 1];
-#ifndef WINDOWS
+
 					if (!m_directory) {
 						delete[]tmpfn;
 						return -1;
 					}
-#endif
+
 					strcpy(m_directory, tmpfn);
 				} else {
 					CONSOLE.Warning(3,
@@ -604,10 +588,9 @@ int btFiles::BuildFromMI(const char *metabuf, const size_t metabuf_len,
 			delete[]tmpfn;
 			if (!f_conv || !arg_flg_convert_filenames) {
 				m_directory = new char[strlen(path) + 1];
-#ifndef WINDOWS
 				if (!m_directory)
 					return -1;
-#endif
+
 				strcpy(m_directory, path);
 			}
 		}
@@ -622,37 +605,40 @@ int btFiles::BuildFromMI(const char *metabuf, const size_t metabuf_len,
 				(size_t *) 0, &t, QUERY_LONG))
 				return -1;
 			pbf = _new_bfnode();
-#ifndef WINDOWS
 			if (!pbf)
 				return -1;
-#endif
+
 			pbf->bf_length = t;
 			m_total_files_length += t;
 			r = decode_query(p, dl, "path", (const char **) 0, &n,
 				(int64_t *) 0, QUERY_POS);
-			if (!r)
+			if (!r) {
+				delete pbf;
 				return -1;
-			if (!decode_list2path(p + r, n, path))
+			}
+			if (!decode_list2path(p + r, n, path)) {
+				delete pbf;
 				return -1;
+			}
 
 			int f_conv;
 			char *tmpfn = new char[strlen(path) * 2 + 5];
-#ifndef WINDOWS
+
 			if (!tmpfn)
 				return -1;
-#endif
+
 			if (f_conv =
 				ConvertFilename(tmpfn, path,
 				strlen(path) * 2 + 5)) {
 				if (arg_flg_convert_filenames) {
 					pbf->bf_filename =
 						new char[strlen(tmpfn) + 1];
-#ifndef WINDOWS
+
 					if (!pbf->bf_filename) {
 						delete[]tmpfn;
 						return -1;
 					}
-#endif
+
 					strcpy(pbf->bf_filename, tmpfn);
 				} else if (!f_warned) {
 					CONSOLE.Warning(3,
@@ -663,10 +649,9 @@ int btFiles::BuildFromMI(const char *metabuf, const size_t metabuf_len,
 			delete[]tmpfn;
 			if (!f_conv || !arg_flg_convert_filenames) {
 				pbf->bf_filename = new char[strlen(path) + 1];
-#ifndef WINDOWS
 				if (!pbf->bf_filename)
 					return -1;
-#endif
+
 				strcpy(pbf->bf_filename, path);
 			}
 			if (pbf_last)
@@ -681,40 +666,35 @@ int btFiles::BuildFromMI(const char *metabuf, const size_t metabuf_len,
 			QUERY_LONG))
 			return -1;
 		m_btfhead = _new_bfnode();
-#ifndef WINDOWS
 		if (!m_btfhead)
 			return -1;
-#endif
+
 		m_btfhead->bf_length = m_total_files_length = t;
 		if (saveas) {
 			m_btfhead->bf_filename = new char[strlen(saveas) + 1];
-#ifndef WINDOWS
 			if (!m_btfhead->bf_filename)
 				return -1;
-#endif
+
 			strcpy(m_btfhead->bf_filename, saveas);
 		} else if (arg_flg_convert_filenames) {
 			char *tmpfn = new char[strlen(path) * 2 + 5];
-#ifndef WINDOWS
 			if (!tmpfn)
 				return -1;
-#endif
+
 			ConvertFilename(tmpfn, path, strlen(path) * 2 + 5);
 			m_btfhead->bf_filename = new char[strlen(tmpfn) + 1];
-#ifndef WINDOWS
 			if (!m_btfhead->bf_filename) {
 				delete[]tmpfn;
 				return -1;
 			}
-#endif
+
 			strcpy(m_btfhead->bf_filename, tmpfn);
 			delete[]tmpfn;
 		} else {
 			m_btfhead->bf_filename = new char[strlen(path) + 1];
-#ifndef WINDOWS
 			if (!m_btfhead->bf_filename)
 				return -1;
-#endif
+
 			strcpy(m_btfhead->bf_filename, path);
 		}
 	}
