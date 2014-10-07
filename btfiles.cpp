@@ -370,6 +370,7 @@ int btFiles::_btf_recurses_directory(const char *cur_path, BTFILE * *plastnode)
 		if (stat(fn, &sb) < 0) {
 			CONSOLE.Warning(1, "error, stat \"%s\" failed:  %s", fn,
 				strerror(errno));
+			closedir(dp); // Fix CID:28181
 			return -1;
 		}
 
