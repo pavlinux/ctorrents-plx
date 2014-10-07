@@ -167,6 +167,8 @@ int param_check(int argc, char **argv)
 			break;
 
 		case 'b':
+			if (arg_bitfield_file)
+				delete[] arg_bitfield_file; // Fix CID:28187
 			arg_bitfield_file = new char[strlen(optarg) + 1]();
 			if (unlikely(!arg_bitfield_file))
 				goto err;
