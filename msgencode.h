@@ -1,16 +1,16 @@
 #ifndef MSGENCODE_H
 #define MSGENCODE_H
 
-#define M_CHOKE 		(unsigned char) 0
-#define M_UNCHOKE 		(unsigned char) 1
-#define M_INTERESTED 		(unsigned char) 2
-#define M_NOT_INTERESTED	(unsigned char) 3
-#define M_HAVE 			(unsigned char) 4
-#define M_BITFIELD		(unsigned char) 5
-#define M_REQUEST 		(unsigned char) 6
-#define M_PIECE 		(unsigned char) 7
-#define M_CANCEL 		(unsigned char) 8
-#define M_PORT 			(unsigned char) 9
+#define M_CHOKE 		(unsigned char) 0u
+#define M_UNCHOKE 		(unsigned char) 1u
+#define M_INTERESTED 		(unsigned char) 2u
+#define M_NOT_INTERESTED	(unsigned char) 3u
+#define M_HAVE 			(unsigned char) 4u
+#define M_BITFIELD		(unsigned char) 5u
+#define M_REQUEST 		(unsigned char) 6u
+#define M_PIECE 		(unsigned char) 7u
+#define M_CANCEL 		(unsigned char) 8u
+#define M_PORT 			(unsigned char) 9u
 
 #define H_INT_LEN		4	/* int_siz */
 #define H_LEN			4	/* int_siz */

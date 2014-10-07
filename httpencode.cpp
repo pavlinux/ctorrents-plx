@@ -1,13 +1,13 @@
-#include "./def.h"
+#include "def.h"
 #include <sys/types.h>
 
-#include "./httpencode.h"
+#include "httpencode.h"
 
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
 
-#include "./config.h"
+#include "config.h"
 
 #ifndef HAVE_STRNSTR
 #include <string.h>
@@ -17,26 +17,26 @@
 /* FUNCTION PROGRAMER: Siberiaic Sang */
 char *strnstr(const char *haystack, const char *needle, size_t haystacklen)
 {
-        char *p;
-        ssize_t plen;
-        ssize_t len;
+	char *p;
+	ssize_t plen;
+	ssize_t len;
 
-        if (*needle == '\0')
-                return (char *)haystack;
+	if (*needle == '\0')
+		return(char *) haystack;
 
-        plen = haystacklen;
-        len = strlen(needle);
+	plen = haystacklen;
+	len = strlen(needle);
 
-        for (p = (char *)haystack; p != NULLC; p = (char *)memchr(p + 1, *needle, plen - 1)) {
+	for (p = (char *) haystack; p != NULLC; p = (char *) memchr(p + 1, *needle, plen - 1)) {
 
-            plen = haystacklen - (p - haystack);
-                if (plen < len)
-                        return NULLC;
+		plen = haystacklen - (p - haystack);
+		if (plen < len)
+			return NULLC;
 
-                if (strncmp(p, needle, len) == 0)
-                        return (p);
-        }
-        return NULLC;
+		if (strncmp(p, needle, len) == 0)
+			return(p);
+	}
+	return NULLC;
 }
 #endif /* HAVE_STRNSTR */
 
@@ -52,10 +52,10 @@ char *Http_url_encode(char *s, const char *b, size_t n)
 {
 	size_t r, i;
 	for (r = 0, i = 0; i < n; i++) {
-		if (!(b[i] & ~0x7f) &&	// quick ASCII test
-		    ((b[i] >= 0x41 && b[i] <= 0x5a) ||	// A-Z [ASCII]
-		     (b[i] >= 0x61 && b[i] <= 0x7a) ||	// a-z
-		     (b[i] >= 0x30 && b[i] <= 0x39))) {	// 0-9
+		if (!(b[i] & ~0x7f) && // quick ASCII test
+			((b[i] >= 0x41 && b[i] <= 0x5a) || // A-Z [ASCII]
+			(b[i] >= 0x61 && b[i] <= 0x7a) || // a-z
+			(b[i] >= 0x30 && b[i] <= 0x39))) { // 0-9
 			s[r] = b[i];
 			r++;
 		} else {
@@ -71,7 +71,7 @@ int Http_url_analyse(const char *url, char *host, int *port, char *path)
 {
 	const char *p;
 	int r;
-	*port = 80;		/* default port 80 */
+	*port = 80; /* default port 80 */
 	p = strstr(url, "://");
 	if (!p)
 		p = url;
@@ -86,7 +86,7 @@ int Http_url_analyse(const char *url, char *host, int *port, char *path)
 	if (*p == ':') {
 		/* port */
 		p++;
-		for (r = 0; p[r] >= '0' && p[r] <= '9' && r < 6; r++) ;
+		for (r = 0; p[r] >= '0' && p[r] <= '9' && r < 6; r++);
 
 		if (!r)
 			return -1;
@@ -132,7 +132,7 @@ size_t Http_split(char *b, size_t n, char **pd, size_t * dlen)
 			*dlen = n - hlen - addtion;
 		} else {
 			hlen = n;
-			*pd = (char *)0;
+			*pd = (char *) 0;
 			*dlen = 0;
 		}
 	}
@@ -143,7 +143,7 @@ int Http_reponse_code(const char *b, size_t n)
 {
 	int r = -1;
 
-	for (; n && *b != ' ' && *b != '\r' && *b != '\n'; b++, n--) ;
+	for (; n && *b != ' ' && *b != '\r' && *b != '\n'; b++, n--);
 	if (!n || *b != ' ')
 		r = -1;
 	else {
@@ -175,7 +175,7 @@ int Http_get_header(const char *b, int n, const char *header, char *v)
 	for (; n >= 0;) {
 		e = strchr(b, '\n');
 		if (!e)
-			r = n;	/* last line */
+			r = n; /* last line */
 		else {
 			r = e - b;
 			r++;
@@ -193,6 +193,6 @@ int Http_get_header(const char *b, int n, const char *header, char *v)
 		}
 		b += r;
 		n -= r;
-	}			/* end for */
+	} /* end for */
 	return -1;
 }

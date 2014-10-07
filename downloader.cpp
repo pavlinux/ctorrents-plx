@@ -56,24 +56,24 @@ void Downloader()
 
 		if (f_poll) {
 			FD_ZERO(&rfd);
-			FD_ZERO(&wfd);	// remove non-peers from sets
-			maxsleep = 0;	// waited for bandwidth--poll now
+			FD_ZERO(&wfd); // remove non-peers from sets
+			maxsleep = 0; // waited for bandwidth--poll now
 		} else {
 			WORLD.DontWaitBW();
 			if (WORLD.IsIdle()) {
 				f_idleused = 0;
 				if (BTCONTENT.CheckedPieces() <
-				    BTCONTENT.GetNPieces()
-				    && !BTCONTENT.NeedFlush()) {
+					BTCONTENT.GetNPieces()
+					&& !BTCONTENT.NeedFlush()) {
 					if (BTCONTENT.CheckNextPiece() < 0) {
 						CONSOLE.Warning(1,
-								"Error while checking piece %d of %d",
-								(int)(BTCONTENT.
-								      CheckedPieces
-								      ()),
-								(int)(BTCONTENT.
-								      GetNPieces
-								      ()));
+							"Error while checking piece %d of %d",
+							(int) (BTCONTENT.
+							CheckedPieces
+							()),
+							(int) (BTCONTENT.
+							GetNPieces
+							()));
 						Tracker.SetStoped();
 						maxsleep = 2;
 					} else
@@ -90,7 +90,7 @@ void Downloader()
 						maxfd = r;
 				}
 				if (!f_idleused || concheck <= now - 2
-				    || WORLD.IsIdle()) {
+					|| WORLD.IsIdle()) {
 					concheck = now;
 					r = CONSOLE.IntervalCheck(&rfd, &wfd);
 					if (r > maxfd)
@@ -114,22 +114,22 @@ void Downloader()
 		rfdnext = rfd;
 		wfdnext = wfd;
 
-		if (maxsleep < 0) {	//not yet set
-			maxsleep = WORLD.WaitBW();	// must do after intervalchecks!
+		if (maxsleep < 0) { //not yet set
+			maxsleep = WORLD.WaitBW(); // must do after intervalchecks!
 			if (maxsleep <= -100)
 				maxsleep = 0;
 			else if (maxsleep <= 0 || maxsleep > MAX_SLEEP)
 				maxsleep = MAX_SLEEP;
 		}
 
-		timeout.tv_sec = (long)maxsleep;
-		timeout.tv_usec = (long)((maxsleep - (long)maxsleep) * 1000000);
+		timeout.tv_sec = (long) maxsleep;
+		timeout.tv_usec = (long) ((maxsleep - (long) maxsleep) * 1000000);
 
 		WORLD.UnLate();
 		nfds = select(maxfd + 1, &rfd, &wfd, (fd_set *) 0, &timeout);
 		if (nfds < 0) {
 			CONSOLE.Debug("Error from select:  %s",
-				      strerror(errno));
+				strerror(errno));
 			FD_ZERO(&rfdnext);
 			FD_ZERO(&wfdnext);
 			nfds = 0;
@@ -150,16 +150,16 @@ void Downloader()
 		if (!f_poll && nfds > 0) {
 			if (T_FREE != Tracker.GetStatus())
 				Tracker.SocketReady(&rfd, &wfd, &nfds, &rfdnext,
-						    &wfdnext);
+				&wfdnext);
 			if (nfds > 0 && T_FREE != CTCS.GetStatus())
 				CTCS.SocketReady(&rfd, &wfd, &nfds, &rfdnext,
-						 &wfdnext);
+				&wfdnext);
 			if (nfds > 0)
 				CONSOLE.User(&rfd, &wfd, &nfds, &rfdnext,
-					     &wfdnext);
+				&wfdnext);
 		}
 		if (nfds > 0)
 			WORLD.AnyPeerReady(&rfd, &wfd, &nfds, &rfdnext,
-					   &wfdnext);
+			&wfdnext);
 	} while (Tracker.GetStatus() != T_FINISHED || Tracker.IsRestarting());
 }

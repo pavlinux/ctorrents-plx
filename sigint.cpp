@@ -1,4 +1,4 @@
-#include "sigint.h"		// def.h
+#include "sigint.h"
 
 #include <sys/types.h>
 #include <signal.h>
@@ -11,29 +11,33 @@
 
 extern "C" {
 
-    RETSIGTYPE sig_catch(int sig_no) {
-        if (SIGINT == sig_no || SIGTERM == sig_no) {
-            Tracker.ClearRestart();
-            Tracker.SetStoped();
-            signal(sig_no, sig_catch2);
-        }
-    }
+	RETSIGTYPE sig_catch(int sig_no)
+	{
+		if (SIGINT == sig_no || SIGTERM == sig_no) {
+			Tracker.ClearRestart();
+			Tracker.SetStoped();
+			signal(sig_no, sig_catch2);
+		}
+	}
 
-    RETSIGTYPE sig_catch2(int sig_no) {
-        if (SIGINT == sig_no || SIGTERM == sig_no) {
-            if (cfg_cache_size)
-                BTCONTENT.FlushCache();
-            BTCONTENT.SaveBitfield();
-            WORLD.CloseAll();
-            signal(sig_no, SIG_DFL);
-            raise(sig_no);
-        }
-    }
+	RETSIGTYPE sig_catch2(int sig_no)
+	{
+		if (SIGINT == sig_no || SIGTERM == sig_no) {
+			if (cfg_cache_size)
+				BTCONTENT.FlushCache();
+			BTCONTENT.SaveBitfield();
+			WORLD.CloseAll();
+			signal(sig_no, SIG_DFL);
+			raise(sig_no);
+		}
+	}
 
-    // Handler for other signals
-RETSIGTYPE signals(int sig_no) {
-        return CONSOLE.Signal(sig_no);
-    }
+	// Handler for other signals
+
+	RETSIGTYPE signals(int sig_no)
+	{
+		return CONSOLE.Signal(sig_no);
+	}
 
 } // extern "C"
 
@@ -47,11 +51,11 @@ void sig_setup()
 	struct sigaction handler;
 	handler.sa_handler = signals;
 	sigemptyset(&(handler.sa_mask));
-	handler.sa_flags = 0;	// SA_RESTART is not set
-	sigaction(SIGTTOU, &handler, (struct sigaction *)0);
+	handler.sa_flags = 0; // SA_RESTART is not set
+	sigaction(SIGTTOU, &handler, (struct sigaction *) 0);
 
 	// Likewise with input after SIGTTIN
-	sigaction(SIGTTIN, &handler, (struct sigaction *)0);
+	sigaction(SIGTTIN, &handler, (struct sigaction *) 0);
 
 	signal(SIGCONT, signals);
 	signal(SIGTSTP, signals);

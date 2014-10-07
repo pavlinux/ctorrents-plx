@@ -11,8 +11,8 @@
 extern size_t cfg_req_slice_size;
 extern size_t quit_after_download;
 
-#define MAX_METAINFO_FILESIZ	(4*1024*1024)
-#define DEFAULT_SLICE_SIZE (16*1024)
+#define MAX_METAINFO_FILESIZ    (4*1024*1024)
+#define DEFAULT_SLICE_SIZE      (16*1024)
 
 // According to specs the max slice size is 128K.  While most clients now do
 // not accept a value that large, we want max compatibility.
