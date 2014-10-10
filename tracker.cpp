@@ -36,13 +36,13 @@ btTracker::btTracker()
 	m_status = T_FREE;
 	m_f_started = m_f_stoped = m_f_completed = m_f_restart = 0;
 
-        m_sin.sin_family = AF_INET;
-        m_sin.sin_port = 80;
-        m_sin.sin_addr.s_addr = INADDR_ANY;
-        m_f_boguspeercnt = 0;
-        m_reserved = 0;
-        m_default_interval = 15;
-        m_ok_click = 0;
+	m_sin.sin_family = AF_INET;
+	m_sin.sin_port = 80;
+	m_sin.sin_addr.s_addr = INADDR_ANY;
+	m_f_boguspeercnt = 0;
+	m_reserved = 0;
+	m_default_interval = 15;
+	m_ok_click = 0;
 
 	m_interval = 15;
 	m_peers_count = m_seeds_count = 0;
@@ -125,7 +125,9 @@ int btTracker::_UpdatePeerList(char *buf, size_t bufsiz)
 	size_t i, pos, tmpport;
 	size_t cnt = 0;
 
-	struct sockaddr_in addr;
+	struct sockaddr_in addr = {0, 0,
+		{0},
+		{0}};
 	memset((void *) &addr, 0, sizeof(addr));
 
 	if (decode_query(buf, bufsiz, "failure reason", &ps, &i, (int64_t *) 0, QUERY_STR)) {
