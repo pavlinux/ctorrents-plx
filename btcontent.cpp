@@ -92,6 +92,19 @@ btContent::btContent()
 	m_flushq = (BTFLUSH *) 0;
 	m_filters = m_current_filter = (BFNODE *) 0;
 	m_prevdlrate = 0;
+
+	m_hashtable_length = 0;
+	m_piece_length = 0;
+	m_npieces = 0;
+	m_left_bytes = 0;
+	m_cache = 0;
+	m_cache_hit = 0;
+	m_cache_miss = 0;
+	m_cache_pre = 0;
+	m_cache_eval_time = 0;
+	m_hash_failures = 0;
+	m_dup_blocks = 0;
+	m_unwanted_blocks = 0;
 }
 
 int btContent::CreateMetainfoFile(const char *mifn)
