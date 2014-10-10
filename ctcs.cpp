@@ -217,7 +217,7 @@ int Ctcs::Send_Protocol()
 int Ctcs::Send_Torrent(const unsigned char *peerid, char *torrent)
 {
 	char message[CTCS_BUFSIZE];
-	char txtid[PEER_ID_LEN * 2 + 3];
+	char txtid[PEER_ID_LEN * 2 + 3] = {'\0'};
 
 	TextPeerID(peerid, txtid);
 
@@ -771,7 +771,7 @@ int Ctcs::Send_Peers()
 {
 	btPeer *peer = 0;
 	char message[CTCS_BUFSIZE];
-	char txtid[PEER_ID_LEN * 2 + 3];
+	char txtid[PEER_ID_LEN * 2 + 3] = {'\0'};
 	struct sockaddr_in psin;
 	int r = 0;
 

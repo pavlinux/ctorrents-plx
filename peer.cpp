@@ -1237,7 +1237,7 @@ void btPeer::CloseConnection()
 
 int btPeer::HandShake()
 {
-	char txtid[PEER_ID_LEN * 2 + 3];
+	char txtid[PEER_ID_LEN * 2 + 3] = {'\0'};
 	ssize_t r = stream.Feed();
 	if (r < 0) {
 		if (arg_verbose)

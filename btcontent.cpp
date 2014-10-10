@@ -1202,10 +1202,6 @@ ssize_t btContent::WriteSlice(char *buf, size_t idx, size_t off, size_t len)
 
 ssize_t btContent::CacheIO(char *buf, uint64_t off, size_t len, int method)
 {
-	BTCACHE *p;
-	BTCACHE *pp = (BTCACHE *) 0;
-	BTCACHE *pnew = (BTCACHE *) 0;
-
 	if (len >= cfg_cache_size * 1024 * 768) { // 75% of cache limit
 		if (buf)
 			return m_btfiles.IO(buf, off, len, method);
@@ -1213,10 +1209,11 @@ ssize_t btContent::CacheIO(char *buf, uint64_t off, size_t len, int method)
 			return 0;
 	}
 
-	if (arg_verbose && 0 == method)
+	if (arg_verbose && 0 == method) {
 		CONSOLE.Debug("Read to %s %d/%d/%d", buf ? "buffer" : "cache",
-		(int) (off / m_piece_length),
-		(int) (off % m_piece_length), (int) len);
+			(int) (off / m_piece_length),
+			(int) (off % m_piece_length), (int) len);
+	}
 
 	if (m_cache_size < m_cache_used + len)
 		CacheClean(len);
@@ -1226,7 +1223,7 @@ ssize_t btContent::CacheIO(char *buf, uint64_t off, size_t len, int method)
 	if (0 == method && buf && m_btfiles.IO(buf, off, len, method) < 0)
 		return -1;
 
-	pnew = new BTCACHE;
+	BTCACHE *pnew = new BTCACHE;
 
 	if (!pnew)
 		return(method && buf) ? m_btfiles.IO(buf, off, len, method) : 0;
@@ -1262,8 +1259,19 @@ ssize_t btContent::CacheIO(char *buf, uint64_t off, size_t len, int method)
 
 	m_cache_newest = pnew;
 
+	BTCACHE *p;
+	BTCACHE *pp = (BTCACHE *) 0;
+
 	// find insert point: after pp, before p.
-	size_t idx = off / m_piece_length;
+
+	/* No devide by zero */
+	if (0 == m_piece_length) {
+		if (arg_verbose && 0 == method)
+			CONSOLE.Debug("Zero piece length");
+		return -1;
+	}
+	size_t idx = (off / m_piece_length);
+
 	p = m_cache[idx];
 	if (p)
 		pp = p->bc_prev;
@@ -1298,9 +1306,9 @@ size_t btContent::GetPieceLength(size_t idx)
 
 int btContent::CheckExist()
 {
-	size_t idx = 0;
-	size_t percent = GetNPieces() / 100;
-	unsigned char md[20];
+	size_t idx = 0u;
+	size_t percent = GetNPieces() / 100u;
+	unsigned char md[20] = {0u};
 
 	if (!percent)
 		percent = 1;

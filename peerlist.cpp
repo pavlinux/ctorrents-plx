@@ -52,17 +52,17 @@ PeerList::PeerList()
 
 	m_head = m_dead = (PEERNODE *) 0;
 	m_listen_sock = INVALID_SOCKET;
-	m_peers_count = m_seeds_count = m_conn_count = m_downloads = 0;
-	m_f_pause = m_f_dlate = m_f_ulate = m_endgame = 0;
+	m_peers_count = m_seeds_count = m_conn_count = m_downloads = 0u;
+	m_f_pause = m_f_dlate = m_f_ulate = m_endgame = 0u;
 	m_max_unchoke = MIN_UNCHOKES;
-	m_defer_count = m_missed_count = 0;
-	m_upload_count = m_up_opt_count = 0;
+	m_defer_count = m_missed_count = 0u;
+	m_upload_count = m_up_opt_count = 0u;
 	m_prev_limit_up = cfg_max_bandwidth_up;
-	m_dup_req_pieces = 0;
-	m_ul_limited = 0;
-	m_f_limitd = 0;
-	m_f_limitu = 0;
-	m_reserved = 0;
+	m_dup_req_pieces = 0u;
+	m_ul_limited = 0u;
+	m_f_limitd = 0u;
+	m_f_limitu = 0u;
+	m_reserved = 0u;
 }
 
 PeerList::~PeerList()
@@ -236,7 +236,10 @@ int PeerList::IntervalCheck(fd_set * rfdp, fd_set * wfdp)
 
 	// No pause check here--stay ready by continuing to acquire peers.
 	if (!Tracker.IsQuitting()) {
+
 		struct sockaddr_in addr;
+		memset((void *) &addr, 0, sizeof(struct sockaddr_in));
+
 		for (; NEED_MORE_PEERS() && !IPQUEUE.IsEmpty();) {
 			if (IPQUEUE.Pop(&addr) < 0)
 				break;
