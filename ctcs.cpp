@@ -40,9 +40,9 @@ Ctcs::Ctcs()
 	m_last_timestamp = m_sent_ctstatus_time = m_statustime = (time_t) 0;
 	m_sent_ctstatus = 0;
 	m_sent_ctbw = 0;
-	m_sin.sin_family = 0;
+	m_sin.sin_family = AF_INET;
 	m_sin.sin_port = 2780;
-	m_sin.sin_addr = 0;
+	m_sin.sin_addr.s_addr = INADDR_ANY;
 }
 
 Ctcs::~Ctcs()
