@@ -160,7 +160,7 @@ int PeerList::NewPeer(struct sockaddr_in addr, SOCKET sk)
 				CONSOLE.Debug("Connect to peer at %s:%hu failed: %s",
 				inet_ntoa(addr.sin_addr), ntohs(addr.sin_port), strerror(errno));
 			CLOSE_SOCKET(sk);
-			goto err;
+			return -1;
 		}
 
 		peer = new btPeer;
