@@ -477,6 +477,8 @@ int Ctcs::Set_Config(const char *origmsg)
 			"error, failed to allocate memory for config");
 		return -1;
 	}
+
+	memset((void *) &msgbuf, 0, strlen(origmsg) + 1);
 	strcpy(msgbuf, origmsg);
 
 	if (m_protocol >= 3) {
@@ -640,14 +642,14 @@ int Ctcs::Set_Config(const char *origmsg)
 				CONSOLE.Warning(1,
 				"error, failed to allocate memory for option");
 			else {
-				strncpy(arg_file_to_download, msgbuf,
-					p - msgbuf);
+				strncpy(arg_file_to_download, msgbuf, p - msgbuf);
 				arg_file_to_download[p - msgbuf] = '\0';
 				strcat(arg_file_to_download, ",*"); // mock old behavior
 			}
 			BTCONTENT.SetFilter();
 		}
 		if (m_protocol >= 2) {
+			memset((void *) &msgbuf, 0, strlen(origmsg) + 1);
 			if (!(msgbuf = strchr(msgbuf, ' ')))
 				goto err;
 			if (*++msgbuf != '.') {
@@ -656,11 +658,13 @@ int Ctcs::Set_Config(const char *origmsg)
 			}
 		}
 		if (m_protocol == 1) {
+			memset((void *) &msgbuf, 0, strlen(origmsg) + 1);
 			if (!(msgbuf = strchr(msgbuf, ' ')))
 				goto err;
 			++msgbuf;
 			// old cfg_exit_zero_peers option
 		}
+		memset((void *) &msgbuf, 0, strlen(origmsg) + 1);
 		if (!(msgbuf = strchr(msgbuf, ' ')))
 			goto err;
 		if (*++msgbuf != '.') {
@@ -673,11 +677,13 @@ int Ctcs::Set_Config(const char *origmsg)
 	}
 
 	delete[]savemsgbuf; // Fix CID:21180
+	delete[]msgbuf;
 	return 0;
 
 err:
 	CONSOLE.Warning(2, "Malformed or invalid input from CTCS: %s", origmsg);
 	delete[]savemsgbuf; // Fix CID:21180
+	delete[]msgbuf;
 	return -1;
 }
 
