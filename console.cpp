@@ -375,7 +375,8 @@ int Console::IntervalCheck(fd_set * rfdp, fd_set * wfdp __attribute__((unused)))
 	}
 
 	if (!m_streams[O_INPUT]->IsSuspended()) {
-		FD_SET(m_streams[O_INPUT]->Fileno(), rfdp);
+		if (m_streams[O_INPUT]->Fileno() >= 0)
+			FD_SET(m_streams[O_INPUT]->Fileno(), rfdp);
 		return m_streams[O_INPUT]->Fileno();
 	} else {
 		if (m_streams[O_INPUT]->Fileno() >= 0)
