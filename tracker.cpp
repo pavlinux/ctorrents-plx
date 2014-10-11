@@ -656,8 +656,9 @@ int btTracker::IntervalCheck(fd_set * rfdp, fd_set * wfdp)
 			}
 
 			FD_SET(m_sock, rfdp);
-			if (m_status == T_CONNECTING)
+			if (m_status == T_CONNECTING && m_sock >= 0) // FIX CID:28170
 				FD_SET(m_sock, wfdp);
+
 		} else if (now < m_last_timestamp)
 			m_last_timestamp = now; // time reversed
 	} else if (T_CONNECTING == m_status) {

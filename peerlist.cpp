@@ -734,7 +734,7 @@ size_t PeerList::What_Can_Duplicate(BitField & bf, const btPeer * proposer,
 	if (mark < slots && data[mark].count == 1)
 		m_dup_req_pieces++;
 
-	size_t data_mark_idx = (mark < slots) ? data[mark].idx : 0;
+	size_t data_mark_idx = (mark < slots) ? data[mark].idx : 0u;
 
 	CONSOLE.Debug("%d dup req pieces", (int) m_dup_req_pieces);
 	delete[]data;
