@@ -473,15 +473,12 @@ char *Ctcs::ConfigMsg(const char *name, const char *type, const char *range,
 int Ctcs::Set_Config(const char *origmsg)
 {
 	char *msgbuf = new char[strlen(origmsg) + 1];
-	char *savemsgbuf = msgbuf; // Fix CID:21180
-
 	if (!msgbuf) {
-		CONSOLE.Warning(1,
-			"error, failed to allocate memory for config");
+		CONSOLE.Warning(1, "error, failed to allocate memory for config");
 		return -1;
 	}
-
-	memset((void *) &msgbuf, 0, strlen(origmsg) + 1);
+	char *savemsgbuf = msgbuf; // Fix CID:21180
+	memset((void *) &msgbuf, '\0', strlen(origmsg) + 1);
 	strcpy(msgbuf, origmsg);
 
 	if (m_protocol >= 3) {
@@ -652,7 +649,6 @@ int Ctcs::Set_Config(const char *origmsg)
 			BTCONTENT.SetFilter();
 		}
 		if (m_protocol >= 2) {
-			memset((void *) &msgbuf, 0, strlen(origmsg) + 1);
 			if (!(msgbuf = strchr(msgbuf, ' ')))
 				goto err;
 			if (*++msgbuf != '.') {
@@ -661,15 +657,14 @@ int Ctcs::Set_Config(const char *origmsg)
 			}
 		}
 		if (m_protocol == 1) {
-			memset((void *) &msgbuf, 0, strlen(origmsg) + 1);
 			if (!(msgbuf = strchr(msgbuf, ' ')))
 				goto err;
 			++msgbuf;
 			// old cfg_exit_zero_peers option
 		}
-		memset((void *) &msgbuf, 0, strlen(origmsg) + 1);
-		if (!(msgbuf = strchr(msgbuf, ' ')))
+		if (!(msgbuf = strchr(msgbuf, ' '))) {
 			goto err;
+		}
 		if (*++msgbuf != '.') {
 			if (atoi(msgbuf)) {
 				if (!WORLD.IsPaused())
