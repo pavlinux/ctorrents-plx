@@ -1,4 +1,4 @@
-#include "./def.h"
+#include "def.h"
 #include <sys/types.h>
 
 #include <unistd.h>
@@ -31,11 +31,9 @@ int param_check(int argc, char **argv);
 
 void Random_init(void)
 {
-
-	unsigned long seed;
-
-	u_int8_t buffer[64];
 	struct timeval tv;
+	unsigned long seed;
+	u_int8_t buffer[64];
 
 	gettimeofday(&tv, (__timezone_ptr_t) 0);
 	seed = (unsigned long) (tv.tv_usec + (tv.tv_sec * getpid()));
@@ -50,7 +48,6 @@ void Random_init(void)
 
 int main(int argc, char **argv)
 {
-
 	try {
 		if (argc < 2) {
 			throw argc;
