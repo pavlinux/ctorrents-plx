@@ -10,7 +10,6 @@
 #include "config.h"
 
 #ifndef HAVE_STRNSTR
-#include <string.h>
 
 #define NULLC ((char *)0)
 
