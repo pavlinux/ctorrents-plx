@@ -53,7 +53,7 @@ int main(int argc, char **argv)
 			throw argc;
 		}
 	} catch (int) {
-		//usage();
+		usage();
 		exit(1);
 	}
 

@@ -159,11 +159,11 @@ int Http_reponse_code(const char *b, size_t n)
 int Http_get_header(const char *b, int n, const char *header, char *v)
 {
 	const char *e;
-	char h[ARRAY_SIZE] = {'\0'};
+	char h[ARRAY_SIZE + 1] = {'\0'};
 	int r, header_len;
 
 	strncpy(h, header, strnlen(header, ARRAY_SIZE));
-	strncat(h, ": ", ARRAY_SIZE);
+	strcat(h, ": ");
 	header_len = strlen(h);
 
 	/* remove status line. */
