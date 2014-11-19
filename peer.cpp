@@ -132,6 +132,10 @@ btPeer::btPeer()
 
 	rate_dl.SetSelf(Self.DLRatePtr());
 	rate_ul.SetSelf(Self.ULRatePtr());
+
+	m_lastmsg = '\0';
+	m_reserved = '\0';
+	m_state.reserved = '\0';
 }
 
 void btPeer::CopyStats(btPeer * peer)
