@@ -154,14 +154,16 @@ int Http_reponse_code(const char *b, size_t n)
 	return r;
 }
 
+#define ARRAY_SIZE 64
+
 int Http_get_header(const char *b, int n, const char *header, char *v)
 {
 	const char *e;
-	char h[64];
+	char h[ARRAY_SIZE] = '\0';
 	int r, header_len;
 
-	strcpy(h, header);
-	strcat(h, ": ");
+	strncpy(h, header, strnlen(header, ARRAY_SIZE));
+	strncat(h, ": ", ARRAY_SIZE);
 	header_len = strlen(h);
 
 	/* remove status line. */
