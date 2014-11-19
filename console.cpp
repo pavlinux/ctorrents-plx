@@ -534,15 +534,41 @@ void Console::User(fd_set * rfdp, fd_set * wfdp __attribute__((unused)),
 					"Completion command", "", "");
 				break;
 			case 'd': // download bw limit
-				/* coverity[MISSING_BREAK] it's not a bug, it's a feature */
+				if (arg_ctcs)
+					Interact
+					("Note, changes may be overridden by CTCS.");
+				inc = 1;
+				count = 0;
+				Interact_n("");
+				break;
 			case 'u': // upload bw limit
 				if (arg_ctcs)
 					Interact
 					("Note, changes may be overridden by CTCS.");
+				inc = 1;
+				count = 0;
+				Interact_n("");
+				break;
 			case 'e': // seed time
+				inc = 1;
+				count = 0;
+				Interact_n("");
+				break;
 			case 'E': // seed ratio
+				inc = 1;
+				count = 0;
+				Interact_n("");
+				break;
 			case 'm': // min peers
+				inc = 1;
+				count = 0;
+				Interact_n("");
+				break;
 			case 'M': // max peers
+				inc = 1;
+				count = 0;
+				Interact_n("");
+				break;
 			case 'C': // max cache size
 				inc = 1;
 				count = 0;
