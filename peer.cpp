@@ -1076,7 +1076,7 @@ int btPeer::PieceDeliver(size_t mlen)
 	} else { // not requested--not saved
 		if (m_last_timestamp - m_cancel_time >
 			(m_latency ? (m_latency * 2) : 60)) {
-			char msg[40];
+			char msg[40] = {0};
 			BTCONTENT.CountUnwantedBlock();
 			sprintf(msg, "Unrequested piece %d/%d/%d", (int) idx,
 				(int) off, (int) len);
