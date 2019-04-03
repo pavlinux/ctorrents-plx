@@ -560,7 +560,7 @@ int btTracker::Connect()
 int btTracker::SendRequest()
 {
 	struct sockaddr_in addr;
-	char REQ_BUFFER[2 * MAXPATHLEN];
+	char REQ_BUFFER[2 * MAXPATHLEN] = {'\0'};
 	const char *str_event[] = {"started", "stopped", "completed"};
 	char *event;
 
@@ -606,9 +606,9 @@ int btTracker::SendRequest()
 		strcat(REQ_BUFFER, REQ_HOST);
 	}
 
-	strncat(REQ_BUFFER, "\r\nUser-Agent: ", 14);
+	strncat(REQ_BUFFER, "\r\nUser-Agent: ", 14 + 1);
 	strncat(REQ_BUFFER, cfg_user_agent, strlen(cfg_user_agent));
-	strncat(REQ_BUFFER, "\r\n\r\n", 4);
+	strncat(REQ_BUFFER, "\r\n\r\n", 4 + 1);
 	// hc
 	//CONSOLE.Warning(0, "SendRequest: %s", REQ_BUFFER);
 
