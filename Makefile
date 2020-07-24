@@ -11,18 +11,24 @@ CXX ?= g++
 CC  ?= gcc
 
 ifeq ($(shell getconf LONG_BIT), 64)
-    ARCH_FLAGS=-m64 -msse -msse2 -msse3
+    X86_FLAGS=-m64 -mtune=nocona -msse -msse2 -msse3
 endif
 ifeq ($(shell getconf LONG_BIT), 32)
-    ARCH_FLAGS=-m32
+    X86_FLAGS=-m32
 endif
 
-FLAGS := ${ARCH_FLAGS} -mtune=nocona -Os -g0 -pipe #-W -Wextra -Wall
-#FLAGS := ${ARCH_FLAGS} -mtune=generic -O0 -g3 -ggdb3 -gdwarf-4 -fno-omit-frame-pointer -mno-mmx -mno-3dnow
-CXXFLAGS :=-std=gnu++11 ${FLAGS}
-CFLAGS :=-std=gnu99 ${FLAGS}
+X86_CFLAGS := ${X86_FLAGS} -Os -g0 -pipe -W -Wextra -Wall
 
-LINK ?= g++
+ZYNQ_CFLAGS := -march=armv7-a -mtune=cortex-a9 -mfloat-abi=hard -mfpu=vfpv3-d16 -mthumb -mtls-dialect=gnu -fgnu89-inline -fmerge-all-constants -frounding-math
+ZYNC_CXXFLAGS := -march=armv7-a -mtune=cortex-a9 -mfloat-abi=hard -mfpu=vfpv3-d16 -mthumb -mtls-dialect=gnu -fmerge-all-constants -frounding-math
+
+####################
+#   Result Flags   #
+####################
+CXXFLAGS :=-std=gnu++11 ${CXXFLAGS}
+CFLAGS :=-std=gnu99 ${CFLAGS}
+
+LINK ?= ${CXX}
 LDFLAGS := ${ARCH_FLAGS} -lrt -Wl,-O1,-hashvals,--hash-style=both -pipe
 LIBS :=-L. -static-libstdc++ -static-libgcc
 # -Wl,-Bstatic -lssl -Wl,-Bstatic -lcrypto
@@ -34,7 +40,7 @@ ifeq ($(shell $(CC) -v 2>&1 | grep -c "clang version"), 1)
     CC := clang
     export WITH_LTO = 0
 else
-    CC := gcc
+    CC ?= gcc
 endif
 
 # Link Time Optimization
@@ -68,9 +74,7 @@ ifneq (,$(findstring DDEBUG,$(CXXFLAGS)))
     LINK   += -lgcov -fprofile-arcs -ftest-coverage
 endif
 
-VERSION = 0.0.8
-
-
+VERSION = 0.1.0
 
 .SUFFIXES: .o .cpp .c
 
